@@ -11,7 +11,9 @@ import {
   getNewArrivals,
   getSearchSuggestions,
 } from '../controllers/productController.js';
+import { uploadSingleImage } from '../controllers/uploadController.js';
 import { protect, authorize } from '../middleware/auth.js';
+import { uploadMultiple, uploadSingle, handleMulterError } from '../middleware/multer.js';
 
 const router = express.Router();
 
@@ -26,6 +28,7 @@ router.get('/:id', getProduct);
 router.post('/', protect, authorize('admin'), createProduct);
 router.put('/:id', protect, authorize('admin'), updateProduct);
 router.delete('/:id', protect, authorize('admin'), deleteProduct);
-router.post('/upload', protect, authorize('admin'), uploadProductImage);
+router.post('/upload', protect, authorize('admin'), uploadMultiple, handleMulterError, uploadProductImage);
+router.post('/upload-single', protect, authorize('admin'), uploadSingle, handleMulterError, uploadSingleImage);
 
 export default router;

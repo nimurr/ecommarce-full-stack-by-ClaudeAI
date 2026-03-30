@@ -7,10 +7,11 @@ import {
   createCategory,
   updateCategory,
   deleteCategory,
-  uploadCategoryImage,
   getFeaturedCategories,
 } from '../controllers/categoryController.js';
+import { uploadCategoryImage } from '../controllers/uploadController.js';
 import { protect, authorize } from '../middleware/auth.js';
+import { uploadSingle, handleMulterError } from '../middleware/multer.js';
 
 const router = express.Router();
 
@@ -24,6 +25,6 @@ router.get('/:id', getCategory);
 router.post('/', protect, authorize('admin'), createCategory);
 router.put('/:id', protect, authorize('admin'), updateCategory);
 router.delete('/:id', protect, authorize('admin'), deleteCategory);
-router.post('/upload', protect, authorize('admin'), uploadCategoryImage);
+router.post('/upload', protect, authorize('admin'), uploadSingle, handleMulterError, uploadCategoryImage);
 
 export default router;

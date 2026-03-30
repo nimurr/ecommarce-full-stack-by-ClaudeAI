@@ -4,12 +4,12 @@ import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import morgan from 'morgan';
-import rateLimit from 'express-rate-limit';
 import mongoSanitize from 'express-mongo-sanitize';
 import xss from 'xss-clean';
 import hpp from 'hpp';
 import cookieParser from 'cookie-parser';
 import fileUpload from 'express-fileupload';
+import mongoose from 'mongoose';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -41,39 +41,36 @@ connectDB();
 // Initialize express app
 const app = express();
 
+// Serve static files for uploaded images
+app.use('/public/images', express.static(path.join(__dirname, 'public/images')));
+
 // Security middleware
 app.use(helmet()); // Set security headers
 app.use(mongoSanitize()); // Sanitize data against NoSQL injection
 app.use(xss()); // Prevent XSS attacks
 app.use(hpp()); // Prevent parameter pollution
 
-// Rate limiting
+// NOTE: Rate limiting disabled for better performance
+// You can enable it in production by uncommenting the code below
+/*
 const limiter = rateLimit({
-  windowMs: config.rateLimit.windowMs,
-  max: config.rateLimit.maxRequests,
+  windowMs: 15 * 60 * 1000,
+  max: 100,
   message: 'Too many requests from this IP, please try again later.',
 });
 app.use('/api', limiter);
-
-// Auth rate limiting (stricter)
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: config.rateLimit.authMax,
-  message: 'Too many authentication attempts, please try again later.',
-});
-app.use('/api/auth/login', authLimiter);
-app.use('/api/auth/register', authLimiter);
+*/
 
 // Body parser middleware
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Cookie parser
 app.use(cookieParser());
 
-// CORS middleware
+// CORS middleware - Allow all origins in development
 app.use(cors({
-  origin: [config.clientUrl, config.adminUrl],
+  origin: true, // Allow all origins
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -91,7 +88,7 @@ if (config.nodeEnv === 'development') {
 app.use(fileUpload({
   createParentPath: true,
   limits: {
-    fileSize: config.maxFileSize,
+    fileSize: config.maxFileSize * 2, // Increased limit
   },
   useTempFiles: true,
   tempFileDir: path.join(__dirname, '../temp'),
@@ -143,7 +140,7 @@ app.use(errorHandler);
 // Start server
 const PORT = config.port || 5000;
 
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`
 ╔═══════════════════════════════════════════════════════════╗
 ║                                                           ║
@@ -153,14 +150,50 @@ const server = app.listen(PORT, () => {
 ║   🔗 API: http://localhost:${PORT}/api                      ║
 ║   🌍 Environment: ${config.nodeEnv.padEnd(33)}║
 ║                                                           ║
+║   ✅ Rate Limiting: DISABLED                              ║
+║   ✅ Auto Restart: ENABLED                                ║
+║                                                           ║
 ╚═══════════════════════════════════════════════════════════╝
   `);
 });
 
-// Handle unhandled promise rejections
+// Keep server alive - Handle unhandled promise rejections
 process.on('unhandledRejection', (err, promise) => {
-  console.error(`❌ Error: ${err.message}`);
-  server.close(() => process.exit(1));
+  console.error('❌ Unhandled Rejection Error:', err.message);
+  console.log('🔄 Server will continue running...');
+  // Don't exit process, just log the error
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (err) => {
+  console.error('❌ Uncaught Exception:', err.message);
+  console.log('🔄 Server will continue running...');
+  // Don't exit process, just log the error
+});
+
+// MongoDB reconnection logic
+mongoose.connection.on('disconnected', () => {
+  console.warn('⚠️  MongoDB disconnected, attempting to reconnect...');
+  setTimeout(() => {
+    connectDB();
+  }, 5000); // Try to reconnect after 5 seconds
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('📥 SIGTERM signal received: closing HTTP server');
+  server.close(() => {
+    console.log('🔒 HTTP server closed');
+    process.exit(0);
+  });
+});
+
+process.on('SIGINT', () => {
+  console.log('📥 SIGINT signal received: closing HTTP server');
+  server.close(() => {
+    console.log('🔒 HTTP server closed');
+    process.exit(0);
+  });
 });
 
 export default app;

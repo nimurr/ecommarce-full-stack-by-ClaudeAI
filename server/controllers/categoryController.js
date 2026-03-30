@@ -206,36 +206,3 @@ export const getFeaturedCategories = asyncHandler(async (req, res) => {
     data: categories,
   });
 });
-
-// @desc    Upload category image
-// @route   POST /api/categories/upload
-// @access  Private/Admin
-// Note: Uses same upload logic as products
-export const uploadCategoryImage = asyncHandler(async (req, res) => {
-  // This will be handled by the upload middleware
-  if (!req.files || !req.files.image) {
-    res.status(400);
-    throw new Error('Please upload an image');
-  }
-
-  const file = req.files.image;
-
-  if (!file.mimetype.startsWith('image')) {
-    res.status(400);
-    throw new Error('Please upload an image file');
-  }
-
-  if (file.size > 5 * 1024 * 1024) {
-    res.status(400);
-    throw new Error('Image size should be less than 5MB');
-  }
-
-  // Upload to Cloudinary (import here to avoid circular dependency)
-  const { uploadToCloudinary } = await import('../config/cloudinary.js');
-  const result = await uploadToCloudinary(file, 'categories');
-
-  res.status(200).json({
-    success: true,
-    data: result,
-  });
-});

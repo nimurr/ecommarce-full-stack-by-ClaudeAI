@@ -1,6 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import Product from '../models/Product.js';
 import Category from '../models/Category.js';
+import config from '../config/config.js';
 import { uploadToCloudinary, deleteFromCloudinary } from '../config/cloudinary.js';
 
 // @desc    Get all products with filtering, sorting, pagination
@@ -238,16 +239,48 @@ export const deleteProduct = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Upload product image
+// @desc    Upload product images
 // @route   POST /api/products/upload
 // @access  Private/Admin
 export const uploadProductImage = asyncHandler(async (req, res) => {
-  if (!req.files || !req.files.image) {
+  if (!req.files || req.files.length === 0) {
+    res.status(400);
+    throw new Error('Please upload at least one image');
+  }
+
+  const images = req.files.map(file => ({
+    url: `${config.apiUrl.replace('/api', '')}/public/images/${file.filename}`,
+    filename: file.filename,
+    size: file.size,
+  }));
+
+  res.status(200).json({
+    success: true,
+    count: images.length,
+    data: images,
+  });
+});
+
+// @desc    Upload single product image
+// @route   POST /api/products/upload-single
+// @access  Private/Admin
+export const uploadSingleImage = asyncHandler(async (req, res) => {
+  if (!req.file) {
     res.status(400);
     throw new Error('Please upload an image');
   }
 
-  const file = req.files.image;
+  const imageData = {
+    url: `${config.apiUrl.replace('/api', '')}/public/images/${req.file.filename}`,
+    filename: req.file.filename,
+    size: req.file.size,
+  };
+
+  res.status(200).json({
+    success: true,
+    data: imageData,
+  });
+});
 
   // Check file type
   if (!file.mimetype.startsWith('image')) {
