@@ -28,7 +28,7 @@ const Products = () => {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Products ({total})</h1>
-        <Link to="/admin/products/new" className="btn-primary flex items-center gap-2">
+        <Link to="/products/new" className="btn-primary flex items-center gap-2">
           <FiPlus className="w-5 h-5" />
           Add Product
         </Link>
@@ -100,7 +100,7 @@ const Products = () => {
                     </td>
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-2">
-                        <Link to={`/admin/products/${product._id}/edit`} className="p-2 hover:bg-gray-200 rounded">
+                        <Link to={`/products/${product._id}/edit`} className="p-2 hover:bg-gray-200 rounded">
                           <FiEdit2 className="w-4 h-4" />
                         </Link>
                         <button onClick={() => handleDelete(product._id)} className="p-2 hover:bg-red-100 text-red-600 rounded">

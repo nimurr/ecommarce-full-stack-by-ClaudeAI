@@ -20,7 +20,7 @@ const Login = () => {
     e.preventDefault();
     const result = await dispatch(adminLogin(formData));
     if (adminLogin.fulfilled.match(result)) {
-      navigate('/admin', { replace: true });
+      navigate('/', { replace: true });
     }
   };
 

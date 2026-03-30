@@ -1,7 +1,7 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { FiHome, FiPackage, FiList, FiShoppingCart, FiUsers, FiStar, FiTag, FiLogOut, FiMenu, FiX } from 'react-icons/fi';
-import { adminLogout } from './store/slices/authSlice';
+import { adminLogout } from '../store/slices/authSlice';
 import { useState } from 'react';
 
 const Layout = () => {
@@ -38,11 +38,11 @@ const Layout = () => {
         </div>
         <nav className="p-4 space-y-1">
           {navigation.map((item) => {
-            const isActive = location.pathname === `/admin/${item.href}` || (item.href === '' && location.pathname === '/admin');
+            const isActive = location.pathname === `/${item.href}` || (item.href === '' && location.pathname === '/');
             return (
               <Link
                 key={item.name}
-                to={`/admin/${item.href}`}
+                to={`/${item.href}`}
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                   isActive ? 'bg-primary-600 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-white'
                 }`}
