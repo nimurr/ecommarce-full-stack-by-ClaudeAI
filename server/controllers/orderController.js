@@ -197,9 +197,8 @@ export const createOrder = asyncHandler(async (req, res) => {
   // Total
   const totalPrice = itemsPrice + shippingPrice + taxPrice - discountPrice;
 
-  // Create order
-  const order = await Order.create({
-    user: req.user.id,
+  // Create order (user is optional for guest checkout)
+  const orderData = {
     orderItems: validatedItems,
     shippingAddress,
     paymentMethod,
@@ -211,7 +210,14 @@ export const createOrder = asyncHandler(async (req, res) => {
     coupon: coupon?._id,
     couponCode: couponCode?.toUpperCase(),
     notes,
-  });
+  };
+
+  // Attach user if logged in
+  if (req.user) {
+    orderData.user = req.user.id;
+  }
+
+  const order = await Order.create(orderData);
 
   // Send order confirmation SMS
   try {

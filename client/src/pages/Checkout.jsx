@@ -45,11 +45,17 @@ const Checkout = () => {
       };
 
       const result = await dispatch(createOrder(orderData));
+      
       if (createOrder.fulfilled.match(result)) {
+        console.log('Order created:', result.payload);
         navigate(`/order-confirmation/${result.payload.orderNumber}`);
+      } else {
+        console.error('Order creation failed:', result.payload);
+        alert(result.payload?.message || 'Failed to create order. Please try again.');
       }
     } catch (error) {
-      console.error('Order creation failed:', error);
+      console.error('Order creation error:', error);
+      alert(error.message || 'Failed to create order. Please try again.');
     } finally {
       setLoading(false);
     }

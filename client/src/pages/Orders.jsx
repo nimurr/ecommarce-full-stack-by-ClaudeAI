@@ -90,7 +90,7 @@ const Orders = () => {
                   <div className="flex items-center gap-4">
                     <span className="font-bold text-lg">৳{order.totalPrice.toLocaleString()}</span>
                     <Link
-                      to={`/orders/${order._id}`}
+                      to={`/track-order/${order.orderNumber}`}
                       className="btn-primary text-sm py-2 px-4"
                     >
                       View Details <FiChevronRight className="inline ml-1" />

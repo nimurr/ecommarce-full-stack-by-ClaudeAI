@@ -11,7 +11,7 @@ import {
   trackOrder,
   getOrderStats,
 } from '../controllers/orderController.js';
-import { protect, authorize } from '../middleware/auth.js';
+import { protect, authorize, optionalAuth } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -21,7 +21,8 @@ router.get('/number/:orderNumber', getOrderByNumber);
 router.get('/', protect, authorize('admin'), getOrders);
 router.get('/:id', protect, getOrder);
 router.get('/:id/track', trackOrder);
-router.post('/', protect, createOrder);
+// Allow guest checkout (optional auth)
+router.post('/', optionalAuth, createOrder);
 router.put('/:id/status', protect, authorize('admin'), updateOrderStatus);
 router.put('/:id/payment', protect, updatePaymentStatus);
 router.put('/:id/cancel', protect, cancelOrder);
