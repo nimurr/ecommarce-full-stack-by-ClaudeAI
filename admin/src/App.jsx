@@ -14,11 +14,12 @@ import Settings from './pages/Settings';
 import Pages from './pages/Pages';
 import Brands from './pages/Brands';
 import SubAdmins from './pages/SubAdmins';
+import FacebookPixelSettings from './pages/FacebookPixelSettings';
 import Login from './pages/Login';
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useSelector((state) => state.auth);
-  if (!user || user.role !== 'admin' && user.role !== 'sub-admin') {
+  if (!user || (user.role !== 'admin' && user.role !== 'sub-admin')) {
     return <Navigate to="/login" replace />;
   }
   return children;
@@ -47,6 +48,7 @@ function App() {
         <Route path="pages" element={<Pages />} />
         <Route path="brands" element={<Brands />} />
         <Route path="sub-admins" element={<SubAdmins />} />
+        <Route path="facebook-pixel" element={<FacebookPixelSettings />} />
       </Route>
     </Routes>
   );

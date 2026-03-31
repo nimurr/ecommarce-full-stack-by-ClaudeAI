@@ -146,29 +146,32 @@ const settingsSchema = new mongoose.Schema({
     googleAnalyticsId: String,
   },
   
-  // Additional Settings
-  currency: {
-    type: String,
-    default: 'BDT',
-  },
-  currencySymbol: {
-    type: String,
-    default: '৳',
-  },
-  timezone: {
-    type: String,
-    default: 'Asia/Dhaka',
-  },
-  
-  // Maintenance Mode
-  maintenanceMode: {
-    enabled: {
+  // Marketing & Analytics
+  facebookPixel: {
+    pixelId: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    accessToken: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    isEnabled: {
       type: Boolean,
       default: false,
     },
-    message: {
+  },
+  googleAnalytics: {
+    trackingId: {
       type: String,
-      default: 'Site is under maintenance. Please check back soon.',
+      default: '',
+      trim: true,
+    },
+    isEnabled: {
+      type: Boolean,
+      default: false,
     },
   },
 }, {

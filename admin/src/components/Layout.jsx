@@ -1,6 +1,6 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { FiHome, FiPackage, FiList, FiShoppingCart, FiUsers, FiStar, FiTag, FiSettings, FiFileText, FiUserPlus, FiLogOut, FiMenu, FiX } from 'react-icons/fi';
+import { FiHome, FiPackage, FiList, FiShoppingCart, FiUsers, FiStar, FiTag, FiSettings, FiFileText, FiUserPlus, FiActivity, FiLogOut, FiMenu, FiX } from 'react-icons/fi';
 import { adminLogout } from '../store/slices/authSlice';
 import { useState } from 'react';
 
@@ -23,6 +23,7 @@ const Layout = () => {
     { name: 'Pages', href: 'pages', icon: FiFileText },
     { name: 'Sub-Admins', href: 'sub-admins', icon: FiUserPlus },
     { name: 'Settings', href: 'settings', icon: FiSettings },
+    { name: 'Facebook Pixel', href: 'facebook-pixel', icon: FiActivity },
   ];
 
   const handleLogout = () => {

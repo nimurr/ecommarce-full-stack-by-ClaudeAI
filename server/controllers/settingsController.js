@@ -1,5 +1,6 @@
 import asyncHandler from 'express-async-handler';
 import Settings from '../models/Settings.js';
+import facebookPixelService from '../services/facebookPixel.js';
 
 // @desc    Get settings
 // @route   GET /api/settings
@@ -12,9 +13,18 @@ export const getSettings = asyncHandler(async (req, res) => {
     settings = await Settings.create({});
   }
   
+  // Don't send sensitive data to client
+  const publicSettings = {
+    ...settings.toObject(),
+    facebookPixel: {
+      pixelId: settings.facebookPixel?.pixelId,
+      isEnabled: settings.facebookPixel?.isEnabled,
+    },
+  };
+  
   res.status(200).json({
     success: true,
-    data: settings,
+    data: publicSettings,
   });
 });
 
@@ -25,14 +35,20 @@ export const updateSettings = asyncHandler(async (req, res) => {
   let settings = await Settings.findOne();
   
   if (!settings) {
-    // Create settings if they don't exist
     settings = await Settings.create(req.body);
   } else {
-    // Update existing settings
-    settings = await Settings.findOneAndUpdate({}, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    // Update facebook pixel service if pixel config changed
+    if (req.body.facebookPixel) {
+      settings.facebookPixel = req.body.facebookPixel;
+      await settings.save();
+      // Reinitialize pixel service with new config
+      await facebookPixelService.initialize();
+    } else {
+      settings = await Settings.findOneAndUpdate({}, req.body, {
+        new: true,
+        runValidators: true,
+      });
+    }
   }
   
   res.status(200).json({
@@ -42,41 +58,70 @@ export const updateSettings = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Get contact settings
-// @route   GET /api/settings/contact
-// @access  Public
-export const getContactSettings = asyncHandler(async (req, res) => {
+// @desc    Update Facebook Pixel settings
+// @route   PUT /api/settings/facebook-pixel
+// @access  Private/Admin
+export const updateFacebookPixel = asyncHandler(async (req, res) => {
+  const { pixelId, accessToken, isEnabled } = req.body;
+  
   let settings = await Settings.findOne();
   
   if (!settings) {
-    settings = await Settings.create({});
+    settings = await Settings.create({
+      facebookPixel: { pixelId, accessToken, isEnabled },
+    });
+  } else {
+    settings.facebookPixel = { pixelId, accessToken, isEnabled };
+    await settings.save();
+    
+    // Reinitialize pixel service with new config
+    await facebookPixelService.initialize();
   }
   
   res.status(200).json({
     success: true,
+    message: 'Facebook Pixel settings updated successfully',
     data: {
-      contactEmail: settings.contactEmail,
-      contactPhone: settings.contactPhone,
-      contactPhoneSecondary: settings.contactPhoneSecondary,
-      address: settings.address,
-      socialMedia: settings.socialMedia,
-      businessHours: settings.businessHours,
+      pixelId: settings.facebookPixel.pixelId,
+      isEnabled: settings.facebookPixel.isEnabled,
     },
   });
 });
 
-// @desc    Get shipping settings
-// @route   GET /api/settings/shipping
+// @desc    Get public settings (for client)
+// @route   GET /api/settings/public
 // @access  Public
-export const getShippingSettings = asyncHandler(async (req, res) => {
+export const getPublicSettings = asyncHandler(async (req, res) => {
   let settings = await Settings.findOne();
   
   if (!settings) {
     settings = await Settings.create({});
   }
   
+  // Only send public data
+  const publicSettings = {
+    siteName: settings.siteName,
+    siteTagline: settings.siteTagline,
+    contactEmail: settings.contactEmail,
+    contactPhone: settings.contactPhone,
+    address: settings.address,
+    socialMedia: settings.socialMedia,
+    businessHours: settings.businessHours,
+    shipping: settings.shipping,
+    returnPolicy: settings.returnPolicy,
+    seo: settings.seo,
+    facebookPixel: {
+      pixelId: settings.facebookPixel?.pixelId,
+      isEnabled: settings.facebookPixel?.isEnabled,
+    },
+    googleAnalytics: {
+      trackingId: settings.googleAnalytics?.trackingId,
+      isEnabled: settings.googleAnalytics?.isEnabled,
+    },
+  };
+  
   res.status(200).json({
     success: true,
-    data: settings.shipping,
+    data: publicSettings,
   });
 });
