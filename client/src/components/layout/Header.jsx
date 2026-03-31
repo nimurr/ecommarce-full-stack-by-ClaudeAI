@@ -1,10 +1,11 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useState } from 'react';
-import { FiShoppingCart, FiHeart, FiUser, FiSearch, FiMenu, FiX } from 'react-icons/fi';
+import { FiShoppingCart, FiHeart, FiUser, FiSearch, FiMenu, FiX, FiPhone, FiMail } from 'react-icons/fi';
 import { selectCartCount } from '../../store/slices/cartSlice';
 import { logout } from '../../store/slices/authSlice';
 import { clearSearchResults, searchSuggestions } from '../../store/slices/productSlice';
+import { useSettings } from '../../context/SettingsContext';
 
 const Header = () => {
   const dispatch = useDispatch();
@@ -13,6 +14,7 @@ const Header = () => {
   const cartCount = useSelector(selectCartCount);
   const wishlistCount = useSelector((state) => state.wishlist.items.length);
   const { searchResults } = useSelector((state) => state.products);
+  const { settings } = useSettings();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
@@ -41,13 +43,31 @@ const Header = () => {
     navigate('/');
   };
 
+  const siteName = settings?.siteName || 'ElectroMart';
+  const contactPhone = settings?.contactPhone || '+880-123-456-7890';
+
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
       {/* Top Bar */}
       <div className="bg-primary-700 text-white py-2 text-sm">
         <div className="container-custom flex justify-between items-center">
-          <p>🎉 Free Shipping on Orders Over ৳1000</p>
-          <p className="hidden sm:block">📞 Support: +880-123-456-7890</p>
+          <div className="flex items-center gap-4">
+            <span>🎉 Free Shipping on Orders Over ৳1000</span>
+          </div>
+          <div className="hidden md:flex items-center gap-4">
+            {contactPhone && (
+              <a href={`tel:${contactPhone}`} className="flex items-center gap-1 hover:text-primary-200">
+                <FiPhone className="w-4 h-4" />
+                <span>{contactPhone}</span>
+              </a>
+            )}
+            {settings?.contactEmail && (
+              <a href={`mailto:${settings.contactEmail}`} className="flex items-center gap-1 hover:text-primary-200">
+                <FiMail className="w-4 h-4" />
+                <span>{settings.contactEmail}</span>
+              </a>
+            )}
+          </div>
         </div>
       </div>
 
@@ -60,7 +80,7 @@ const Header = () => {
               <span className="text-white font-bold text-xl">E</span>
             </div>
             <span className="text-xl font-bold font-display hidden sm:block">
-              Electro<span className="text-primary-600">Mart</span>
+              {siteName}
             </span>
           </Link>
 

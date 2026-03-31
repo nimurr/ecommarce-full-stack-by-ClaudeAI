@@ -7,15 +7,26 @@ class SMSService {
     this.bulkSmsBd = config.sms.bulkSmsBd;
   }
 
+  // Format phone number (remove leading 0, add 880)
+  formatPhoneNumber(phone) {
+    let cleaned = phone.replace(/[\s\-\(\)]/g, '');
+    if (cleaned.startsWith('0')) {
+      cleaned = '880' + cleaned.substring(1);
+    }
+    if (!cleaned.startsWith('+') && !cleaned.startsWith('880')) {
+      cleaned = '880' + cleaned;
+    }
+    return cleaned;
+  }
+
   // Send SMS using SSL Wireless
   async sendSSLWireless(phone, message) {
     try {
       if (!this.sslWireless.apiKey || !this.sslWireless.apiSecret) {
         console.warn('SSL Wireless API credentials not configured');
-        return null;
+        return { success: false, message: 'SMS credentials not configured' };
       }
 
-      // Format phone number (remove leading 0, add 880)
       const formattedPhone = this.formatPhoneNumber(phone);
 
       const params = {
@@ -56,7 +67,7 @@ class SMSService {
     try {
       if (!this.bulkSmsBd.apiKey) {
         console.warn('BulkSMSBD API credentials not configured');
-        return null;
+        return { success: false, message: 'SMS credentials not configured' };
       }
 
       const formattedPhone = this.formatPhoneNumber(phone);
@@ -65,7 +76,7 @@ class SMSService {
         api_key: this.bulkSmsBd.apiKey,
         type: 'text',
         contacts: formattedPhone,
-        senderid: this.bulkSmsBd.senderId,
+        senderid: this.bulkSmsBd.senderId || 'INFO',
         msg: message,
       };
 
@@ -101,27 +112,9 @@ class SMSService {
     return await this.sendSSLWireless(phone, message);
   }
 
-  // Format phone number
-  formatPhoneNumber(phone) {
-    // Remove spaces, dashes, and parentheses
-    let cleaned = phone.replace(/[\s\-\(\)]/g, '');
-    
-    // If starts with 0, replace with 880
-    if (cleaned.startsWith('0')) {
-      cleaned = '880' + cleaned.substring(1);
-    }
-    
-    // If doesn't start with +, add 880 if needed
-    if (!cleaned.startsWith('+') && !cleaned.startsWith('880')) {
-      cleaned = '880' + cleaned;
-    }
-    
-    return cleaned;
-  }
-
   // Order confirmation SMS template
   getOrderConfirmationSMS(order) {
-    return `Dear ${order.shippingAddress.fullName}, your order #${order.orderNumber} has been placed successfully! Total: ৳${order.totalPrice}. We will deliver to: ${order.shippingAddress.address}, ${order.shippingAddress.city}. Track: ${config.clientUrl}/orders/${order.orderNumber}`;
+    return `Dear ${order.shippingAddress.fullName}, your order #${order.orderNumber} has been placed successfully! Total: ৳${order.totalPrice}. We will deliver to: ${order.shippingAddress.address}, ${order.shippingAddress.city}. Track: ${config.clientUrl}/track-order/${order.orderNumber}`;
   }
 
   // Order status update SMS template

@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProductBySlug, clearProduct } from '../store/slices/productSlice';
 import { addToCart } from '../store/slices/cartSlice';
 import { addToWishlist, removeFromWishlist } from '../store/slices/authSlice';
-import { FiShoppingCart, FiHeart, FiTruck, FiShield, FiRefreshCw, FiStar } from 'react-icons/fi';
-import imageUrl from '../../../admin/src/utils/baseUrl';
+import { FiShoppingCart, FiHeart, FiTruck, FiShield, FiRefreshCw, FiStar, FiCheck } from 'react-icons/fi';
 
 const ProductDetails = () => {
   const { slug } = useParams();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { product, relatedProducts, loading } = useSelector((state) => state.products);
   const { user } = useSelector((state) => state.auth);
@@ -33,9 +33,22 @@ const ProductDetails = () => {
     }));
   };
 
+  const handleBuyNow = () => {
+    if (!product) return;
+    // Add to cart and redirect to checkout
+    dispatch(addToCart({
+      product: product._id,
+      name: product.name,
+      price: product.price,
+      image: product.mainImage,
+      quantity,
+    }));
+    navigate('/checkout');
+  };
+
   const handleWishlistToggle = () => {
     if (!user) {
-      window.location.href = '/login';
+      navigate('/login');
       return;
     }
     if (wishlist.includes(product?._id)) {
@@ -72,7 +85,7 @@ const ProductDetails = () => {
         <div>
           <div className="card mb-4">
             <img
-              src={imageUrl + '/public' + product.mainImage || 'https://via.placeholder.com/500x500'}
+              src={product.mainImage || 'https://via.placeholder.com/500x500'}
               alt={product.name}
               className="w-full aspect-square object-cover"
             />
@@ -83,8 +96,9 @@ const ProductDetails = () => {
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`w-20 h-20 rounded-lg overflow-hidden border-2 flex-shrink-0 ${selectedImage === index ? 'border-primary-600' : 'border-gray-200'
-                    }`}
+                  className={`w-20 h-20 rounded-lg overflow-hidden border-2 flex-shrink-0 ${
+                    selectedImage === index ? 'border-primary-600' : 'border-gray-200'
+                  }`}
                 >
                   <img src={img.url} alt={img.alt} className="w-full h-full object-cover" />
                 </button>
@@ -124,7 +138,10 @@ const ProductDetails = () => {
           {/* Stock */}
           <div className={`mb-6 ${product.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
             {product.stock > 0 ? (
-              <p>✓ In Stock ({product.stock} available)</p>
+              <p className="flex items-center gap-2">
+                <FiCheck className="w-5 h-5" />
+                In Stock ({product.stock} available)
+              </p>
             ) : (
               <p>✗ Out of Stock</p>
             )}
@@ -133,47 +150,62 @@ const ProductDetails = () => {
           {/* Description */}
           <p className="text-gray-600 mb-6">{product.shortDescription || product.description}</p>
 
-          {/* Quantity & Add to Cart */}
-          <div className="flex gap-4 mb-6">
-            <div className="flex items-center border rounded-lg">
+          {/* Quantity & Actions */}
+          <div className="space-y-4 mb-6">
+            <div className="flex items-center gap-4">
+              <label className="font-medium">Quantity:</label>
+              <div className="flex items-center border rounded-lg">
+                <button
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  className="px-4 py-3 hover:bg-gray-100"
+                  disabled={quantity <= 1 || product.stock < quantity + 1}
+                >
+                  -
+                </button>
+                <span className="w-16 text-center font-medium">{quantity}</span>
+                <button
+                  onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+                  className="px-4 py-3 hover:bg-gray-100"
+                  disabled={quantity >= product.stock}
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
+            <div className="flex gap-4">
               <button
-                onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                className="px-4 py-3 hover:bg-gray-100"
-                disabled={quantity <= 1 || product.stock < quantity + 1}
+                onClick={handleAddToCart}
+                disabled={product.stock === 0}
+                className="btn-secondary flex-1 flex items-center justify-center gap-2"
               >
-                -
+                <FiShoppingCart className="w-5 h-5" />
+                Add to Cart
               </button>
-              <span className="w-16 text-center font-medium">{quantity}</span>
               <button
-                onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
-                className="px-4 py-3 hover:bg-gray-100"
-                disabled={quantity >= product.stock}
+                onClick={handleBuyNow}
+                disabled={product.stock === 0}
+                className="btn-primary flex-1 flex items-center justify-center gap-2"
               >
-                +
+                <FiCheck className="w-5 h-5" />
+                Buy Now
+              </button>
+              <button
+                onClick={handleWishlistToggle}
+                className={`w-14 h-14 rounded-lg border-2 flex items-center justify-center ${
+                  isInWishlist ? 'border-red-500 text-red-500' : 'border-gray-300 hover:border-red-500 hover:text-red-500'
+                }`}
+              >
+                <FiHeart className="w-6 h-6" />
               </button>
             </div>
-            <button
-              onClick={handleAddToCart}
-              disabled={product.stock === 0}
-              className="btn-primary flex-1 flex items-center justify-center gap-2"
-            >
-              <FiShoppingCart className="w-5 h-5" />
-              Add to Cart
-            </button>
-            <button
-              onClick={handleWishlistToggle}
-              className={`w-14 h-14 rounded-lg border-2 flex items-center justify-center ${isInWishlist ? 'border-red-500 text-red-500' : 'border-gray-300 hover:border-red-500 hover:text-red-500'
-                }`}
-            >
-              <FiHeart className="w-6 h-6" />
-            </button>
           </div>
 
           {/* Features */}
           <div className="space-y-3 pt-6 border-t">
             <div className="flex items-center gap-3 text-sm text-gray-600">
               <FiTruck className="w-5 h-5 text-primary-600" />
-              <span>Free delivery on orders over ৳2000</span>
+              <span>Free delivery on orders over ৳1000</span>
             </div>
             <div className="flex items-center gap-3 text-sm text-gray-600">
               <FiShield className="w-5 h-5 text-primary-600" />

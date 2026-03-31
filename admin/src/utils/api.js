@@ -34,7 +34,7 @@ api.interceptors.response.use(
 
 export const adminAPI = {
   login: (data) => api.post('/auth/login', data),
-  getDashboard: () => api.get('/users/stats/dashboard'),
+  getDashboard: () => api.get('/dashboard/stats'),
   getProducts: (params) => api.get('/products', { params }),
   getProduct: (id) => api.get(`/products/${id}`),
   createProduct: (data) => api.post('/products', data),
@@ -59,6 +59,8 @@ export const adminAPI = {
   createCoupon: (data) => api.post('/coupons', data),
   updateCoupon: (id, data) => api.put(`/coupons/${id}`, data),
   deleteCoupon: (id) => api.delete(`/coupons/${id}`),
+  getSettings: () => api.get('/settings'),
+  updateSettings: (data) => api.put('/settings', data),
 };
 
 export default api;

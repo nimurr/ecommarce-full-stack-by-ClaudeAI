@@ -3,15 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { FiCreditCard, FiDollarSign } from 'react-icons/fi';
 import { createOrder } from '../store/slices/orderSlice';
-import { selectCartTotal } from '../store/slices/cartSlice';
-import { validateCoupon } from '../store/slices/couponSlice';
+import { useSettings } from '../context/SettingsContext';
 
 const Checkout = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
   const { cartItems, shippingAddress, paymentMethod } = useSelector((state) => state.cart);
-  const totals = useSelector(selectCartTotal);
+  const { settings } = useSettings();
   const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -32,6 +31,24 @@ const Checkout = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // Calculate subtotal
+  const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+
+  // Calculate shipping based on settings and city
+  const calculateShipping = () => {
+    const city = formData.city.toLowerCase();
+    const freeShippingThreshold = settings?.shipping?.freeShippingThreshold || 1000;
+    const dhakaFee = settings?.shipping?.dhakaShippingFee || 60;
+    const othersFee = settings?.shipping?.othersShippingFee || 120;
+    
+    if (subtotal > freeShippingThreshold) return 0; // Free shipping
+    if (city.includes('dhaka')) return dhakaFee;
+    return othersFee;
+  };
+
+  const shippingPrice = calculateShipping();
+  const totalPrice = subtotal + shippingPrice;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -47,14 +64,11 @@ const Checkout = () => {
       const result = await dispatch(createOrder(orderData));
       
       if (createOrder.fulfilled.match(result)) {
-        console.log('Order created:', result.payload);
         navigate(`/order-confirmation/${result.payload.orderNumber}`);
       } else {
-        console.error('Order creation failed:', result.payload);
         alert(result.payload?.message || 'Failed to create order. Please try again.');
       }
     } catch (error) {
-      console.error('Order creation error:', error);
       alert(error.message || 'Failed to create order. Please try again.');
     } finally {
       setLoading(false);
@@ -124,14 +138,25 @@ const Checkout = () => {
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">City *</label>
-                    <input
-                      type="text"
+                    <select
                       name="city"
                       value={formData.city}
                       onChange={handleChange}
                       required
                       className="input-field"
-                    />
+                    >
+                      <option value="">Select City</option>
+                      <option value="Dhaka">Dhaka</option>
+                      <option value="Chittagong">Chittagong</option>
+                      <option value="Sylhet">Sylhet</option>
+                      <option value="Rajshahi">Rajshahi</option>
+                      <option value="Khulna">Khulna</option>
+                      <option value="Barisal">Barisal</option>
+                      <option value="Rangpur">Rangpur</option>
+                      <option value="Mymensingh">Mymensingh</option>
+                      <option value="Comilla">Comilla</option>
+                      <option value="Others">Others</option>
+                    </select>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">State/Division</label>
@@ -257,19 +282,28 @@ const Checkout = () => {
               <div className="space-y-2 mb-6 text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Subtotal</span>
-                  <span>৳{totals.subtotal.toLocaleString()}</span>
+                  <span>৳{subtotal.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Shipping</span>
-                  <span>{totals.shipping === 0 ? 'Free' : `৳${totals.shipping.toLocaleString()}`}</span>
+                  <span>
+                    {shippingPrice === 0 ? (
+                      <span className="text-green-600 font-medium">Free</span>
+                    ) : (
+                      `৳${shippingPrice.toLocaleString()}`
+                    )}
+                  </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Tax</span>
-                  <span>৳{totals.tax.toLocaleString()}</span>
-                </div>
+                {shippingPrice > 0 && (
+                  <p className="text-xs text-gray-500">
+                    {formData.city.toLowerCase().includes('dhaka') 
+                      ? 'Dhaka shipping rate applied' 
+                      : 'Other cities shipping rate applied'}
+                  </p>
+                )}
                 <div className="border-t pt-2 flex justify-between font-bold text-base">
                   <span>Total</span>
-                  <span className="text-primary-600">৳{totals.total.toLocaleString()}</span>
+                  <span className="text-primary-600">৳{totalPrice.toLocaleString()}</span>
                 </div>
               </div>
 
@@ -278,7 +312,7 @@ const Checkout = () => {
                 disabled={loading}
                 className="btn-primary w-full"
               >
-                {loading ? 'Processing...' : `Place Order (৳${totals.total.toLocaleString()})`}
+                {loading ? 'Processing...' : `Place Order (৳${totalPrice.toLocaleString()})`}
               </button>
             </div>
           </div>

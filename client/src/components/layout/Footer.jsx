@@ -1,7 +1,18 @@
 import { Link } from 'react-router-dom';
-import { FiFacebook, FiTwitter, FiInstagram, FiLinkedin } from 'react-icons/fi';
+import { FiFacebook, FiTwitter, FiInstagram, FiLinkedin, FiPhone, FiMail, FiMapPin, FiClock } from 'react-icons/fi';
+import { useSettings } from '../../context/SettingsContext';
 
 const Footer = () => {
+  const { settings } = useSettings();
+  const currentYear = new Date().getFullYear();
+
+  const siteName = settings?.siteName || 'ElectroMart';
+  const siteDescription = settings?.siteDescription || 'Your one-stop destination for premium electronics and gadgets.';
+  const contactInfo = settings?.contactEmail || settings?.contactPhone;
+  const address = settings?.address;
+  const socialMedia = settings?.socialMedia || {};
+  const businessHours = settings?.businessHours;
+
   return (
     <footer className="bg-gray-900 text-gray-300">
       {/* Main Footer */}
@@ -14,17 +25,33 @@ const Footer = () => {
                 <span className="text-white font-bold text-xl">E</span>
               </div>
               <span className="text-xl font-bold font-display text-white">
-                Electro<span className="text-primary-400">Mart</span>
+                {siteName}
               </span>
             </div>
             <p className="text-gray-400 mb-4">
-              Your one-stop destination for premium electronics and gadgets. Quality products, best prices, and excellent service.
+              {siteDescription}
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="hover:text-primary-400 transition-colors"><FiFacebook className="w-6 h-6" /></a>
-              <a href="#" className="hover:text-primary-400 transition-colors"><FiTwitter className="w-6 h-6" /></a>
-              <a href="#" className="hover:text-primary-400 transition-colors"><FiInstagram className="w-6 h-6" /></a>
-              <a href="#" className="hover:text-primary-400 transition-colors"><FiLinkedin className="w-6 h-6" /></a>
+              {socialMedia.facebook && (
+                <a href={socialMedia.facebook} target="_blank" rel="noopener noreferrer" className="hover:text-primary-400 transition-colors">
+                  <FiFacebook className="w-6 h-6" />
+                </a>
+              )}
+              {socialMedia.twitter && (
+                <a href={socialMedia.twitter} target="_blank" rel="noopener noreferrer" className="hover:text-primary-400 transition-colors">
+                  <FiTwitter className="w-6 h-6" />
+                </a>
+              )}
+              {socialMedia.instagram && (
+                <a href={socialMedia.instagram} target="_blank" rel="noopener noreferrer" className="hover:text-primary-400 transition-colors">
+                  <FiInstagram className="w-6 h-6" />
+                </a>
+              )}
+              {socialMedia.linkedin && (
+                <a href={socialMedia.linkedin} target="_blank" rel="noopener noreferrer" className="hover:text-primary-400 transition-colors">
+                  <FiLinkedin className="w-6 h-6" />
+                </a>
+              )}
             </div>
           </div>
 
@@ -57,22 +84,51 @@ const Footer = () => {
           <div>
             <h3 className="text-white font-semibold mb-4">Contact Us</h3>
             <ul className="space-y-3">
-              <li>
-                <span className="text-gray-400">📍 Address:</span>
-                <p className="text-gray-300">123 Tech Street, Dhaka 1200, Bangladesh</p>
-              </li>
-              <li>
-                <span className="text-gray-400">📞 Phone:</span>
-                <p className="text-gray-300">+880-123-456-7890</p>
-              </li>
-              <li>
-                <span className="text-gray-400">📧 Email:</span>
-                <p className="text-gray-300">support@electromart.com</p>
-              </li>
-              <li>
-                <span className="text-gray-400">⏰ Hours:</span>
-                <p className="text-gray-300">Sat - Thu: 9:00 AM - 9:00 PM</p>
-              </li>
+              {address && (
+                <li>
+                  <span className="text-gray-400 flex items-start gap-2">
+                    <FiMapPin className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                    <span>
+                      {address.street && <p>{address.street}</p>}
+                      {(address.city || address.state || address.zipCode) && (
+                        <p>{[address.city, address.state, address.zipCode].filter(Boolean).join(', ')}</p>
+                      )}
+                      {address.country && <p>{address.country}</p>}
+                    </span>
+                  </span>
+                </li>
+              )}
+              {settings?.contactPhone && (
+                <li>
+                  <a href={`tel:${settings.contactPhone}`} className="flex items-center gap-2 hover:text-primary-400 transition-colors">
+                    <FiPhone className="w-5 h-5" />
+                    <span>{settings.contactPhone}</span>
+                  </a>
+                </li>
+              )}
+              {settings?.contactEmail && (
+                <li>
+                  <a href={`mailto:${settings.contactEmail}`} className="flex items-center gap-2 hover:text-primary-400 transition-colors">
+                    <FiMail className="w-5 h-5" />
+                    <span>{settings.contactEmail}</span>
+                  </a>
+                </li>
+              )}
+              {businessHours && (
+                <li>
+                  <span className="text-gray-400 flex items-start gap-2">
+                    <FiClock className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-medium">Business Hours:</p>
+                      {Object.entries(businessHours).map(([day, hours]) => (
+                        <p key={day} className="text-sm capitalize">
+                          {day}: {hours.open} - {hours.close}
+                        </p>
+                      ))}
+                    </div>
+                  </span>
+                </li>
+              )}
             </ul>
           </div>
         </div>
@@ -83,7 +139,7 @@ const Footer = () => {
         <div className="container-custom py-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-gray-400 text-sm">
-              © {new Date().getFullYear()} ElectroMart. All rights reserved.
+              © {currentYear} {siteName}. All rights reserved.
             </p>
             <div className="flex items-center gap-4">
               <img src="https://via.placeholder.com/50x30?text=VISA" alt="VISA" className="h-6" />

@@ -10,6 +10,7 @@ import OrderDetail from './pages/OrderDetail';
 import Users from './pages/Users';
 import Reviews from './pages/Reviews';
 import Coupons from './pages/Coupons';
+import Settings from './pages/Settings';
 import Login from './pages/Login';
 
 const ProtectedRoute = ({ children }) => {
@@ -39,6 +40,7 @@ function App() {
         <Route path="users" element={<Users />} />
         <Route path="reviews" element={<Reviews />} />
         <Route path="coupons" element={<Coupons />} />
+        <Route path="settings" element={<Settings />} />
       </Route>
     </Routes>
   );

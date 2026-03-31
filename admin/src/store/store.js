@@ -7,6 +7,7 @@ import categoryReducer from './slices/categorySlice';
 import userReducer from './slices/userSlice';
 import reviewReducer from './slices/reviewSlice';
 import couponReducer from './slices/couponSlice';
+import settingsReducer from './slices/settingsSlice';
 
 export const store = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ export const store = configureStore({
     users: userReducer,
     reviews: reviewReducer,
     coupons: couponReducer,
+    settings: settingsReducer,
   },
 });
 

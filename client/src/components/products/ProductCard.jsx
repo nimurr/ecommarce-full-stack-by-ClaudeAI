@@ -1,12 +1,12 @@
-import { Link } from 'react-router-dom';
-import { FiHeart, FiShoppingCart } from 'react-icons/fi';
+import { Link, useNavigate } from 'react-router-dom';
+import { FiHeart, FiShoppingCart, FiZap } from 'react-icons/fi';
 import { useDispatch, useSelector } from 'react-redux';
 import { addToCart } from '../../store/slices/cartSlice';
 import { addToWishlist, removeFromWishlist } from '../../store/slices/authSlice';
-import imageUrl from '../../../../admin/src/utils/baseUrl';
 
 const ProductCard = ({ product }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
   const wishlist = useSelector((state) => state.wishlist.items);
   const isInWishlist = wishlist.includes(product._id);
@@ -22,10 +22,22 @@ const ProductCard = ({ product }) => {
     }));
   };
 
+  const handleBuyNow = (e) => {
+    e.preventDefault();
+    dispatch(addToCart({
+      product: product._id,
+      name: product.name,
+      price: product.price,
+      image: product.mainImage,
+      quantity: 1,
+    }));
+    navigate('/checkout');
+  };
+
   const handleWishlistToggle = (e) => {
     e.preventDefault();
     if (!user) {
-      window.location.href = '/login';
+      navigate('/login');
       return;
     }
     if (isInWishlist) {
@@ -43,7 +55,7 @@ const ProductCard = ({ product }) => {
       <div className="relative overflow-hidden aspect-square">
         <Link to={`/products/${product.slug}`}>
           <img
-            src={imageUrl + '/public' + product.mainImage || 'https://via.placeholder.com/300x300?text=Product'}
+            src={product.mainImage || 'https://via.placeholder.com/300x300?text=Product'}
             alt={product.name}
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
           />
@@ -66,22 +78,32 @@ const ProductCard = ({ product }) => {
         <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
             onClick={handleWishlistToggle}
-            className={`w-10 h-10 rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform ${isInWishlist ? 'bg-red-500 text-white' : 'bg-white text-gray-700 hover:text-red-500'
-              }`}
+            className={`w-10 h-10 rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform ${
+              isInWishlist ? 'bg-red-500 text-white' : 'bg-white text-gray-700 hover:text-red-500'
+            }`}
           >
             <FiHeart className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Quick Add to Cart */}
+        {/* Quick Actions */}
         {product.stock > 0 && (
-          <button
-            onClick={handleAddToCart}
-            className="absolute bottom-0 left-0 right-0 bg-primary-600 text-white py-3 font-medium opacity-0 group-hover:opacity-100 transition-opacity hover:bg-primary-700"
-          >
-            <FiShoppingCart className="inline mr-2" />
-            Add to Cart
-          </button>
+          <div className="absolute bottom-0 left-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity space-y-2">
+            <button
+              onClick={handleAddToCart}
+              className="w-full bg-white text-gray-900 py-2 font-medium rounded hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
+            >
+              <FiShoppingCart className="w-4 h-4" />
+              Add to Cart
+            </button>
+            <button
+              onClick={handleBuyNow}
+              className="w-full bg-primary-600 text-white py-2 font-medium rounded hover:bg-primary-700 transition-colors flex items-center justify-center gap-2"
+            >
+              <FiZap className="w-4 h-4" />
+              Buy Now
+            </button>
+          </div>
         )}
       </div>
 
