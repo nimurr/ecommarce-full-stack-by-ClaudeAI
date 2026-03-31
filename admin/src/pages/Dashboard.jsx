@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { FaOpencart } from "react-icons/fa";
 import { fetchDashboardStats } from '../store/slices/dashboardSlice';
 import { FiDollarSign, FiShoppingCart, FiUsers, FiPackage, FiTrendingUp, FiAlertTriangle } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
@@ -97,9 +98,9 @@ const Dashboard = () => {
           <div key={stat.title} className="card">
             <div className="flex items-start justify-between mb-4">
               <div>
-                <p className="text-gray-600 text-sm mb-1">{stat.title}</p>
-                <p className="text-2xl font-bold">{stat.value}</p>
-                <p className="text-xs text-gray-500 mt-1">{stat.subtitle}</p>
+                <p className="text-gray-600 font-semibold mb-1">{stat.title}</p>
+                <p className="text-4xl my-3 font-bold">{stat.value}</p>
+                <p className="text-sm text-gray-500 mt-1">{stat.subtitle}</p>
               </div>
               <div className={`w-12 h-12 rounded-full flex items-center justify-center ${colorClasses[stat.color]}`}>
                 <stat.icon className="w-6 h-6" />
@@ -115,9 +116,29 @@ const Dashboard = () => {
           <h2 className="text-lg font-semibold mb-4">Orders by Status</h2>
           <div className="grid grid-cols-4 gap-4">
             {Object.entries(ordersByStatus).map(([status, count]) => (
-              <div key={status} className="flex justify-between items-center p-5 rounded-lg bg-gray-50 border">
-                <span className="capitalize">{status}</span>
-                <span className={`badge ${getStatusBadge(status)}`}>{count}</span>
+              <div
+                className={`flex justify-between items-center px-5 py-10 rounded-lg border ${status === "pending"
+                  ? "bg-yellow-400"
+                  : status === "confirmed"
+                    ? "bg-blue-400"
+                    : status === "processing"
+                      ? "bg-purple-400"
+                      : status === "shipped"
+                        ? "bg-indigo-400"
+                        : status === "out for delivery"
+                          ? "bg-orange-400"
+                          : status === "delivered"
+                            ? "bg-green-500"
+                            : status === "cancelled"
+                              ? "bg-red-500"
+                              : status === "refunded"
+                                ? "bg-gray-400"
+                                : "bg-gray-200"
+                  }`}
+              >
+
+                <span className="capitalize text-xl font-bold text-white"><FaOpencart className='text-4xl' /> <br /> {status}</span>
+                <span className={` text-5xl text-white`}>{count}</span>
               </div>
             ))}
           </div>
