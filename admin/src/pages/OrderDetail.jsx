@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchOrder, updateOrderStatus } from '../store/slices/orderSlice';
 import { FiArrowLeft, FiPackage, FiCheckCircle, FiClock, FiTruck } from 'react-icons/fi';
+import imageUrl from '../utils/baseUrl';
 
 const OrderDetail = () => {
   const { id } = useParams();
@@ -41,7 +42,7 @@ const OrderDetail = () => {
 
   return (
     <div className="container-custom py-8">
-      <button onClick={() => navigate('/admin/orders')} className="flex items-center gap-2 mb-6 text-gray-600 hover:text-gray-900">
+      <button onClick={() => navigate('/orders')} className="flex items-center gap-2 mb-6 text-gray-600 hover:text-gray-900">
         <FiArrowLeft className="w-5 h-5" />
         Back to Orders
       </button>
@@ -74,18 +75,18 @@ const OrderDetail = () => {
             <div className="space-y-4">
               {order.orderItems.map((item, index) => (
                 <div key={index} className="flex gap-4 p-4 border rounded-lg">
-                  <img src={item.image} alt={item.name} className="w-20 h-20 object-cover rounded" />
+                  <img src={imageUrl + '/public' + item.image} alt={item.name} className="w-20 h-20 object-cover rounded" />
                   <div className="flex-1">
                     <h3 className="font-medium">{item.name}</h3>
                     <p className="text-sm text-gray-500">৳{item.price?.toLocaleString()} × {item.quantity}</p>
                     <div className="flex gap-4 mt-2 text-sm">
                       {item.selectedColor && (
-                        <p className="text-gray-600">
+                        <p className="text-gray-600 text-xl">
                           <span className="font-medium">Color:</span> {item.selectedColor}
                         </p>
                       )}
                       {item.selectedSize && (
-                        <p className="text-gray-600">
+                        <p className="text-gray-600 text-xl">
                           <span className="font-medium">Size:</span> {item.selectedSize}
                         </p>
                       )}

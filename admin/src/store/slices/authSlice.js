@@ -19,7 +19,7 @@ export const adminLogin = createAsyncThunk(
   async (credentials, { rejectWithValue }) => {
     try {
       const { data } = await adminAPI.login(credentials);
-      if (data.data.role !== 'admin') {
+      if (data.data.role !== 'admin' && data.data.role !== 'sub-admin') {
         toast.error('Access denied. Admin only.');
         return rejectWithValue('Access denied');
       }

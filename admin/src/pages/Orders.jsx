@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchOrders, updateOrderStatus, updatePaymentStatus } from '../store/slices/orderSlice';
 import { FiEye } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
+import imageUrl from '../utils/baseUrl';
 
 const Orders = () => {
   const dispatch = useDispatch();
@@ -59,9 +60,9 @@ const Orders = () => {
         <div className="grid md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Status</label>
-            <select 
-              value={statusFilter} 
-              onChange={(e) => setStatusFilter(e.target.value)} 
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
               className="input-field"
             >
               <option value="">All Status</option>
@@ -76,9 +77,9 @@ const Orders = () => {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Payment</label>
-            <select 
-              value={paymentFilter} 
-              onChange={(e) => setPaymentFilter(e.target.value)} 
+            <select
+              value={paymentFilter}
+              onChange={(e) => setPaymentFilter(e.target.value)}
               className="input-field"
             >
               <option value="">All Payment</option>
@@ -124,7 +125,7 @@ const Orders = () => {
                     <div className="text-sm">
                       {order.orderItems.slice(0, 2).map((item, index) => (
                         <div key={index} className="flex items-center gap-2">
-                          <img src={item.image} alt={item.name} className="w-8 h-8 object-cover rounded" />
+                          <img src={imageUrl + '/public/' + item.image} alt={item.name} className="w-8 h-8 object-cover rounded" />
                           <div>
                             <p className="font-medium truncate max-w-xs">{item.name}</p>
                             <p className="text-xs text-gray-500">
@@ -172,7 +173,7 @@ const Orders = () => {
                     {new Date(order.createdAt).toLocaleDateString()}
                   </td>
                   <td className="py-3 px-4">
-                    <Link to={`/admin/orders/${order._id}`} className="btn-secondary text-sm py-1 px-3">
+                    <Link to={`/orders/${order._id}`} className="btn-secondary text-sm py-1 px-3">
                       <FiEye className="inline w-4 h-4" />
                     </Link>
                   </td>

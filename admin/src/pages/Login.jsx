@@ -18,10 +18,20 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const result = await dispatch(adminLogin(formData));
+
+    console.log(result)
+
+    if (result?.payload?.role == 'sub-admin') {
+      window.location.href = '/';
+      return;
+    }
+
     if (adminLogin.fulfilled.match(result)) {
       navigate('/', { replace: true });
     }
+
   };
 
   return (

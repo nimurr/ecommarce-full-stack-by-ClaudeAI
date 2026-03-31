@@ -13,11 +13,12 @@ import Coupons from './pages/Coupons';
 import Settings from './pages/Settings';
 import Pages from './pages/Pages';
 import Brands from './pages/Brands';
+import SubAdmins from './pages/SubAdmins';
 import Login from './pages/Login';
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useSelector((state) => state.auth);
-  if (!user || user.role !== 'admin') {
+  if (!user || user.role !== 'admin' && user.role !== 'sub-admin') {
     return <Navigate to="/login" replace />;
   }
   return children;
@@ -45,6 +46,7 @@ function App() {
         <Route path="settings" element={<Settings />} />
         <Route path="pages" element={<Pages />} />
         <Route path="brands" element={<Brands />} />
+        <Route path="sub-admins" element={<SubAdmins />} />
       </Route>
     </Routes>
   );

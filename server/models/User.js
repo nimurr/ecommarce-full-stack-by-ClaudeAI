@@ -35,8 +35,44 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['user', 'admin'],
+    enum: ['user', 'sub-admin', 'admin'],
     default: 'user',
+  },
+  permissions: {
+    products: {
+      view: { type: Boolean, default: false },
+      create: { type: Boolean, default: false },
+      edit: { type: Boolean, default: false },
+      delete: { type: Boolean, default: false },
+    },
+    orders: {
+      view: { type: Boolean, default: false },
+      updateStatus: { type: Boolean, default: false },
+    },
+    categories: {
+      view: { type: Boolean, default: false },
+      create: { type: Boolean, default: false },
+      edit: { type: Boolean, default: false },
+      delete: { type: Boolean, default: false },
+    },
+    users: {
+      view: { type: Boolean, default: false },
+    },
+    reviews: {
+      view: { type: Boolean, default: false },
+      approve: { type: Boolean, default: false },
+      delete: { type: Boolean, default: false },
+    },
+    coupons: {
+      view: { type: Boolean, default: false },
+      create: { type: Boolean, default: false },
+      edit: { type: Boolean, default: false },
+      delete: { type: Boolean, default: false },
+    },
+    pages: {
+      view: { type: Boolean, default: false },
+      edit: { type: Boolean, default: false },
+    },
   },
   avatar: {
     type: String,
@@ -82,6 +118,15 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  isActive: {
+    type: Boolean,
+    default: true,
+  },
+  lastLogin: Date,
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  },
 }, {
   timestamps: true,
 });
@@ -119,6 +164,15 @@ userSchema.methods.getResetPasswordToken = function() {
   this.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
 
   return resetToken;
+};
+
+// Check if user has specific permission
+userSchema.methods.hasPermission = function(resource, action) {
+  if (this.role === 'admin') return true;
+  if (this.role === 'sub-admin' && this.permissions[resource]) {
+    return this.permissions[resource][action] || false;
+  }
+  return false;
 };
 
 const User = mongoose.model('User', userSchema);

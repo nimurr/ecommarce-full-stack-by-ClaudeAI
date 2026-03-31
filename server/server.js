@@ -31,6 +31,7 @@ import dashboardRoutes from './routes/dashboardRoutes.js';
 import settingsRoutes from './routes/settingsRoutes.js';
 import pageRoutes from './routes/pageRoutes.js';
 import brandRoutes from './routes/brandRoutes.js';
+import subAdminRoutes from './routes/subAdminRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 
 // Load env vars
@@ -90,6 +91,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/pages', pageRoutes);
 app.use('/api/brands', brandRoutes);
+app.use('/api/admin/sub-admins', subAdminRoutes);
 app.use('/api/upload', uploadRoutes);
 
 // Health check endpoint

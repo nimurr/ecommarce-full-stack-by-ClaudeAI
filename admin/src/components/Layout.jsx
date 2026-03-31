@@ -1,6 +1,6 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { FiHome, FiPackage, FiList, FiShoppingCart, FiUsers, FiStar, FiTag, FiSettings, FiFileText, FiLogOut, FiMenu, FiX } from 'react-icons/fi';
+import { FiHome, FiPackage, FiList, FiShoppingCart, FiUsers, FiStar, FiTag, FiSettings, FiFileText, FiUserPlus, FiLogOut, FiMenu, FiX } from 'react-icons/fi';
 import { adminLogout } from '../store/slices/authSlice';
 import { useState } from 'react';
 
@@ -19,8 +19,9 @@ const Layout = () => {
     { name: 'Users', href: 'users', icon: FiUsers },
     { name: 'Reviews', href: 'reviews', icon: FiStar },
     { name: 'Coupons', href: 'coupons', icon: FiTag },
-    { name: 'Brands', href: 'brands', icon: FiStar },
+    { name: 'Brands', href: 'brands', icon: FiTag },
     { name: 'Pages', href: 'pages', icon: FiFileText },
+    { name: 'Sub-Admins', href: 'sub-admins', icon: FiUserPlus },
     { name: 'Settings', href: 'settings', icon: FiSettings },
   ];
 
@@ -46,9 +47,8 @@ const Layout = () => {
               <Link
                 key={item.name}
                 to={`/${item.href}`}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  isActive ? 'bg-primary-600 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-white'
-                }`}
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive ? 'bg-primary-600 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                  }`}
               >
                 <item.icon className="w-5 h-5" />
                 <span>{item.name}</span>
@@ -77,7 +77,8 @@ const Layout = () => {
               <p className="text-xs text-gray-500">Administrator</p>
             </div>
             <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
-              <span className="text-primary-600 font-bold">{user?.name?.charAt(0)}</span>
+              {/* <span className="text-primary-600 font-bold">{user?.name?.charAt(0)}</span> */}
+              <img className='w-full h-full object-cover overflow-hidden rounded-full border' src="https://johannesippen.com/img/blog/humans-not-users/header.jpg" alt="" />
             </div>
           </div>
         </header>

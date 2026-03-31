@@ -73,7 +73,7 @@ const Products = () => {
                   <tr key={product._id} className="border-b hover:bg-gray-50">
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-3">
-                        <img src={imageUrl + '/public' + product.mainImage} alt={product.name} className="w-12 h-12 object-cover rounded" />
+                        <img src={imageUrl + '/public/' + product.mainImage} alt={product.name} className="w-12 h-12 object-cover rounded" />
                         <div>
                           <p className="font-medium truncate max-w-xs">{product.name}</p>
                           <p className="text-sm text-gray-500">{product.brand}</p>

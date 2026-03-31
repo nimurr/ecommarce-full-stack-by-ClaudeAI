@@ -189,7 +189,7 @@ const Home = () => {
               </div>
             </div>
           ) : (
-            <div className="bg-gradient-to-r from-gray-700 to-gray-800 rounded-2xl p-8 md:p-12 text-white text-center">
+            <div className="bg-gradient-to-r from-[#037dbc] to-gray-800 rounded-2xl p-8 md:p-12 text-white text-center">
               <h2 className="text-3xl md:text-4xl font-bold font-display mb-4">🎁 Special Offer Coming Soon!</h2>
               <p className="text-lg md:text-xl mb-8 text-gray-300">We're preparing amazing deals just for you. Stay tuned!</p>
               <Link to="/products" className="btn-primary bg-white text-gray-900 hover:bg-gray-100">Browse Products</Link>

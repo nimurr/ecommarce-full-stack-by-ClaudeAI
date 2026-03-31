@@ -165,7 +165,7 @@ const Categories = () => {
               </div>
               <div>
                 <ImageUpload
-                  images={imageUrl + formData.image ? [{ url: formData.image }] : imageUrl + formData.image}
+                  images={imageUrl + '/public' + formData.image ? [{ url: formData.image }] : imageUrl + '/public' + formData.image}
                   onChange={handleImageChange}
                   multiple={false}
                   label="Category Image (uploaded with category)"

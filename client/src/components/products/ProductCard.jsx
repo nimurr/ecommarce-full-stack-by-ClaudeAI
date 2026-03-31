@@ -3,6 +3,7 @@ import { FiHeart, FiShoppingCart, FiZap } from 'react-icons/fi';
 import { useDispatch, useSelector } from 'react-redux';
 import { addToCart } from '../../store/slices/cartSlice';
 import { addToWishlist, removeFromWishlist } from '../../store/slices/authSlice';
+import imageUrl from '../../../../admin/src/utils/baseUrl';
 
 const ProductCard = ({ product }) => {
   const dispatch = useDispatch();
@@ -55,7 +56,7 @@ const ProductCard = ({ product }) => {
       <div className="relative overflow-hidden aspect-square">
         <Link to={`/products/${product.slug}`}>
           <img
-            src={product.mainImage || 'https://via.placeholder.com/300x300?text=Product'}
+            src={imageUrl + '/public' + product.mainImage || 'https://via.placeholder.com/300x300?text=Product'}
             alt={product.name}
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
           />
@@ -78,9 +79,8 @@ const ProductCard = ({ product }) => {
         <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
             onClick={handleWishlistToggle}
-            className={`w-10 h-10 rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform ${
-              isInWishlist ? 'bg-red-500 text-white' : 'bg-white text-gray-700 hover:text-red-500'
-            }`}
+            className={`w-10 h-10 rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform ${isInWishlist ? 'bg-red-500 text-white' : 'bg-white text-gray-700 hover:text-red-500'
+              }`}
           >
             <FiHeart className="w-5 h-5" />
           </button>
