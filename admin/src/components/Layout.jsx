@@ -19,6 +19,7 @@ const Layout = () => {
     { name: 'Users', href: 'users', icon: FiUsers },
     { name: 'Reviews', href: 'reviews', icon: FiStar },
     { name: 'Coupons', href: 'coupons', icon: FiTag },
+    { name: 'Brands', href: 'brands', icon: FiStar },
     { name: 'Pages', href: 'pages', icon: FiFileText },
     { name: 'Settings', href: 'settings', icon: FiSettings },
   ];

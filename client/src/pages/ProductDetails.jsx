@@ -16,6 +16,8 @@ const ProductDetails = () => {
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [selectedColor, setSelectedColor] = useState('');
+  const [selectedSize, setSelectedSize] = useState('');
 
   useEffect(() => {
     dispatch(fetchProductBySlug(slug));
@@ -30,18 +32,21 @@ const ProductDetails = () => {
       price: product.price,
       image: product.mainImage,
       quantity,
+      selectedColor,
+      selectedSize,
     }));
   };
 
   const handleBuyNow = () => {
     if (!product) return;
-    // Add to cart and redirect to checkout
     dispatch(addToCart({
       product: product._id,
       name: product.name,
       price: product.price,
       image: product.mainImage,
       quantity,
+      selectedColor,
+      selectedSize,
     }));
     navigate('/checkout');
   };
@@ -149,6 +154,54 @@ const ProductDetails = () => {
 
           {/* Description */}
           <p className="text-gray-600 mb-6">{product.shortDescription || product.description}</p>
+
+          {/* Product Variants - Colors */}
+          {product.availableColors && product.availableColors.length > 0 && (
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Color: {selectedColor || 'Select a color'}
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {product.availableColors.map((color) => (
+                  <button
+                    key={color}
+                    onClick={() => setSelectedColor(color)}
+                    className={`px-4 py-2 rounded-lg border-2 transition-all ${
+                      selectedColor === color
+                        ? 'border-primary-600 bg-primary-50 text-primary-600'
+                        : 'border-gray-200 hover:border-primary-300'
+                    }`}
+                  >
+                    {color}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Product Variants - Sizes */}
+          {product.availableSizes && product.availableSizes.length > 0 && (
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Size: {selectedSize || 'Select a size'}
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {product.availableSizes.map((size) => (
+                  <button
+                    key={size}
+                    onClick={() => setSelectedSize(size)}
+                    className={`px-4 py-2 rounded-lg border-2 transition-all ${
+                      selectedSize === size
+                        ? 'border-primary-600 bg-primary-50 text-primary-600'
+                        : 'border-gray-200 hover:border-primary-300'
+                    }`}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Quantity & Actions */}
           <div className="space-y-4 mb-6">

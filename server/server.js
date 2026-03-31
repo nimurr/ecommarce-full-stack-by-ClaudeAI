@@ -30,6 +30,8 @@ import userRoutes from './routes/userRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import settingsRoutes from './routes/settingsRoutes.js';
 import pageRoutes from './routes/pageRoutes.js';
+import brandRoutes from './routes/brandRoutes.js';
+import uploadRoutes from './routes/uploadRoutes.js';
 
 // Load env vars
 dotenv.config();
@@ -87,6 +89,8 @@ app.use('/api/users', userRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/pages', pageRoutes);
+app.use('/api/brands', brandRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

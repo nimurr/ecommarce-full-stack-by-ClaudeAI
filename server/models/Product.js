@@ -130,6 +130,20 @@ const productSchema = new mongoose.Schema({
       default: false,
     },
   },
+  // Product Variants (Colors and Sizes)
+  availableColors: [String],
+  availableSizes: [String],
+  colorOptions: [
+    {
+      name: String,
+      hexCode: String,
+      image: String,
+    },
+  ],
+  sizeChart: {
+    type: Map,
+    of: String,
+  },
   seo: {
     title: String,
     description: String,

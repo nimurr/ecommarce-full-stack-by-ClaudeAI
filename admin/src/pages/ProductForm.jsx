@@ -32,6 +32,11 @@ const ProductForm = () => {
     features: [],
     warranty: '1 Year',
     returnPolicy: '7 days return policy',
+    // Product Variants
+    availableColors: [],
+    availableSizes: [],
+    colorOptions: [],
+    sizeChart: {},
   });
 
   useEffect(() => {
@@ -304,6 +309,127 @@ const ProductForm = () => {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Brand *</label>
                   <input type="text" name="brand" value={formData.brand} onChange={handleChange} required className="input-field" />
+                </div>
+              </div>
+            </div>
+
+            <div className="card">
+              <h2 className="text-lg font-semibold mb-4">Product Variants</h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Available Colors</label>
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {formData.availableColors.map((color, index) => (
+                      <span key={index} className="badge badge-primary flex items-center gap-1">
+                        {color}
+                        <button
+                          type="button"
+                          onClick={() => setFormData(prev => ({
+                            ...prev,
+                            availableColors: prev.availableColors.filter((_, i) => i !== index)
+                          }))}
+                          className="ml-1 hover:text-red-600"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Add color (e.g., Red, Blue, Black)"
+                      className="input-field flex-1 py-2 text-sm"
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          const value = e.target.value.trim();
+                          if (value && !formData.availableColors.includes(value)) {
+                            setFormData(prev => ({
+                              ...prev,
+                              availableColors: [...prev.availableColors, value]
+                            }));
+                            e.target.value = '';
+                          }
+                        }
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        const input = e.target.previousSibling;
+                        const value = input.value.trim();
+                        if (value && !formData.availableColors.includes(value)) {
+                          setFormData(prev => ({
+                            ...prev,
+                            availableColors: [...prev.availableColors, value]
+                          }));
+                          input.value = '';
+                        }
+                      }}
+                      className="btn-secondary text-sm"
+                    >
+                      Add
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Available Sizes</label>
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {formData.availableSizes.map((size, index) => (
+                      <span key={index} className="badge badge-primary flex items-center gap-1">
+                        {size}
+                        <button
+                          type="button"
+                          onClick={() => setFormData(prev => ({
+                            ...prev,
+                            availableSizes: prev.availableSizes.filter((_, i) => i !== index)
+                          }))}
+                          className="ml-1 hover:text-red-600"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Add size (e.g., S, M, L, XL)"
+                      className="input-field flex-1 py-2 text-sm"
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          const value = e.target.value.trim();
+                          if (value && !formData.availableSizes.includes(value)) {
+                            setFormData(prev => ({
+                              ...prev,
+                              availableSizes: [...prev.availableSizes, value]
+                            }));
+                            e.target.value = '';
+                          }
+                        }
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        const input = e.target.previousSibling;
+                        const value = input.value.trim();
+                        if (value && !formData.availableSizes.includes(value)) {
+                          setFormData(prev => ({
+                            ...prev,
+                            availableSizes: [...prev.availableSizes, value]
+                          }));
+                          input.value = '';
+                        }
+                      }}
+                      className="btn-secondary text-sm"
+                    >
+                      Add
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
