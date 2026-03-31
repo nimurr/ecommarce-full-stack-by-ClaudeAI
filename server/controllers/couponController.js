@@ -48,6 +48,34 @@ export const getCoupon = asyncHandler(async (req, res) => {
   });
 });
 
+// @desc    Get active homepage coupon (featured)
+// @route   GET /api/coupons/homepage
+// @access  Public
+export const getHomepageCoupon = asyncHandler(async (req, res) => {
+  const now = new Date();
+  
+  // Find active coupon that is valid for homepage display
+  const coupon = await Coupon.findOne({
+    active: true,
+    startDate: { $lte: now },
+    endDate: { $gte: now },
+    usageCount: { $lt: mongoose.Types.NumberLong ? Number.MAX_SAFE_INTEGER : 999999 },
+  }).sort({ createdAt: -1 });
+
+  if (!coupon) {
+    return res.status(200).json({
+      success: true,
+      data: null,
+      message: 'No active coupon available',
+    });
+  }
+
+  res.status(200).json({
+    success: true,
+    data: coupon,
+  });
+});
+
 // @desc    Validate coupon code
 // @route   POST /api/coupons/validate
 // @access  Public

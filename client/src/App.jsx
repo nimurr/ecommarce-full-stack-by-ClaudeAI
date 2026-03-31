@@ -21,6 +21,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
 import Wishlist from './pages/Wishlist';
+import DynamicPage from './pages/DynamicPage';
 import NotFound from './pages/NotFound';
 
 // Protected Route
@@ -55,6 +56,9 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/wishlist" element={<Wishlist />} />
+          
+          {/* Dynamic Pages (About, Contact, FAQ, etc.) */}
+          <Route path="/page/:slug" element={<DynamicPage />} />
           
           {/* Protected Routes */}
           <Route path="/orders" element={

@@ -2,6 +2,7 @@ import express from 'express';
 import {
   getCoupons,
   getCoupon,
+  getHomepageCoupon,
   validateCoupon,
   createCoupon,
   updateCoupon,
@@ -13,7 +14,13 @@ import { protect, authorize } from '../middleware/auth.js';
 
 const router = express.Router();
 
+// Public route for homepage coupon
+router.get('/homepage', getHomepageCoupon);
+
+// Validate coupon (public)
 router.post('/validate', validateCoupon);
+
+// Protected routes (Admin only)
 router.get('/', protect, authorize('admin'), getCoupons);
 router.get('/:id', protect, authorize('admin'), getCoupon);
 router.post('/', protect, authorize('admin'), createCoupon);

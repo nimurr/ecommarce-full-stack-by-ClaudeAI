@@ -1,10 +1,11 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FiShoppingCart, FiHeart, FiUser, FiSearch, FiMenu, FiX, FiPhone, FiMail } from 'react-icons/fi';
 import { selectCartCount } from '../../store/slices/cartSlice';
 import { logout } from '../../store/slices/authSlice';
 import { clearSearchResults, searchSuggestions } from '../../store/slices/productSlice';
+import { fetchCategories } from '../../store/slices/categorySlice';
 import { useSettings } from '../../context/SettingsContext';
 
 const Header = () => {
@@ -14,12 +15,18 @@ const Header = () => {
   const cartCount = useSelector(selectCartCount);
   const wishlistCount = useSelector((state) => state.wishlist.items.length);
   const { searchResults } = useSelector((state) => state.products);
+  const { categories } = useSelector((state) => state.categories);
   const { settings } = useSettings();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+
+  // Fetch categories on mount
+  useEffect(() => {
+    dispatch(fetchCategories({}));
+  }, [dispatch]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -77,7 +84,7 @@ const Header = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">E</span>
+              <span className="text-white font-bold text-xl">BW</span>
             </div>
             <span className="text-xl font-bold font-display hidden sm:block">
               {siteName}
@@ -226,10 +233,17 @@ const Header = () => {
           <ul className="flex items-center gap-8 py-3">
             <li><Link to="/" className="font-medium hover:text-primary-600 transition-colors">Home</Link></li>
             <li><Link to="/products" className="font-medium hover:text-primary-600 transition-colors">All Products</Link></li>
-            <li><Link to="/products?category=smartphones" className="font-medium hover:text-primary-600 transition-colors">Smartphones</Link></li>
-            <li><Link to="/products?category=laptops" className="font-medium hover:text-primary-600 transition-colors">Laptops</Link></li>
-            <li><Link to="/products?category=audio" className="font-medium hover:text-primary-600 transition-colors">Audio</Link></li>
-            <li><Link to="/products?featured=true" className="font-medium hover:text-primary-600 transition-colors">Featured</Link></li>
+            {/* Dynamic Categories from API */}
+            {categories.slice(0, 4).map((category) => (
+              <li key={category._id}>
+                <Link 
+                  to={`/products?category=${category._id}`} 
+                  className="font-medium hover:text-primary-600 transition-colors"
+                >
+                  {category.name}
+                </Link>
+              </li>
+            ))}
           </ul>
         </div>
       </nav>

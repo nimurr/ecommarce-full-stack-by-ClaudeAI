@@ -10,7 +10,7 @@ const Products = () => {
   const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
   const { products, loading, total, pages, page } = useSelector((state) => state.products);
-  const { categories } = useSelector((state) => state.categories);
+  const { categories, loading: categoriesLoading } = useSelector((state) => state.categories);
 
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
@@ -23,6 +23,11 @@ const Products = () => {
     search: searchParams.get('search') || '',
     featured: searchParams.get('featured') || '',
   });
+
+  // Fetch categories on mount
+  useEffect(() => {
+    dispatch(fetchCategories({}));
+  }, [dispatch]);
 
   useEffect(() => {
     const params = {};

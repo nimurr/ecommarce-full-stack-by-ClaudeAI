@@ -29,6 +29,7 @@ import couponRoutes from './routes/couponRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import settingsRoutes from './routes/settingsRoutes.js';
+import pageRoutes from './routes/pageRoutes.js';
 
 // Load env vars
 dotenv.config();
@@ -85,6 +86,7 @@ app.use('/api/coupons', couponRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/pages', pageRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

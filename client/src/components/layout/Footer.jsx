@@ -1,10 +1,23 @@
 import { Link } from 'react-router-dom';
 import { FiFacebook, FiTwitter, FiInstagram, FiLinkedin, FiPhone, FiMail, FiMapPin, FiClock } from 'react-icons/fi';
 import { useSettings } from '../../context/SettingsContext';
+import { useEffect, useState } from 'react';
+import { getNavigationPages } from '../../api/pageAPI';
 
 const Footer = () => {
   const { settings } = useSettings();
+  const [navigationPages, setNavigationPages] = useState([]);
   const currentYear = new Date().getFullYear();
+
+  useEffect(() => {
+    const fetchPages = async () => {
+      const result = await getNavigationPages();
+      if (result && result.data) {
+        setNavigationPages(result.data);
+      }
+    };
+    fetchPages();
+  }, []);
 
   const siteName = settings?.siteName || 'ElectroMart';
   const siteDescription = settings?.siteDescription || 'Your one-stop destination for premium electronics and gadgets.';
@@ -55,15 +68,27 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Quick Links */}
+          {/* Quick Links - Dynamic from Database */}
           <div>
             <h3 className="text-white font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2">
-              <li><Link to="/about" className="hover:text-primary-400 transition-colors">About Us</Link></li>
-              <li><Link to="/products" className="hover:text-primary-400 transition-colors">All Products</Link></li>
-              <li><Link to="/products?featured=true" className="hover:text-primary-400 transition-colors">Featured</Link></li>
-              <li><Link to="/products?sale=true" className="hover:text-primary-400 transition-colors">Sale</Link></li>
-              <li><Link to="/contact" className="hover:text-primary-400 transition-colors">Contact Us</Link></li>
+              {navigationPages.length > 0 ? (
+                navigationPages.slice(0, 5).map((page) => (
+                  <li key={page._id}>
+                    <Link to={`/page/${page.slug}`} className="hover:text-primary-400 transition-colors capitalize">
+                      {page.title}
+                    </Link>
+                  </li>
+                ))
+              ) : (
+                <>
+                  <li><Link to="/page/about" className="hover:text-primary-400 transition-colors">About Us</Link></li>
+                  <li><Link to="/page/contact" className="hover:text-primary-400 transition-colors">Contact Us</Link></li>
+                  <li><Link to="/page/faq" className="hover:text-primary-400 transition-colors">FAQ</Link></li>
+                  <li><Link to="/page/shipping" className="hover:text-primary-400 transition-colors">Shipping Info</Link></li>
+                  <li><Link to="/page/returns" className="hover:text-primary-400 transition-colors">Returns & Refunds</Link></li>
+                </>
+              )}
             </ul>
           </div>
 
@@ -71,12 +96,21 @@ const Footer = () => {
           <div>
             <h3 className="text-white font-semibold mb-4">Customer Service</h3>
             <ul className="space-y-2">
-              <li><Link to="/faq" className="hover:text-primary-400 transition-colors">FAQ</Link></li>
-              <li><Link to="/shipping" className="hover:text-primary-400 transition-colors">Shipping Info</Link></li>
-              <li><Link to="/returns" className="hover:text-primary-400 transition-colors">Returns & Refunds</Link></li>
-              <li><Link to="/warranty" className="hover:text-primary-400 transition-colors">Warranty</Link></li>
-              <li><Link to="/privacy" className="hover:text-primary-400 transition-colors">Privacy Policy</Link></li>
-              <li><Link to="/terms" className="hover:text-primary-400 transition-colors">Terms of Service</Link></li>
+              {navigationPages.length > 0 ? (
+                navigationPages.slice(5, 10).map((page) => (
+                  <li key={page._id}>
+                    <Link to={`/page/${page.slug}`} className="hover:text-primary-400 transition-colors capitalize">
+                      {page.title}
+                    </Link>
+                  </li>
+                ))
+              ) : (
+                <>
+                  <li><Link to="/page/warranty" className="hover:text-primary-400 transition-colors">Warranty</Link></li>
+                  <li><Link to="/page/privacy" className="hover:text-primary-400 transition-colors">Privacy Policy</Link></li>
+                  <li><Link to="/page/terms" className="hover:text-primary-400 transition-colors">Terms of Service</Link></li>
+                </>
+              )}
             </ul>
           </div>
 

@@ -1,6 +1,6 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { FiHome, FiPackage, FiList, FiShoppingCart, FiUsers, FiStar, FiTag, FiSettings, FiLogOut, FiMenu, FiX } from 'react-icons/fi';
+import { FiHome, FiPackage, FiList, FiShoppingCart, FiUsers, FiStar, FiTag, FiSettings, FiFileText, FiLogOut, FiMenu, FiX } from 'react-icons/fi';
 import { adminLogout } from '../store/slices/authSlice';
 import { useState } from 'react';
 
@@ -19,6 +19,7 @@ const Layout = () => {
     { name: 'Users', href: 'users', icon: FiUsers },
     { name: 'Reviews', href: 'reviews', icon: FiStar },
     { name: 'Coupons', href: 'coupons', icon: FiTag },
+    { name: 'Pages', href: 'pages', icon: FiFileText },
     { name: 'Settings', href: 'settings', icon: FiSettings },
   ];
 

@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { FiArrowRight, FiTruck, FiShield, FiHeadphones, FiRefreshCw } from 'react-icons/fi';
 import { fetchFeaturedProducts, fetchNewArrivals } from '../store/slices/productSlice';
 import { fetchFeaturedCategories } from '../store/slices/categorySlice';
+import { getHomepageCoupon } from '../api/couponAPI';
 import ProductCard from '../components/products/ProductCard';
 import CategoryCard from '../components/categories/CategoryCard';
 
@@ -11,11 +12,30 @@ const Home = () => {
   const dispatch = useDispatch();
   const { featuredProducts, newArrivals, loading } = useSelector((state) => state.products);
   const { featuredCategories } = useSelector((state) => state.categories);
+  const [homepageCoupon, setHomepageCoupon] = useState(null);
+  const [couponLoading, setCouponLoading] = useState(true);
 
   useEffect(() => {
     dispatch(fetchFeaturedProducts());
     dispatch(fetchNewArrivals());
     dispatch(fetchFeaturedCategories());
+
+    // Fetch homepage coupon
+    const fetchCoupon = async () => {
+      setCouponLoading(true);
+      try {
+        const result = await getHomepageCoupon();
+        if (result && result.data) {
+          setHomepageCoupon(result.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch coupon:', error);
+      } finally {
+        setCouponLoading(false);
+      }
+    };
+
+    fetchCoupon();
   }, [dispatch]);
 
   const features = [
@@ -24,6 +44,20 @@ const Home = () => {
     { icon: FiRefreshCw, title: 'Easy Returns', desc: '7 days return policy' },
     { icon: FiHeadphones, title: '24/7 Support', desc: 'Dedicated customer support' },
   ];
+
+  // Format discount display
+  const formatDiscount = (coupon) => {
+    if (!coupon) return '';
+
+    if (coupon.discountType === 'percentage') {
+      return `${coupon.discountValue}% OFF`;
+    } else if (coupon.discountType === 'fixed') {
+      return `৳${coupon.discountValue} OFF`;
+    } else if (coupon.discountType === 'free_shipping') {
+      return 'FREE SHIPPING';
+    }
+    return '';
+  };
 
   return (
     <div className="animate-fade-in">
@@ -127,6 +161,7 @@ const Home = () => {
         </div>
       </section>
 
+
       {/* New Arrivals */}
       <section className="py-16">
         <div className="container-custom">
@@ -160,22 +195,54 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Promo Banner */}
+      {/* Dynamic Promo Banner - Coupon or Coming Soon */}
       <section className="py-16">
         <div className="container-custom">
-          <div className="bg-gradient-to-r from-accent-600 to-accent-700 rounded-2xl p-8 md:p-12 text-white text-center">
-            <h2 className="text-3xl md:text-4xl font-bold font-display mb-4">
-              🎉 Special Offer: 20% Off on First Order!
-            </h2>
-            <p className="text-lg md:text-xl mb-8 text-accent-100">
-              Use code <span className="font-bold bg-white text-accent-600 px-4 py-2 rounded-lg">WELCOME20</span> at checkout
-            </p>
-            <Link to="/register" className="btn-primary bg-white text-accent-600 hover:bg-gray-100">
-              Register Now
-            </Link>
-          </div>
+          {couponLoading ? (
+            <div className="bg-gradient-to-r from-accent-600 to-accent-700 rounded-2xl p-8 md:p-12 text-white text-center animate-pulse">
+              <div className="h-8 bg-white bg-opacity-20 rounded w-3/4 mx-auto mb-4"></div>
+              <div className="h-6 bg-white bg-opacity-20 rounded w-1/2 mx-auto"></div>
+            </div>
+          ) : homepageCoupon ? (
+            <div className="bg-gradient-to-r from-accent-600 to-accent-700 rounded-2xl p-8 md:p-12 text-white text-center">
+              <h2 className="text-3xl md:text-4xl font-bold font-display mb-4">
+                🎉 {homepageCoupon.description || 'Special Offer!'}
+              </h2>
+              <p className="text-lg md:text-xl mb-6 text-accent-100">
+                Use code <span className="font-bold bg-white text-accent-600 px-6 py-3 rounded-lg text-xl">
+                  {homepageCoupon.code}
+                </span> {formatDiscount(homepageCoupon) && `at checkout and get ${formatDiscount(homepageCoupon)}!`}
+              </p>
+              {homepageCoupon.minPurchase > 0 && (
+                <p className="text-sm mb-8 text-accent-200">
+                  Minimum purchase of ৳{homepageCoupon.minPurchase} required
+                </p>
+              )}
+              <div className="flex flex-wrap justify-center gap-4">
+                <Link to="/register" className="btn-primary bg-white text-accent-600 hover:bg-gray-100">
+                  Register Now
+                </Link>
+                <Link to="/products" className="btn-outline border-white text-white hover:bg-white hover:text-accent-600">
+                  Shop Now
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-gradient-to-r from-[#037dbc] to-gray-800 rounded-2xl p-8 md:px-12 md:py-20 text-white text-center">
+              <h2 className="text-3xl md:text-4xl font-bold font-display mb-4">
+                🎁 Special Offer Coming Soon!
+              </h2>
+              <p className="text-lg md:text-xl mb-8 text-gray-300">
+                We're preparing amazing deals just for you. Stay tuned!
+              </p>
+              <Link to="/products" className="btn-primary bg-white text-gray-900 hover:bg-gray-100">
+                Browse Products
+              </Link>
+            </div>
+          )}
         </div>
       </section>
+
 
       {/* Brands Section */}
       <section className="py-16 bg-gray-50">
