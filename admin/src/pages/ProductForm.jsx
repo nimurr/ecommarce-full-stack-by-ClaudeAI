@@ -163,7 +163,7 @@ const ProductForm = () => {
         });
         const result = await response.json();
         if (result.success) {
-          navigate('/admin/products');
+          navigate('/products');
         } else {
           alert(result.message || 'Failed to update product');
         }
@@ -179,7 +179,7 @@ const ProductForm = () => {
         });
         const result = await response.json();
         if (result.success) {
-          navigate('/admin/products');
+          navigate('/products');
         } else {
           alert(result.message || 'Failed to create product');
         }
@@ -196,7 +196,7 @@ const ProductForm = () => {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">{id ? 'Edit Product' : 'Add Product'}</h1>
-        <button onClick={() => navigate('/admin/products')} className="btn-secondary flex items-center gap-2">
+        <button onClick={() => navigate('/products')} className="btn-secondary flex items-center gap-2">
           <FiX className="w-5 h-5" />
           Cancel
         </button>

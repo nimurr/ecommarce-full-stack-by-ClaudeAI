@@ -151,7 +151,7 @@ const Orders = () => {
                       {new Date(order.createdAt).toLocaleDateString()}
                     </td>
                     <td className="py-3 px-4">
-                      <Link to={`/admin/orders/${order._id}`} className="btn-secondary text-sm py-1 px-3">
+                      <Link to={`/orders/${order._id}`} className="btn-secondary text-sm py-1 px-3">
                         <FiEye className="inline w-4 h-4" />
                       </Link>
                     </td>

@@ -38,7 +38,12 @@ const orderSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: [true, 'Please provide user information'],
+    required: false, // Made optional for guest checkout
+  },
+  guestInfo: {
+    name: String,
+    email: String,
+    phone: String,
   },
   orderItems: [orderItemSchema],
   shippingAddress: {

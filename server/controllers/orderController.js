@@ -80,10 +80,19 @@ export const getOrder = asyncHandler(async (req, res) => {
     throw new Error('Order not found');
   }
 
-  // Check if user is authorized
-  if (order.user._id.toString() !== req.user.id && req.user.role !== 'admin') {
-    res.status(403);
-    throw new Error('Not authorized to access this order');
+  // Check if user is authorized (handle guest orders)
+  if (order.user) {
+    // For registered users
+    if (order.user._id.toString() !== req.user.id && req.user.role !== 'admin') {
+      res.status(403);
+      throw new Error('Not authorized to access this order');
+    }
+  } else {
+    // For guest orders - only admin can access
+    if (!req.user || req.user.role !== 'admin') {
+      res.status(403);
+      throw new Error('Not authorized to access this order');
+    }
   }
 
   res.status(200).json({

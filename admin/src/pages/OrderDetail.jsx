@@ -24,7 +24,7 @@ const OrderDetail = () => {
 
   return (
     <div>
-      <button onClick={() => navigate('/admin/orders')} className="flex items-center gap-2 mb-6 text-gray-600 hover:text-gray-900">
+      <button onClick={() => navigate('/orders')} className="flex items-center gap-2 mb-6 text-gray-600 hover:text-gray-900">
         <FiArrowLeft className="w-5 h-5" />
         Back to Orders
       </button>
