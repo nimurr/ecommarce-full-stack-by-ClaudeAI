@@ -27,6 +27,15 @@ const orderItemSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  // Product variants
+  selectedColor: {
+    type: String,
+    default: '',
+  },
+  selectedSize: {
+    type: String,
+    default: '',
+  },
 });
 
 const orderSchema = new mongoose.Schema({

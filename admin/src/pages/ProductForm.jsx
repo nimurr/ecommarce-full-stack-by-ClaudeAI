@@ -133,6 +133,18 @@ const ProductForm = () => {
       submitData.append('warranty', formData.warranty);
       submitData.append('returnPolicy', formData.returnPolicy);
       
+      // Append product variants (colors and sizes)
+      if (formData.availableColors && formData.availableColors.length > 0) {
+        formData.availableColors.forEach(color => {
+          submitData.append('availableColors[]', color);
+        });
+      }
+      if (formData.availableSizes && formData.availableSizes.length > 0) {
+        formData.availableSizes.forEach(size => {
+          submitData.append('availableSizes[]', size);
+        });
+      }
+      
       // Append specifications
       Object.entries(formData.specifications).forEach(([key, value]) => {
         submitData.append(`specifications[${key}]`, value);
@@ -154,7 +166,11 @@ const ProductForm = () => {
         }
       });
 
-      console.log('📤 Submitting product with', formData.images.filter(i => i.file).length, 'images');
+      console.log('📤 Submitting product with:', {
+        images: formData.images.filter(i => i.file).length,
+        colors: formData.availableColors?.length || 0,
+        sizes: formData.availableSizes?.length || 0,
+      });
 
       if (id) {
         // Update product - need to use custom API call for FormData
@@ -319,7 +335,7 @@ const ProductForm = () => {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Available Colors</label>
                   <div className="flex flex-wrap gap-2 mb-2">
-                    {formData.availableColors.map((color, index) => (
+                    {formData.availableColors && formData.availableColors.map((color, index) => (
                       <span key={index} className="badge badge-primary flex items-center gap-1">
                         {color}
                         <button
@@ -344,10 +360,10 @@ const ProductForm = () => {
                         if (e.key === 'Enter') {
                           e.preventDefault();
                           const value = e.target.value.trim();
-                          if (value && !formData.availableColors.includes(value)) {
+                          if (value && formData.availableColors && !formData.availableColors.includes(value)) {
                             setFormData(prev => ({
                               ...prev,
-                              availableColors: [...prev.availableColors, value]
+                              availableColors: [...(prev.availableColors || []), value]
                             }));
                             e.target.value = '';
                           }
@@ -359,10 +375,10 @@ const ProductForm = () => {
                       onClick={(e) => {
                         const input = e.target.previousSibling;
                         const value = input.value.trim();
-                        if (value && !formData.availableColors.includes(value)) {
+                        if (value && formData.availableColors && !formData.availableColors.includes(value)) {
                           setFormData(prev => ({
                             ...prev,
-                            availableColors: [...prev.availableColors, value]
+                            availableColors: [...(prev.availableColors || []), value]
                           }));
                           input.value = '';
                         }
@@ -377,7 +393,7 @@ const ProductForm = () => {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Available Sizes</label>
                   <div className="flex flex-wrap gap-2 mb-2">
-                    {formData.availableSizes.map((size, index) => (
+                    {formData.availableSizes && formData.availableSizes.map((size, index) => (
                       <span key={index} className="badge badge-primary flex items-center gap-1">
                         {size}
                         <button
@@ -402,10 +418,10 @@ const ProductForm = () => {
                         if (e.key === 'Enter') {
                           e.preventDefault();
                           const value = e.target.value.trim();
-                          if (value && !formData.availableSizes.includes(value)) {
+                          if (value && formData.availableSizes && !formData.availableSizes.includes(value)) {
                             setFormData(prev => ({
                               ...prev,
-                              availableSizes: [...prev.availableSizes, value]
+                              availableSizes: [...(prev.availableSizes || []), value]
                             }));
                             e.target.value = '';
                           }
@@ -417,10 +433,10 @@ const ProductForm = () => {
                       onClick={(e) => {
                         const input = e.target.previousSibling;
                         const value = input.value.trim();
-                        if (value && !formData.availableSizes.includes(value)) {
+                        if (value && formData.availableSizes && !formData.availableSizes.includes(value)) {
                           setFormData(prev => ({
                             ...prev,
-                            availableSizes: [...prev.availableSizes, value]
+                            availableSizes: [...(prev.availableSizes || []), value]
                           }));
                           input.value = '';
                         }

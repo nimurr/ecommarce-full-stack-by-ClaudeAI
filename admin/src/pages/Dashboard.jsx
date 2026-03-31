@@ -95,7 +95,7 @@ const Dashboard = () => {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {statCards.map((stat) => (
-          <div key={stat.title} className="card">
+          <div key={stat.title} className="card bg-gradient-to-tr from-lime-50 to-violet-100 border">
             <div className="flex items-start justify-between mb-4">
               <div>
                 <p className="text-gray-600 font-semibold mb-1">{stat.title}</p>
@@ -118,27 +118,27 @@ const Dashboard = () => {
             {Object.entries(ordersByStatus).map(([status, count]) => (
               <div
                 className={`flex justify-between items-center px-5 py-10 rounded-lg border ${status === "pending"
-                  ? "bg-yellow-400"
+                  ? "bg-yellow-200"
                   : status === "confirmed"
-                    ? "bg-blue-400"
+                    ? "bg-blue-200"
                     : status === "processing"
-                      ? "bg-purple-400"
+                      ? "bg-purple-200"
                       : status === "shipped"
-                        ? "bg-indigo-400"
+                        ? "bg-indigo-200"
                         : status === "out for delivery"
-                          ? "bg-orange-400"
+                          ? "bg-orange-200"
                           : status === "delivered"
-                            ? "bg-green-500"
+                            ? "bg-green-200"
                             : status === "cancelled"
-                              ? "bg-red-500"
+                              ? "bg-red-200"
                               : status === "refunded"
-                                ? "bg-gray-400"
+                                ? "bg-gray-200"
                                 : "bg-gray-200"
                   }`}
               >
 
-                <span className="capitalize text-xl font-bold text-white"><FaOpencart className='text-4xl' /> <br /> {status}</span>
-                <span className={` text-5xl text-white`}>{count}</span>
+                <span className="capitalize text-xl font-bold text-black"><FaOpencart className='text-4xl' /> <br /> {status}</span>
+                <span className={` text-5xl text-black`}>{count}</span>
               </div>
             ))}
           </div>

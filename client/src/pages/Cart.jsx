@@ -10,12 +10,12 @@ const Cart = () => {
   const { cartItems } = useSelector((state) => state.cart);
   const totals = useSelector(selectCartTotal);
 
-  const handleUpdateQuantity = (product, quantity) => {
+  const handleUpdateQuantity = (product, quantity, selectedColor, selectedSize) => {
     if (quantity < 1) return;
-    dispatch(updateQuantity({ product, quantity }));
+    dispatch(updateQuantity({ product, quantity, selectedColor, selectedSize }));
   };
 
-  const handleRemove = (product) => {
+  const handleRemove = (product, selectedColor, selectedSize) => {
     dispatch(removeFromCart(product));
   };
 
@@ -42,7 +42,7 @@ const Cart = () => {
         {/* Cart Items */}
         <div className="lg:col-span-2 space-y-4">
           {cartItems.map((item) => (
-            <div key={item.product} className="card p-4">
+            <div key={`${item.product}-${item.selectedColor || ''}-${item.selectedSize || ''}`} className="card p-4">
               <div className="flex gap-4">
                 <img
                   src={item.image || 'https://via.placeholder.com/100x100'}
@@ -54,11 +54,25 @@ const Cart = () => {
                     {item.name}
                   </Link>
                   <p className="text-gray-500 text-sm mt-1">৳{item.price?.toLocaleString()}</p>
+                  
+                  {/* Show selected color and size */}
+                  <div className="flex gap-4 mt-2 text-sm">
+                    {item.selectedColor && (
+                      <p className="text-gray-600">
+                        <span className="font-medium">Color:</span> {item.selectedColor}
+                      </p>
+                    )}
+                    {item.selectedSize && (
+                      <p className="text-gray-600">
+                        <span className="font-medium">Size:</span> {item.selectedSize}
+                      </p>
+                    )}
+                  </div>
 
                   <div className="flex items-center justify-between mt-4">
                     <div className="flex items-center border rounded-lg">
                       <button
-                        onClick={() => handleUpdateQuantity(item.product, item.quantity - 1)}
+                        onClick={() => handleUpdateQuantity(item.product, item.quantity - 1, item.selectedColor, item.selectedSize)}
                         className="p-2 hover:bg-gray-100"
                         disabled={item.quantity <= 1}
                       >
@@ -66,7 +80,7 @@ const Cart = () => {
                       </button>
                       <span className="w-12 text-center font-medium">{item.quantity}</span>
                       <button
-                        onClick={() => handleUpdateQuantity(item.product, item.quantity + 1)}
+                        onClick={() => handleUpdateQuantity(item.product, item.quantity + 1, item.selectedColor, item.selectedSize)}
                         className="p-2 hover:bg-gray-100"
                       >
                         <FiPlus className="w-4 h-4" />
@@ -74,7 +88,7 @@ const Cart = () => {
                     </div>
 
                     <button
-                      onClick={() => handleRemove(item.product)}
+                      onClick={() => handleRemove(item.product, item.selectedColor, item.selectedSize)}
                       className="text-red-600 hover:text-red-700 p-2"
                     >
                       <FiTrash2 className="w-5 h-5" />

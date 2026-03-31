@@ -176,10 +176,7 @@ const Footer = () => {
               © {currentYear} {siteName}. All rights reserved.
             </p>
             <div className="flex items-center gap-4">
-              <img src="https://via.placeholder.com/50x30?text=VISA" alt="VISA" className="h-6" />
-              <img src="https://via.placeholder.com/50x30?text=MC" alt="Mastercard" className="h-6" />
-              <img src="https://via.placeholder.com/50x30?text=bKash" alt="bKash" className="h-6" />
-              <img src="https://via.placeholder.com/50x30?text=COD" alt="COD" className="h-6" />
+              <img src="https://hostxio.com/wp-content/uploads/2022/08/pay.png" alt="Payment Methods" className="h-6" /> 
             </div>
           </div>
         </div>

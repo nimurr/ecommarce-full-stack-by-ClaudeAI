@@ -32,7 +32,7 @@ const Checkout = () => {
   };
 
   // Calculate subtotal
-  const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+  const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   // Calculate shipping based on settings and city
   const calculateShipping = () => {
@@ -55,7 +55,16 @@ const Checkout = () => {
 
     try {
       const orderData = {
-        orderItems: cartItems,
+        orderItems: cartItems.map(item => ({
+          product: item.product,
+          name: item.name,
+          quantity: item.quantity,
+          price: item.price,
+          image: item.image,
+          subtotal: item.price * item.quantity,
+          selectedColor: item.selectedColor,
+          selectedSize: item.selectedSize,
+        })),
         shippingAddress: formData,
         paymentMethod: payment,
         couponCode: couponCode || undefined,
@@ -250,12 +259,18 @@ const Checkout = () => {
 
               {/* Items */}
               <div className="space-y-3 mb-4 max-h-48 overflow-y-auto">
-                {cartItems.map((item) => (
-                  <div key={item.product} className="flex gap-3">
+                {cartItems.map((item, index) => (
+                  <div key={index} className="flex gap-3">
                     <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded" />
                     <div className="flex-1">
                       <p className="text-sm font-medium line-clamp-1">{item.name}</p>
                       <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
+                      {item.selectedColor && (
+                        <p className="text-xs text-gray-500">Color: {item.selectedColor}</p>
+                      )}
+                      {item.selectedSize && (
+                        <p className="text-xs text-gray-500">Size: {item.selectedSize}</p>
+                      )}
                       <p className="text-sm font-semibold">৳{(item.price * item.quantity).toLocaleString()}</p>
                     </div>
                   </div>

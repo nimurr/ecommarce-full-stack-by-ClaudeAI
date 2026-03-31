@@ -18,35 +18,68 @@ const ProductDetails = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedColor, setSelectedColor] = useState('');
   const [selectedSize, setSelectedSize] = useState('');
+  const [showError, setShowError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     dispatch(fetchProductBySlug(slug));
     return () => dispatch(clearProduct());
   }, [dispatch, slug]);
 
+  const validateSelection = () => {
+    const needsColor = product.availableColors && product.availableColors.length > 0;
+    const needsSize = product.availableSizes && product.availableSizes.length > 0;
+
+    if (needsColor && !selectedColor) {
+      setErrorMessage('Please select a color');
+      setShowError(true);
+      return false;
+    }
+
+    if (needsSize && !selectedSize) {
+      setErrorMessage('Please select a size');
+      setShowError(true);
+      return false;
+    }
+
+    setShowError(false);
+    setErrorMessage('');
+    return true;
+  };
+
   const handleAddToCart = () => {
     if (!product) return;
+    
+    if (!validateSelection()) {
+      return;
+    }
+
     dispatch(addToCart({
       product: product._id,
       name: product.name,
       price: product.price,
       image: product.mainImage,
       quantity,
-      selectedColor,
-      selectedSize,
+      selectedColor: selectedColor || null,
+      selectedSize: selectedSize || null,
     }));
   };
 
   const handleBuyNow = () => {
     if (!product) return;
+    
+    if (!validateSelection()) {
+      return;
+    }
+
     dispatch(addToCart({
       product: product._id,
       name: product.name,
       price: product.price,
       image: product.mainImage,
       quantity,
-      selectedColor,
-      selectedSize,
+      selectedColor: selectedColor || null,
+      selectedSize: selectedSize || null,
     }));
     navigate('/checkout');
   };

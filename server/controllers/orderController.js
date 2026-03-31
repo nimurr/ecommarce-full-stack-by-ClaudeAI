@@ -158,6 +158,8 @@ export const createOrder = asyncHandler(async (req, res) => {
       price: product.price,
       image: product.mainImage,
       subtotal,
+      selectedColor: item.selectedColor || '',
+      selectedSize: item.selectedSize || '',
     });
   }
 

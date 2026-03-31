@@ -18,14 +18,21 @@ const cartSlice = createSlice({
   reducers: {
     addToCart: (state, action) => {
       const item = action.payload;
-      const existItem = state.cartItems.find((x) => x.product === item.product);
+      const existItem = state.cartItems.find((x) => 
+        x.product === item.product && 
+        x.selectedColor === item.selectedColor && 
+        x.selectedSize === item.selectedSize
+      );
 
       if (existItem) {
-        // Update quantity if item already exists
-        existItem.quantity = item.quantity;
+        // Update quantity if item already exists (same product, color, size)
+        existItem.quantity = (existItem.quantity || 0) + (item.quantity || 1);
       } else {
         // Add new item
-        state.cartItems = [...state.cartItems, item];
+        state.cartItems = [...state.cartItems, {
+          ...item,
+          quantity: item.quantity || 1,
+        }];
       }
 
       localStorage.setItem('cart', JSON.stringify(state.cartItems));
@@ -35,8 +42,12 @@ const cartSlice = createSlice({
       localStorage.setItem('cart', JSON.stringify(state.cartItems));
     },
     updateQuantity: (state, action) => {
-      const { product, quantity } = action.payload;
-      const item = state.cartItems.find((x) => x.product === product);
+      const { product, quantity, selectedColor, selectedSize } = action.payload;
+      const item = state.cartItems.find((x) => 
+        x.product === product && 
+        x.selectedColor === selectedColor && 
+        x.selectedSize === selectedSize
+      );
       if (item) {
         item.quantity = quantity;
         localStorage.setItem('cart', JSON.stringify(state.cartItems));
