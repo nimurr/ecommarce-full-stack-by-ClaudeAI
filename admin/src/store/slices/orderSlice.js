@@ -40,6 +40,20 @@ export const updateOrderStatus = createAsyncThunk(
   }
 );
 
+export const updatePaymentStatus = createAsyncThunk(
+  'orders/updatePaymentStatus',
+  async ({ id, data }, { rejectWithValue }) => {
+    try {
+      const { data: result } = await adminAPI.updatePaymentStatus(id, data);
+      toast.success('Payment status updated');
+      return result.data;
+    } catch (error) {
+      toast.error(error.response?.data?.message);
+      return rejectWithValue(error.response?.data?.message);
+    }
+  }
+);
+
 const initialState = {
   orders: [],
   order: null,
@@ -75,6 +89,13 @@ const orderSlice = createSlice({
         state.order = action.payload;
       })
       .addCase(updateOrderStatus.fulfilled, (state, action) => {
+        const index = state.orders.findIndex(o => o._id === action.payload._id);
+        if (index !== -1) state.orders[index] = action.payload;
+        if (state.order && state.order._id === action.payload._id) {
+          state.order = action.payload;
+        }
+      })
+      .addCase(updatePaymentStatus.fulfilled, (state, action) => {
         const index = state.orders.findIndex(o => o._id === action.payload._id);
         if (index !== -1) state.orders[index] = action.payload;
         if (state.order && state.order._id === action.payload._id) {

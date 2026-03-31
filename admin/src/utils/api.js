@@ -47,6 +47,7 @@ export const adminAPI = {
   getOrders: (params) => api.get('/orders', { params }),
   getOrder: (id) => api.get(`/orders/${id}`),
   updateOrderStatus: (id, data) => api.put(`/orders/${id}/status`, data),
+  updatePaymentStatus: (id, data) => api.put(`/orders/${id}/payment`, data),
   getUsers: (params) => api.get('/users', { params }),
   createUser: (data) => api.post('/users', data),
   updateUser: (id, data) => api.put(`/users/${id}`, data),

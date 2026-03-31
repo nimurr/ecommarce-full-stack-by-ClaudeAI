@@ -1,20 +1,28 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
-import { fetchOrders, updateOrderStatus } from '../store/slices/orderSlice';
+import { fetchOrders, updateOrderStatus, updatePaymentStatus } from '../store/slices/orderSlice';
 import { FiEye } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
 
 const Orders = () => {
   const dispatch = useDispatch();
   const { orders, loading, total } = useSelector((state) => state.orders);
   const [statusFilter, setStatusFilter] = useState('');
+  const [paymentFilter, setPaymentFilter] = useState('');
 
   useEffect(() => {
-    dispatch(fetchOrders({ status: statusFilter, limit: 50 }));
-  }, [dispatch, statusFilter]);
+    const params = {};
+    if (statusFilter) params.status = statusFilter;
+    if (paymentFilter) params.paymentStatus = paymentFilter;
+    dispatch(fetchOrders(params));
+  }, [dispatch, statusFilter, paymentFilter]);
 
   const handleStatusChange = async (id, newStatus) => {
     await dispatch(updateOrderStatus({ id, data: { orderStatus: newStatus } }));
+  };
+
+  const handlePaymentStatusChange = async (id, newStatus) => {
+    await dispatch(updatePaymentStatus({ id, data: { paymentStatus: newStatus } }));
   };
 
   const getStatusBadge = (status) => {
@@ -30,21 +38,55 @@ const Orders = () => {
     return badges[status] || 'badge-primary';
   };
 
+  const getPaymentBadge = (status) => {
+    const badges = {
+      'Pending': 'badge-warning',
+      'Paid': 'badge-success',
+      'Failed': 'badge-danger',
+      'Refunded': 'badge-danger',
+    };
+    return badges[status] || 'badge-primary';
+  };
+
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6">Orders ({total})</h1>
 
-      {/* Filter */}
-      <div className="mb-6">
-        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="input-field w-auto">
-          <option value="">All Orders</option>
-          <option value="Pending">Pending</option>
-          <option value="Confirmed">Confirmed</option>
-          <option value="Processing">Processing</option>
-          <option value="Shipped">Shipped</option>
-          <option value="Delivered">Delivered</option>
-          <option value="Cancelled">Cancelled</option>
-        </select>
+      {/* Filters */}
+      <div className="card mb-6">
+        <div className="grid md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Status</label>
+            <select 
+              value={statusFilter} 
+              onChange={(e) => setStatusFilter(e.target.value)} 
+              className="input-field"
+            >
+              <option value="">All Status</option>
+              <option value="Pending">Pending</option>
+              <option value="Confirmed">Confirmed</option>
+              <option value="Processing">Processing</option>
+              <option value="Shipped">Shipped</option>
+              <option value="Out for Delivery">Out for Delivery</option>
+              <option value="Delivered">Delivered</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Payment</label>
+            <select 
+              value={paymentFilter} 
+              onChange={(e) => setPaymentFilter(e.target.value)} 
+              className="input-field"
+            >
+              <option value="">All Payment</option>
+              <option value="Pending">Pending</option>
+              <option value="Paid">Paid</option>
+              <option value="Failed">Failed</option>
+              <option value="Refunded">Refunded</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       {/* Orders Table */}
@@ -73,8 +115,8 @@ const Orders = () => {
                     <td className="py-3 px-4 font-medium">{order.orderNumber}</td>
                     <td className="py-3 px-4">
                       <div>
-                        <p className="font-medium">{order.user?.name}</p>
-                        <p className="text-sm text-gray-500">{order.user?.email}</p>
+                        <p className="font-medium">{order.user?.name || 'Guest'}</p>
+                        <p className="text-sm text-gray-500">{order.user?.email || order.shippingAddress?.email || ''}</p>
                       </div>
                     </td>
                     <td className="py-3 px-4 font-semibold">৳{order.totalPrice?.toLocaleString()}</td>
@@ -94,9 +136,16 @@ const Orders = () => {
                       </select>
                     </td>
                     <td className="py-3 px-4">
-                      <span className={`badge ${order.paymentStatus === 'Paid' ? 'badge-success' : order.paymentStatus === 'Failed' ? 'badge-danger' : 'badge-warning'}`}>
-                        {order.paymentStatus}
-                      </span>
+                      <select
+                        value={order.paymentStatus}
+                        onChange={(e) => handlePaymentStatusChange(order._id, e.target.value)}
+                        className={`text-sm font-medium ${getPaymentBadge(order.paymentStatus)}`}
+                      >
+                        <option value="Pending">Pending</option>
+                        <option value="Paid">Paid</option>
+                        <option value="Failed">Failed</option>
+                        <option value="Refunded">Refunded</option>
+                      </select>
                     </td>
                     <td className="py-3 px-4 text-sm text-gray-500">
                       {new Date(order.createdAt).toLocaleDateString()}
