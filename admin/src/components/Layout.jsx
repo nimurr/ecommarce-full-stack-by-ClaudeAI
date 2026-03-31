@@ -31,7 +31,7 @@ const Layout = () => {
       {/* Sidebar */}
       <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-gray-900 text-white transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
         <div className="flex items-center justify-between h-16 px-6 bg-gray-800">
-          <span className="text-xl font-bold">Admin Panel</span>
+          <span className="text-2xl font-bold text-center block">Busy World <sup className='text-xs'>Admin</sup></span>
           <button onClick={() => setSidebarOpen(false)} className="lg:hidden">
             <FiX className="w-6 h-6" />
           </button>
@@ -64,7 +64,7 @@ const Layout = () => {
       {/* Main Content */}
       <div className={`transition-all ${sidebarOpen ? 'lg:ml-64' : ''}`}>
         {/* Top Bar */}
-        <header className="bg-white shadow-sm h-16 flex items-center justify-between px-6 sticky top-0 z-40">
+        <header className="bg-gray-900 text-white shadow-sm h-16 flex items-center justify-between px-6 sticky top-0 z-40">
           <button onClick={() => setSidebarOpen(!sidebarOpen)} className="lg:hidden">
             <FiMenu className="w-6 h-6" />
           </button>

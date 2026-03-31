@@ -1,14 +1,25 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { adminAPI } from '../../utils/api';
+import axios from 'axios';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+const getToken = () => {
+  return localStorage.getItem('adminToken') || localStorage.getItem('token');
+};
 
 export const fetchDashboardStats = createAsyncThunk(
   'dashboard/fetchStats',
   async (_, { rejectWithValue }) => {
     try {
-      const { data } = await adminAPI.getDashboard();
-      return data.data;
+      const token = getToken();
+      const response = await axios.get(`${API_URL}/dashboard/stats`, {
+        headers: {
+          'Authorization': token ? `Bearer ${token}` : '',
+        },
+      });
+      return response.data.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message);
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch dashboard stats');
     }
   }
 );
@@ -22,7 +33,12 @@ const initialState = {
 const dashboardSlice = createSlice({
   name: 'dashboard',
   initialState,
-  reducers: {},
+  reducers: {
+    clearDashboard: (state) => {
+      state.stats = null;
+      state.error = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchDashboardStats.pending, (state) => {
@@ -40,4 +56,5 @@ const dashboardSlice = createSlice({
   },
 });
 
+export const { clearDashboard } = dashboardSlice.actions;
 export default dashboardSlice.reducer;

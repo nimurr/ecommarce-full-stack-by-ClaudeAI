@@ -144,7 +144,22 @@ const productSchema = new mongoose.Schema({
 // Create slug from name before saving
 productSchema.pre('save', function(next) {
   if (this.isModified('name')) {
-    this.slug = this.name.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').trim();
+    let baseSlug = this.name.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').trim();
+    let slug = baseSlug;
+    let counter = 1;
+    
+    // Check if slug already exists
+    const Product = mongoose.model('Product');
+    Product.findOne({ slug }).then(existing => {
+      while (existing) {
+        slug = `${baseSlug}-${counter}`;
+        counter++;
+        return Product.findOne({ slug }).then(e => existing = e);
+      }
+      this.slug = slug;
+      next();
+    }).catch(next);
+    return; // Don't call next() here, it's called in the Promise
   }
   if (this.isModified('price') && this.originalPrice) {
     this.discount = Math.round(((this.originalPrice - this.price) / this.originalPrice) * 100);

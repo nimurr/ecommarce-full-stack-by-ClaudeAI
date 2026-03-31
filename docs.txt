@@ -1,2 +1,1 @@
-1. qwen --resume d9c6b722-a367-4b86-bc48-0df242ea9ed7
-2. qwen --resume d9c6b722-a367-4b86-bc48-0df242ea9ed7
+Office PC :- qwen --resume d9c6b722-a367-4b86-bc48-0df242ea9ed7

@@ -1,51 +1,56 @@
+import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import config from '../config/config.js';
+import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// File upload middleware using express-fileupload
-export const fileUpload = (options = {}) => {
-  return {
-    create: {
-      limits: {
-        fileSize: config.maxFileSize,
-      },
-      abortOnLimit: true,
-      responseOnLimit: 'File size limit exceeded',
-      useTempFiles: true,
-      tempFileDir: path.join(__dirname, '../../temp'),
-      ...options,
+export default function (UPLOADS_FOLDER) {
+  // Create directory if it doesn't exist
+  if (!fs.existsSync(UPLOADS_FOLDER)) {
+    fs.mkdirSync(UPLOADS_FOLDER, { recursive: true });
+    console.log('✅ Created upload directory:', UPLOADS_FOLDER);
+  }
+
+  const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, UPLOADS_FOLDER);
     },
-  };
-};
+    filename: (req, file, cb) => {
+      const fileExt = path.extname(file.originalname);
+      const filename = 
+        file.originalname
+          .replace(fileExt, '')
+          .toLocaleLowerCase()
+          .split(' ')
+          .join('-') +
+        '-' +
+        Date.now();
 
-// Check file type (images only)
-export const checkFileType = (file, cb) => {
-  const allowedTypes = config.allowedFileTypes;
-  
-  if (!allowedTypes.includes(file.mimetype)) {
-    return cb(new Error('Only image files are allowed (JPEG, PNG, WEBP)'));
-  }
-  
-  cb(null, true);
-};
+      cb(null, filename + fileExt);
+    },
+  });
 
-// Multiple file upload handler
-export const uploadMultipleFiles = (req, res, next) => {
-  if (!req.files || Object.keys(req.files).length === 0) {
-    return res.status(400).json({
-      success: false,
-      message: 'Please upload at least one file',
-    });
-  }
+  const upload = multer({
+    storage: storage,
+    limits: {
+      fileSize: 5 * 1024 * 1024, // 5MB
+    },
+    fileFilter: (req, file, cb) => {
+      if (
+        file.mimetype === 'image/jpg' ||
+        file.mimetype === 'image/png' ||
+        file.mimetype === 'image/jpeg' ||
+        file.mimetype === 'image/webp' ||
+        file.mimetype === 'image/gif'
+      ) {
+        cb(null, true);
+      } else {
+        cb(new Error('Only jpg, png, jpeg, webp, gif format allowed!'));
+      }
+    },
+  });
 
-  const files = req.files.file;
-  
-  // Check if single file or multiple
-  const fileArray = Array.isArray(files) ? files : [files];
-  
-  req.filesArray = fileArray;
-  next();
+  return upload;
 };

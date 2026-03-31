@@ -5,6 +5,7 @@ import { fetchProductBySlug, clearProduct } from '../store/slices/productSlice';
 import { addToCart } from '../store/slices/cartSlice';
 import { addToWishlist, removeFromWishlist } from '../store/slices/authSlice';
 import { FiShoppingCart, FiHeart, FiTruck, FiShield, FiRefreshCw, FiStar } from 'react-icons/fi';
+import imageUrl from '../../../admin/src/utils/baseUrl';
 
 const ProductDetails = () => {
   const { slug } = useParams();
@@ -71,7 +72,7 @@ const ProductDetails = () => {
         <div>
           <div className="card mb-4">
             <img
-              src={product.mainImage || 'https://via.placeholder.com/500x500'}
+              src={imageUrl + '/public' + product.mainImage || 'https://via.placeholder.com/500x500'}
               alt={product.name}
               className="w-full aspect-square object-cover"
             />
@@ -82,9 +83,8 @@ const ProductDetails = () => {
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`w-20 h-20 rounded-lg overflow-hidden border-2 flex-shrink-0 ${
-                    selectedImage === index ? 'border-primary-600' : 'border-gray-200'
-                  }`}
+                  className={`w-20 h-20 rounded-lg overflow-hidden border-2 flex-shrink-0 ${selectedImage === index ? 'border-primary-600' : 'border-gray-200'
+                    }`}
                 >
                   <img src={img.url} alt={img.alt} className="w-full h-full object-cover" />
                 </button>
@@ -162,9 +162,8 @@ const ProductDetails = () => {
             </button>
             <button
               onClick={handleWishlistToggle}
-              className={`w-14 h-14 rounded-lg border-2 flex items-center justify-center ${
-                isInWishlist ? 'border-red-500 text-red-500' : 'border-gray-300 hover:border-red-500 hover:text-red-500'
-              }`}
+              className={`w-14 h-14 rounded-lg border-2 flex items-center justify-center ${isInWishlist ? 'border-red-500 text-red-500' : 'border-gray-300 hover:border-red-500 hover:text-red-500'
+                }`}
             >
               <FiHeart className="w-6 h-6" />
             </button>
@@ -174,7 +173,7 @@ const ProductDetails = () => {
           <div className="space-y-3 pt-6 border-t">
             <div className="flex items-center gap-3 text-sm text-gray-600">
               <FiTruck className="w-5 h-5 text-primary-600" />
-              <span>Free delivery on orders over ৳1000</span>
+              <span>Free delivery on orders over ৳2000</span>
             </div>
             <div className="flex items-center gap-3 text-sm text-gray-600">
               <FiShield className="w-5 h-5 text-primary-600" />

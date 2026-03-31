@@ -6,14 +6,15 @@ import {
   createProduct,
   updateProduct,
   deleteProduct,
-  uploadProductImage,
   getFeaturedProducts,
   getNewArrivals,
   getSearchSuggestions,
 } from '../controllers/productController.js';
-import { uploadSingleImage } from '../controllers/uploadController.js';
 import { protect, authorize } from '../middleware/auth.js';
-import { uploadMultiple, uploadSingle, handleMulterError } from '../middleware/multer.js';
+import fileUploadMiddleware from '../middleware/fileUpload.js';
+
+const UPLOADS_FOLDER_PRODUCTS = './public/images';
+const upload = fileUploadMiddleware(UPLOADS_FOLDER_PRODUCTS);
 
 const router = express.Router();
 
@@ -25,10 +26,22 @@ router.get('/', getProducts);
 router.get('/:id', getProduct);
 
 // Protected routes (Admin only)
-router.post('/', protect, authorize('admin'), createProduct);
-router.put('/:id', protect, authorize('admin'), updateProduct);
+// Create product WITH image upload
+router.post('/', 
+  protect, 
+  authorize('admin'), 
+  upload.array('images', 10), // Upload multiple images for product
+  createProduct
+);
+
+// Update product WITH image upload
+router.put('/:id', 
+  protect, 
+  authorize('admin'), 
+  upload.array('images', 10), // Upload new images
+  updateProduct
+);
+
 router.delete('/:id', protect, authorize('admin'), deleteProduct);
-router.post('/upload', protect, authorize('admin'), uploadMultiple, handleMulterError, uploadProductImage);
-router.post('/upload-single', protect, authorize('admin'), uploadSingle, handleMulterError, uploadSingleImage);
 
 export default router;

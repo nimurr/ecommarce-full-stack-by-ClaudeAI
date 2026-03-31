@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import imageUrl from '../../../../admin/src/utils/baseUrl';
 
 const CategoryCard = ({ category }) => {
   return (
@@ -8,7 +9,7 @@ const CategoryCard = ({ category }) => {
     >
       <div className="w-20 h-20 mx-auto mb-3 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center group-hover:scale-110 transition-transform">
         {category.image ? (
-          <img src={category.image} alt={category.name} className="w-16 h-16 object-cover rounded-full" />
+          <img src={imageUrl + category.image} alt={category.name} className="w-18 h-18  object-cover rounded-full" />
         ) : (
           <span className="text-2xl font-bold text-primary-600">{category.name.charAt(0)}</span>
         )}

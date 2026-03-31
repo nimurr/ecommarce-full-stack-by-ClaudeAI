@@ -27,7 +27,6 @@ export const getCategories = asyncHandler(async (req, res) => {
 // @route   GET /api/categories/tree
 // @access  Public
 export const getCategoryTree = asyncHandler(async (req, res) => {
-  // Get root categories (no parent)
   const rootCategories = await Category.find({ parent: null, active: true })
     .populate({
       path: 'children',
@@ -94,10 +93,15 @@ export const getCategoryBySlug = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Create category
+// @desc    Create category WITH image upload
 // @route   POST /api/categories
 // @access  Private/Admin
 export const createCategory = asyncHandler(async (req, res) => {
+  // Handle uploaded image
+  if (req.file) {
+    req.body.image = `/public/images/${req.file.filename}`;
+  }
+
   const category = await Category.create(req.body);
 
   // If parent category, add to children
@@ -114,7 +118,7 @@ export const createCategory = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Update category
+// @desc    Update category WITH image upload
 // @route   PUT /api/categories/:id
 // @access  Private/Admin
 export const updateCategory = asyncHandler(async (req, res) => {
@@ -137,6 +141,11 @@ export const updateCategory = asyncHandler(async (req, res) => {
     await Category.findByIdAndUpdate(req.body.parent, {
       $push: { children: category._id },
     });
+  }
+
+  // Handle new uploaded image
+  if (req.file) {
+    req.body.image = `/public/images/${req.file.filename}`;
   }
 
   category = await Category.findByIdAndUpdate(req.params.id, req.body, {
@@ -165,7 +174,7 @@ export const deleteCategory = asyncHandler(async (req, res) => {
   // Check if category has products
   if (category.products && category.products.length > 0) {
     res.status(400);
-    throw new Error('Cannot delete category with products. Move or delete products first.');
+    throw new Error(`Cannot delete category "${category.name}" because it has ${category.products.length} product(s). Please move or delete the products first.`);
   }
 
   // Remove from parent's children

@@ -7,49 +7,78 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Create uploads directory if it doesn't exist
-const uploadsDir = path.join(__dirname, '../../public/images');
+const uploadsDir = path.join(__dirname, '../../uploads');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
+  console.log('✅ Created uploads directory:', uploadsDir);
 }
 
-// Storage configuration
-const storage = multer.diskStorage({
+// Create product-images and category-images subdirectories
+const productImagesDir = path.join(uploadsDir, 'product-images');
+const categoryImagesDir = path.join(uploadsDir, 'category-images');
+
+if (!fs.existsSync(productImagesDir)) {
+  fs.mkdirSync(productImagesDir, { recursive: true });
+  console.log('✅ Created product-images directory:', productImagesDir);
+}
+
+if (!fs.existsSync(categoryImagesDir)) {
+  fs.mkdirSync(categoryImagesDir, { recursive: true });
+  console.log('✅ Created category-images directory:', categoryImagesDir);
+}
+
+// Storage configuration for product images
+const productStorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, uploadsDir);
+    cb(null, productImagesDir);
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    cb(null, 'product-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+// Storage configuration for category images
+const categoryStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, categoryImagesDir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'category-' + uniqueSuffix + path.extname(file.originalname));
   }
 });
 
 // File filter - only allow images
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = /jpeg|jpg|png|webp|gif/;
+  const allowedTypes = /jpeg|jpg|png|webp/;
   const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
   const mimetype = allowedTypes.test(file.mimetype);
 
   if (mimetype && extname) {
     return cb(null, true);
   } else {
-    cb(new Error('Only image files are allowed (jpeg, jpg, png, webp, gif)'));
+    cb(new Error('Only image files are allowed (jpeg, jpg, png, webp)'));
   }
 };
 
-// Multer configuration
-export const upload = multer({
-  storage: storage,
+// Multer configuration for products (multiple images)
+const uploadProductImages = multer({
+  storage: productStorage,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB max file size
+    fileSize: 2 * 1024 * 1024, // 2MB max file size
   },
   fileFilter: fileFilter,
 });
 
-// Upload single image
-export const uploadSingle = upload.single('image');
-
-// Upload multiple images
-export const uploadMultiple = upload.array('images', 10);
+// Multer configuration for categories (single image)
+const uploadCategoryImage = multer({
+  storage: categoryStorage,
+  limits: {
+    fileSize: 2 * 1024 * 1024, // 2MB max file size
+  },
+  fileFilter: fileFilter,
+});
 
 // Error handler for multer
 export const handleMulterError = (err, req, res, next) => {
@@ -57,7 +86,7 @@ export const handleMulterError = (err, req, res, next) => {
     if (err.code === 'LIMIT_FILE_SIZE') {
       return res.status(400).json({
         success: false,
-        message: 'File size too large. Maximum size is 5MB',
+        message: 'File size too large. Maximum size is 2MB',
       });
     }
     return res.status(400).json({
@@ -72,3 +101,5 @@ export const handleMulterError = (err, req, res, next) => {
   }
   next();
 };
+
+export { uploadProductImages, uploadCategoryImage };

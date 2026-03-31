@@ -8,7 +8,6 @@ import mongoSanitize from 'express-mongo-sanitize';
 import xss from 'xss-clean';
 import hpp from 'hpp';
 import cookieParser from 'cookie-parser';
-import fileUpload from 'express-fileupload';
 import mongoose from 'mongoose';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -28,6 +27,7 @@ import orderRoutes from './routes/orderRoutes.js';
 import reviewRoutes from './routes/reviewRoutes.js';
 import couponRoutes from './routes/couponRoutes.js';
 import userRoutes from './routes/userRoutes.js';
+import dashboardRoutes from './routes/dashboardRoutes.js';
 
 // Load env vars
 dotenv.config();
@@ -42,24 +42,14 @@ connectDB();
 const app = express();
 
 // Serve static files for uploaded images
-app.use('/public/images', express.static(path.join(__dirname, 'public/images')));
+app.use('/public', express.static(path.join(__dirname, 'public')));
+console.log('✅ Static files served from:', path.join(__dirname, 'public'));
 
 // Security middleware
-app.use(helmet()); // Set security headers
-app.use(mongoSanitize()); // Sanitize data against NoSQL injection
-app.use(xss()); // Prevent XSS attacks
-app.use(hpp()); // Prevent parameter pollution
-
-// NOTE: Rate limiting disabled for better performance
-// You can enable it in production by uncommenting the code below
-/*
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  message: 'Too many requests from this IP, please try again later.',
-});
-app.use('/api', limiter);
-*/
+app.use(helmet());
+app.use(mongoSanitize());
+app.use(xss());
+app.use(hpp());
 
 // Body parser middleware
 app.use(express.json({ limit: '50mb' }));
@@ -68,9 +58,9 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 // Cookie parser
 app.use(cookieParser());
 
-// CORS middleware - Allow all origins in development
+// CORS middleware
 app.use(cors({
-  origin: true, // Allow all origins
+  origin: true,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -84,16 +74,6 @@ if (config.nodeEnv === 'development') {
   app.use(morgan('dev'));
 }
 
-// File upload middleware
-app.use(fileUpload({
-  createParentPath: true,
-  limits: {
-    fileSize: config.maxFileSize * 2, // Increased limit
-  },
-  useTempFiles: true,
-  tempFileDir: path.join(__dirname, '../temp'),
-}));
-
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
@@ -102,6 +82,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/coupons', couponRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -150,48 +131,43 @@ const server = app.listen(PORT, '0.0.0.0', () => {
 ║   🔗 API: http://localhost:${PORT}/api                      ║
 ║   🌍 Environment: ${config.nodeEnv.padEnd(33)}║
 ║                                                           ║
-║   ✅ Rate Limiting: DISABLED                              ║
+║   ✅ Multer Upload: ENABLED                               ║
 ║   ✅ Auto Restart: ENABLED                                ║
 ║                                                           ║
 ╚═══════════════════════════════════════════════════════════╝
   `);
 });
 
-// Keep server alive - Handle unhandled promise rejections
-process.on('unhandledRejection', (err, promise) => {
-  console.error('❌ Unhandled Rejection Error:', err.message);
-  console.log('🔄 Server will continue running...');
-  // Don't exit process, just log the error
+// Keep server alive
+process.on('unhandledRejection', (err) => {
+  console.error('❌ Error:', err.message);
+  console.log('🔄 Server continuing...');
 });
 
-// Handle uncaught exceptions
 process.on('uncaughtException', (err) => {
-  console.error('❌ Uncaught Exception:', err.message);
-  console.log('🔄 Server will continue running...');
-  // Don't exit process, just log the error
+  console.error('❌ Exception:', err.message);
+  console.log('🔄 Server continuing...');
 });
 
-// MongoDB reconnection logic
+// MongoDB reconnection
 mongoose.connection.on('disconnected', () => {
-  console.warn('⚠️  MongoDB disconnected, attempting to reconnect...');
-  setTimeout(() => {
-    connectDB();
-  }, 5000); // Try to reconnect after 5 seconds
+  console.warn('⚠️  MongoDB disconnected, reconnecting...');
+  setTimeout(() => connectDB(), 5000);
 });
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
-  console.log('📥 SIGTERM signal received: closing HTTP server');
+  console.log('📥 Closing server...');
   server.close(() => {
-    console.log('🔒 HTTP server closed');
+    console.log('🔒 Server closed');
     process.exit(0);
   });
 });
 
 process.on('SIGINT', () => {
-  console.log('📥 SIGINT signal received: closing HTTP server');
+  console.log('📥 Closing server...');
   server.close(() => {
-    console.log('🔒 HTTP server closed');
+    console.log('🔒 Server closed');
     process.exit(0);
   });
 });

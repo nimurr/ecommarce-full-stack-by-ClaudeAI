@@ -1,8 +1,6 @@
 import asyncHandler from 'express-async-handler';
 import Product from '../models/Product.js';
 import Category from '../models/Category.js';
-import config from '../config/config.js';
-import { uploadToCloudinary, deleteFromCloudinary } from '../config/cloudinary.js';
 
 // @desc    Get all products with filtering, sorting, pagination
 // @route   GET /api/products
@@ -150,14 +148,28 @@ export const getProductBySlug = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Create product
+// @desc    Create product WITH image upload
 // @route   POST /api/products
 // @access  Private/Admin
 export const createProduct = asyncHandler(async (req, res) => {
   // Add user who created the product
   req.body.user = req.user.id;
 
+  // Handle uploaded images
+  if (req.files && req.files.length > 0) {
+    const images = req.files.map(file => ({
+      url: `/images/${file.filename}`,
+      filename: file.filename,
+    }));
+
+    req.body.images = images;
+    req.body.mainImage = images[0].url; // Set first image as main image
+  }
+
+
+
   const product = await Product.create(req.body);
+
 
   // Add product to category
   await Category.findByIdAndUpdate(req.body.category, {
@@ -171,7 +183,7 @@ export const createProduct = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Update product
+// @desc    Update product WITH image upload
 // @route   PUT /api/products/:id
 // @access  Private/Admin
 export const updateProduct = asyncHandler(async (req, res) => {
@@ -192,6 +204,26 @@ export const updateProduct = asyncHandler(async (req, res) => {
     await Category.findByIdAndUpdate(req.body.category, {
       $push: { products: product._id },
     });
+  }
+
+  // Handle new uploaded images
+  if (req.files && req.files.length > 0) {
+    const newImages = req.files.map(file => ({
+      url: `/images/${file.filename}`,
+      filename: file.filename,
+    }));
+
+    // If keeping existing images, merge them
+    if (req.body.keepExistingImages === 'true' && product.images) {
+      req.body.images = [...product.images, ...newImages];
+    } else {
+      req.body.images = newImages;
+    }
+
+    // Update main image if not already set
+    if (!req.body.mainImage && req.body.images.length > 0) {
+      req.body.mainImage = req.body.images[0].url;
+    }
   }
 
   product = await Product.findByIdAndUpdate(req.params.id, req.body, {
@@ -217,15 +249,6 @@ export const deleteProduct = asyncHandler(async (req, res) => {
     throw new Error('Product not found');
   }
 
-  // Delete images from Cloudinary
-  if (product.images && product.images.length > 0) {
-    for (const image of product.images) {
-      if (image.publicId) {
-        await deleteFromCloudinary(image.publicId);
-      }
-    }
-  }
-
   // Remove product from category
   await Category.findByIdAndUpdate(product.category, {
     $pull: { products: product._id },
@@ -236,70 +259,6 @@ export const deleteProduct = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     message: 'Product deleted successfully',
-  });
-});
-
-// @desc    Upload product images
-// @route   POST /api/products/upload
-// @access  Private/Admin
-export const uploadProductImage = asyncHandler(async (req, res) => {
-  if (!req.files || req.files.length === 0) {
-    res.status(400);
-    throw new Error('Please upload at least one image');
-  }
-
-  const images = req.files.map(file => ({
-    url: `${config.apiUrl.replace('/api', '')}/public/images/${file.filename}`,
-    filename: file.filename,
-    size: file.size,
-  }));
-
-  res.status(200).json({
-    success: true,
-    count: images.length,
-    data: images,
-  });
-});
-
-// @desc    Upload single product image
-// @route   POST /api/products/upload-single
-// @access  Private/Admin
-export const uploadSingleImage = asyncHandler(async (req, res) => {
-  if (!req.file) {
-    res.status(400);
-    throw new Error('Please upload an image');
-  }
-
-  const imageData = {
-    url: `${config.apiUrl.replace('/api', '')}/public/images/${req.file.filename}`,
-    filename: req.file.filename,
-    size: req.file.size,
-  };
-
-  res.status(200).json({
-    success: true,
-    data: imageData,
-  });
-});
-
-  // Check file type
-  if (!file.mimetype.startsWith('image')) {
-    res.status(400);
-    throw new Error('Please upload an image file');
-  }
-
-  // Check file size (5MB)
-  if (file.size > 5 * 1024 * 1024) {
-    res.status(400);
-    throw new Error('Image size should be less than 5MB');
-  }
-
-  // Upload to Cloudinary
-  const result = await uploadToCloudinary(file, 'products');
-
-  res.status(200).json({
-    success: true,
-    data: result,
   });
 });
 
@@ -361,6 +320,7 @@ export const getSearchSuggestions = asyncHandler(async (req, res) => {
     .select('name slug images mainImage price');
 
   // Search categories
+  const Category = mongoose.model('Category');
   const categories = await Category.find({
     name: { $regex: q, $options: 'i' },
     active: true,
@@ -379,3 +339,5 @@ export const getSearchSuggestions = asyncHandler(async (req, res) => {
     data: { products, categories, brands: brands.slice(0, 5) },
   });
 });
+
+import mongoose from 'mongoose';

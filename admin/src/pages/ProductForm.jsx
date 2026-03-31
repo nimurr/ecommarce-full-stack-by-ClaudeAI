@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { createProduct, updateProduct, fetchProducts } from '../store/slices/productSlice';
 import { fetchCategories } from '../store/slices/categorySlice';
 import { FiSave, FiX } from 'react-icons/fi';
+import ImageUpload from '../components/ImageUpload';
 
 const ProductForm = () => {
   const { id } = useParams();
@@ -75,6 +76,28 @@ const ProductForm = () => {
     }));
   };
 
+  // Just store the image previews - will upload with product submit
+  const handleImageChange = (imagePreviews) => {
+    const newImages = imagePreviews.filter(p => p.isNew && p.file);
+    const existingImages = imagePreviews.filter(p => !p.isNew);
+    
+    // Store both file objects (for upload) and url objects (for display)
+    const allImages = [
+      ...existingImages.map(p => ({ url: p.url })),
+      ...newImages.map(p => ({ 
+        url: p.url, // Preview URL
+        file: p.file, // Actual file for upload
+        isNew: true 
+      }))
+    ];
+    
+    setFormData(prev => ({
+      ...prev,
+      images: allImages,
+      mainImage: prev.mainImage || (newImages[0]?.url),
+    }));
+  };
+
   const handleSpecChange = (key, value) => {
     setFormData(prev => ({
       ...prev,
@@ -85,23 +108,85 @@ const ProductForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    
     try {
-      const data = {
-        ...formData,
-        price: Number(formData.price),
-        originalPrice: formData.originalPrice ? Number(formData.originalPrice) : undefined,
-        stock: Number(formData.stock),
-        lowStockThreshold: Number(formData.lowStockThreshold),
-      };
+      // Create FormData for multipart/form-data upload
+      const submitData = new FormData();
       
+      // Append all text fields
+      submitData.append('name', formData.name);
+      submitData.append('description', formData.description);
+      submitData.append('shortDescription', formData.shortDescription);
+      submitData.append('price', formData.price);
+      if (formData.originalPrice) submitData.append('originalPrice', formData.originalPrice);
+      submitData.append('category', formData.category);
+      submitData.append('brand', formData.brand);
+      submitData.append('stock', formData.stock);
+      submitData.append('lowStockThreshold', formData.lowStockThreshold);
+      submitData.append('featured', formData.featured);
+      submitData.append('active', formData.active);
+      submitData.append('warranty', formData.warranty);
+      submitData.append('returnPolicy', formData.returnPolicy);
+      
+      // Append specifications
+      Object.entries(formData.specifications).forEach(([key, value]) => {
+        submitData.append(`specifications[${key}]`, value);
+      });
+      
+      // Append features
+      formData.features.forEach((feature, index) => {
+        submitData.append(`features[${index}]`, feature);
+      });
+      
+      // Append image files for upload
+      formData.images.forEach((img, index) => {
+        if (img.file) {
+          // New image - append file
+          submitData.append('images', img.file);
+        } else if (img.url) {
+          // Existing image - append URL
+          submitData.append(`existingImages[${index}]`, img.url);
+        }
+      });
+
+      console.log('📤 Submitting product with', formData.images.filter(i => i.file).length, 'images');
+
       if (id) {
-        await dispatch(updateProduct({ id, data }));
+        // Update product - need to use custom API call for FormData
+        const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
+        const response = await fetch(`/api/products/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+          body: submitData,
+        });
+        const result = await response.json();
+        if (result.success) {
+          navigate('/admin/products');
+        } else {
+          alert(result.message || 'Failed to update product');
+        }
       } else {
-        await dispatch(createProduct(data));
+        // Create product - need to use custom API call for FormData
+        const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
+        const response = await fetch('/api/products', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+          body: submitData,
+        });
+        const result = await response.json();
+        if (result.success) {
+          navigate('/admin/products');
+        } else {
+          alert(result.message || 'Failed to create product');
+        }
       }
-      navigate('/admin/products');
     } catch (error) {
       console.error('Failed to save product:', error);
+      alert('Failed to save product');
     } finally {
       setLoading(false);
     }
@@ -167,6 +252,17 @@ const ProductForm = () => {
 
           {/* Sidebar */}
           <div className="space-y-6">
+            <div className="card">
+              <h2 className="text-lg font-semibold mb-4">Product Images</h2>
+              <p className="text-xs text-gray-500 mb-2">Images will be uploaded when you save the product</p>
+              <ImageUpload
+                images={formData.images}
+                onChange={handleImageChange}
+                multiple={true}
+                label="Upload Product Images"
+              />
+            </div>
+
             <div className="card">
               <h2 className="text-lg font-semibold mb-4">Pricing</h2>
               <div className="space-y-4">
