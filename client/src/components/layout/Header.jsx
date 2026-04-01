@@ -62,6 +62,7 @@ const Header = () => {
             <span>🎉 Free Shipping on Orders Over ৳1000</span>
           </div>
           <div className="hidden md:flex items-center gap-4">
+            <button className='underline'>Order Tracking</button>
             {contactPhone && (
               <a href={`tel:${contactPhone}`} className="flex items-center gap-1 hover:text-primary-200">
                 <FiPhone className="w-4 h-4" />
@@ -236,8 +237,8 @@ const Header = () => {
             {/* Dynamic Categories from API */}
             {categories.slice(0, 4).map((category) => (
               <li key={category._id}>
-                <Link 
-                  to={`/products?category=${category._id}`} 
+                <Link
+                  to={`/products?category=${category._id}`}
                   className="font-medium hover:text-primary-600 transition-colors"
                 >
                   {category.name}

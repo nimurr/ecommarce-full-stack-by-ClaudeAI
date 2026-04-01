@@ -31,6 +31,10 @@ const Layout = () => {
     navigate('/login');
   };
 
+  const handleReloadDah = () => {
+    navigate(0); // This will reload the current page
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Sidebar */}
@@ -73,6 +77,9 @@ const Layout = () => {
             <FiMenu className="w-6 h-6" />
           </button>
           <div className="flex items-center gap-4 ml-auto">
+            <div>
+              <button onClick={handleReloadDah} className='py-2 px-5 bg-blue-500 text-white rounded-md'>Refresh 🔄️</button>
+            </div>
             <div className="text-right">
               <p className="font-medium text-sm">{user?.name}</p>
               <p className="text-xs text-gray-500">Administrator</p>
