@@ -33,7 +33,7 @@ const Layout = () => {
 
   const handleReloadDah = () => {
     navigate(0); // This will reload the current page
-  };
+  }
 
   return (
     <div className="min-h-screen bg-gray-100">
