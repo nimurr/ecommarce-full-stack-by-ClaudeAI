@@ -245,6 +245,7 @@ const Header = () => {
                 </Link>
               </li>
             ))}
+            <li><Link to="/order-tracking" className="font-medium hover:text-primary-600 transition-colors">Order Tracking</Link></li>
           </ul>
         </div>
       </nav>

@@ -1,8 +1,9 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { FiHome, FiPackage, FiList, FiShoppingCart, FiUsers, FiStar, FiTag, FiSettings, FiFileText, FiUserPlus, FiActivity, FiLogOut, FiMenu, FiX } from 'react-icons/fi';
+import { FiHome, FiPackage, FiList, FiShoppingCart, FiUsers, FiStar, FiTag, FiSettings, FiFileText, FiUserPlus, FiActivity, FiBell, FiLogOut, FiMenu, FiX } from 'react-icons/fi';
 import { adminLogout } from '../store/slices/authSlice';
 import { useState } from 'react';
+import Notifications from './Notifications';
 
 const Layout = () => {
   const { user } = useSelector((state) => state.auth);
@@ -77,6 +78,9 @@ const Layout = () => {
             <FiMenu className="w-6 h-6" />
           </button>
           <div className="flex items-center gap-4 ml-auto">
+            {/* Notifications */}
+            <Notifications />
+            
             <div>
               <button onClick={handleReloadDah} className='py-2 px-5 bg-blue-500 text-white rounded-md'>Refresh 🔄️</button>
             </div>

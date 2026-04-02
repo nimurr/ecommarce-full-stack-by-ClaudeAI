@@ -2,6 +2,7 @@ import asyncHandler from 'express-async-handler';
 import Order from '../models/Order.js';
 import Product from '../models/Product.js';
 import Coupon from '../models/Coupon.js';
+import Notification from '../models/Notification.js';
 import steadfastService from '../services/steadfast.js';
 import smsService from '../services/sms.js';
 import config from '../config/config.js';
@@ -106,8 +107,8 @@ export const getOrder = asyncHandler(async (req, res) => {
 // @access  Public (for tracking)
 export const getOrderByNumber = asyncHandler(async (req, res) => {
   const order = await Order.findOne({ orderNumber: req.params.orderNumber })
-    .populate('orderItems.product', 'name images mainImage')
-    .select('orderNumber orderStatus deliveryStatus courierInfo shippingAddress orderItems totalPrice createdAt deliveredAt');
+    .populate('orderItems.product', 'name images mainImage price')
+    .populate('user', 'name email');
 
   if (!order) {
     res.status(404);
@@ -230,6 +231,9 @@ export const createOrder = asyncHandler(async (req, res) => {
 
   const order = await Order.create(orderData);
 
+  // Create notification for new order
+  await Notification.createOrderNotification(order, 'new_order');
+
   // Send order confirmation SMS
   try {
     await smsService.sendSMS(
@@ -292,6 +296,14 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
     if (orderStatus === 'Delivered') {
       order.deliveredAt = new Date();
       order.deliveryStatus = 'Delivered';
+      // Create notification for delivered order
+      await Notification.createOrderNotification(order, 'order_delivered');
+    } else if (orderStatus === 'Confirmed') {
+      // Create notification for confirmed order
+      await Notification.createOrderNotification(order, 'order_confirmed');
+    } else if (orderStatus === 'Shipped') {
+      // Create notification for shipped order
+      await Notification.createOrderNotification(order, 'order_shipped');
     } else if (orderStatus === 'Cancelled') {
       order.cancelledAt = new Date();
       // Restore product stock
@@ -300,6 +312,8 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
           $inc: { stock: item.quantity },
         });
       }
+      // Create notification for cancelled order
+      await Notification.createOrderNotification(order, 'order_cancelled');
     }
 
     // Send SMS notification

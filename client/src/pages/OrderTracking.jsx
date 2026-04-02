@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchOrderByNumber } from '../store/slices/orderSlice';
 import { FiPackage, FiCheckCircle, FiClock, FiXCircle, FiTruck } from 'react-icons/fi';
+import imageUrl from '../../../admin/src/utils/baseUrl';
 
 const OrderTracking = () => {
   const { orderNumber } = useParams();
@@ -48,11 +49,11 @@ const OrderTracking = () => {
         <div className="lg:col-span-2">
           <div className="card p-6 mb-6">
             <h2 className="text-lg font-semibold mb-4">Order #{order.orderNumber}</h2>
-            
+
             {/* Progress Bar */}
             <div className="relative">
               <div className="absolute top-4 left-0 right-0 h-1 bg-gray-200 rounded" />
-              <div 
+              <div
                 className="absolute top-4 left-0 h-1 bg-primary-600 rounded transition-all duration-500"
                 style={{ width: `${(currentStatusIndex / (statusSteps.length - 1)) * 100}%` }}
               />
@@ -61,9 +62,8 @@ const OrderTracking = () => {
                   const isActive = index <= currentStatusIndex;
                   return (
                     <div key={step.status} className="text-center">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center mx-auto mb-2 ${
-                        isActive ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-400'
-                      }`}>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center mx-auto mb-2 ${isActive ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-400'
+                        }`}>
                         <step.icon className="w-4 h-4" />
                       </div>
                       <p className={`text-xs font-medium ${isActive ? 'text-primary-600' : 'text-gray-400'}`}>
@@ -76,11 +76,10 @@ const OrderTracking = () => {
             </div>
 
             <div className="mt-8 text-center">
-              <span className={`badge ${
-                order.orderStatus === 'Delivered' ? 'badge-success' :
-                order.orderStatus === 'Cancelled' ? 'badge-danger' :
-                'badge-primary'
-              }`}>
+              <span className={`badge ${order.orderStatus === 'Delivered' ? 'badge-success' :
+                  order.orderStatus === 'Cancelled' ? 'badge-danger' :
+                    'badge-primary'
+                }`}>
                 {order.orderStatus}
               </span>
             </div>
@@ -116,7 +115,7 @@ const OrderTracking = () => {
             <div className="space-y-4">
               {order.orderItems.map((item, index) => (
                 <div key={index} className="flex gap-3">
-                  <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded" />
+                  <img src={imageUrl + '/public' + item.image} alt={item.name} className="w-16 h-16 object-cover rounded" />
                   <div className="flex-1">
                     <p className="font-medium text-sm line-clamp-1">{item.name}</p>
                     <p className="text-xs text-gray-500">Qty: {item.quantity}</p>

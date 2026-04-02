@@ -1,10 +1,8 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { FaOpencart } from "react-icons/fa";
 import { fetchDashboardStats } from '../store/slices/dashboardSlice';
-import { FiDollarSign, FiShoppingCart, FiUsers, FiPackage, FiTrendingUp, FiAlertTriangle } from 'react-icons/fi';
+import { FiDollarSign, FiShoppingCart, FiUsers, FiPackage, FiTrendingUp, FiAlertTriangle, FiCheckCircle, FiClock, FiTruck, FiXCircle } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
-import imageUrl from '../utils/baseUrl';
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -34,139 +32,123 @@ const Dashboard = () => {
   }
 
   const overview = stats?.overview || {};
-  const ordersByStatus = stats?.ordersByStatus || {};
+  const currentMonth = stats?.currentMonth || {};
+  const ordersByStatus = currentMonth.ordersByStatus || {};
   const topProducts = stats?.topProducts || [];
   const recentOrders = stats?.recentOrders || [];
   const lowStockProducts = stats?.lowStockProducts || [];
 
-  const statCards = [
-    {
-      title: 'Total Revenue',
-      value: `৳${(overview.totalRevenue || 0).toLocaleString()}`,
-      icon: FiDollarSign,
-      color: 'green',
-      subtitle: `Pending: ৳${(overview.pendingRevenue || 0).toLocaleString()}`
-    },
-    {
-      title: 'Total Orders',
-      value: overview.totalOrders || 0,
-      icon: FiShoppingCart,
-      color: 'blue',
-      subtitle: `Paid: ${overview.totalPaidOrders || 0}`
-    },
-    {
-      title: 'Total Users',
-      value: overview.totalUsers || 0,
-      icon: FiUsers,
-      color: 'purple',
-      subtitle: `New this month: ${overview.newUsersThisMonth || 0}`
-    },
-    {
-      title: 'Total Products',
-      value: overview.activeProducts || 0,
-      icon: FiPackage,
-      color: 'orange',
-      subtitle: `Low stock: ${overview.lowStockCount || 0}`
-    },
-  ];
-
-  const colorClasses = {
-    green: 'bg-green-100 text-green-600',
-    blue: 'bg-blue-100 text-blue-600',
-    purple: 'bg-purple-100 text-purple-600',
-    orange: 'bg-orange-100 text-orange-600',
+  const statusColors = {
+    pending: 'bg-yellow-100 text-yellow-800',
+    confirmed: 'bg-blue-100 text-blue-800',
+    processing: 'bg-purple-100 text-purple-800',
+    shipped: 'bg-indigo-100 text-indigo-800',
+    delivered: 'bg-green-100 text-green-800',
+    cancelled: 'bg-red-100 text-red-800',
   };
 
-  const getStatusBadge = (status) => {
-    const badges = {
-      'Pending': 'badge-warning',
-      'Confirmed': 'badge-primary',
-      'Processing': 'badge-primary',
-      'Shipped': 'badge-primary',
-      'Delivered': 'badge-success',
-      'Cancelled': 'badge-danger',
-    };
-    return badges[status] || 'badge-primary';
+  const statusIcons = {
+    pending: FiClock,
+    confirmed: FiCheckCircle,
+    processing: FiPackage,
+    shipped: FiTruck,
+    delivered: FiCheckCircle,
+    cancelled: FiXCircle,
   };
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Dashboard Overview</h1>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {statCards.map((stat) => (
-          <div key={stat.title} className="card bg-gradient-to-tr from-lime-50 to-violet-100 border">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <p className="text-gray-600 font-semibold mb-1">{stat.title}</p>
-                <p className="text-4xl my-3 font-bold">{stat.value}</p>
-                <p className="text-sm text-gray-500 mt-1">{stat.subtitle}</p>
-              </div>
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${colorClasses[stat.color]}`}>
-                <stat.icon className="w-6 h-6" />
-              </div>
-            </div>
-          </div>
-        ))}
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Dashboard Overview</h1>
+        <p className="text-gray-600">
+          {currentMonth.month} {currentMonth.year}
+        </p>
       </div>
 
-      <div className=" mb-8">
-        {/* Orders by Status */}
-        <div className="card">
-          <h2 className="text-lg font-semibold mb-4">Orders by Status</h2>
-          <div className="grid grid-cols-4 gap-4">
-            {Object.entries(ordersByStatus).map(([status, count]) => (
-              <div
-                className={`flex justify-between items-center px-5 py-10 rounded-lg border ${status === "pending"
-                  ? "bg-yellow-200"
-                  : status === "confirmed"
-                    ? "bg-blue-200"
-                    : status === "processing"
-                      ? "bg-purple-200"
-                      : status === "shipped"
-                        ? "bg-indigo-200"
-                        : status === "out for delivery"
-                          ? "bg-orange-200"
-                          : status === "delivered"
-                            ? "bg-green-200"
-                            : status === "cancelled"
-                              ? "bg-red-200"
-                              : status === "refunded"
-                                ? "bg-gray-200"
-                                : "bg-gray-200"
-                  }`}
-              >
-
-                <span className="capitalize text-xl font-bold text-black"><FaOpencart className='text-4xl' /> <br /> {status}</span>
-                <span className={` text-5xl text-black`}>{count}</span>
-              </div>
-            ))}
+      {/* Current Month Overview Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {/* Total Revenue */}
+        <div className="card bg-gradient-to-br from-green-500 to-green-600 text-white">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-green-100 text-sm mb-1">Total Revenue (This Month)</p>
+              <p className="text-3xl font-bold">৳{(overview.totalRevenue || 0).toLocaleString()}</p>
+              <p className="text-green-100 text-xs mt-2">
+                Pending: ৳{(overview.pendingRevenue || 0).toLocaleString()}
+              </p>
+            </div>
+            <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+              <FiDollarSign className="w-8 h-8" />
+            </div>
           </div>
         </div>
 
-        {/* Low Stock Alert */}
-        {lowStockProducts.length > 0 && (
-          <div className="card">
-            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <FiAlertTriangle className="w-5 h-5 text-yellow-600" />
-              Low Stock Alert
-            </h2>
-            <div className="space-y-3">
-              {lowStockProducts.map((product) => (
-                <div key={product._id} className="flex justify-between items-center">
-                  <div className="flex items-center gap-3">
-                    <img src={product.mainImage} alt={product.name} className="w-10 h-10 object-cover rounded" />
-                    <span className="text-sm font-medium truncate max-w-xs">{product.name}</span>
-                  </div>
-                  <span className={`text-sm font-bold ${product.stock <= 5 ? 'text-red-600' : 'text-yellow-600'}`}>
-                    {product.stock} left
-                  </span>
-                </div>
-              ))}
+        {/* Total Orders */}
+        <div className="card bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-blue-100 text-sm mb-1">Total Orders (This Month)</p>
+              <p className="text-3xl font-bold">{currentMonth.totalOrders || 0}</p>
+              <p className="text-blue-100 text-xs mt-2">
+                All Time: {overview.totalOrders || 0}
+              </p>
+            </div>
+            <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+              <FiShoppingCart className="w-8 h-8" />
             </div>
           </div>
-        )}
+        </div>
+
+        {/* Total Users */}
+        <div className="card bg-gradient-to-br from-purple-500 to-purple-600 text-white">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-purple-100 text-sm mb-1">Total Users</p>
+              <p className="text-3xl font-bold">{overview.totalUsers || 0}</p>
+              <p className="text-purple-100 text-xs mt-2">
+                New This Month: {overview.newUsersThisMonth || 0}
+              </p>
+            </div>
+            <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+              <FiUsers className="w-8 h-8" />
+            </div>
+          </div>
+        </div>
+
+        {/* Total Products */}
+        <div className="card bg-gradient-to-br from-orange-500 to-orange-600 text-white">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-orange-100 text-sm mb-1">Total Products</p>
+              <p className="text-3xl font-bold">{overview.totalProducts || 0}</p>
+              <p className="text-orange-100 text-xs mt-2">
+                Low Stock: {overview.lowStockCount || 0}
+              </p>
+            </div>
+            <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+              <FiPackage className="w-8 h-8" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Orders by Status */}
+      <div className="card mb-8">
+        <h2 className="text-lg font-semibold mb-4">Orders by Status ({currentMonth.month} {currentMonth.year})</h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          {Object.entries(ordersByStatus).map(([status, count]) => {
+            const IconComponent = statusIcons[status] || FiPackage;
+            return (
+              <div key={status} className={`p-4 rounded-lg ${statusColors[status]}`}>
+                <div className="flex items-center justify-between mb-2">
+                  <IconComponent className="w-6 h-6" />
+                  <span className="text-2xl font-bold">{count}</span>
+                </div>
+                <p className="text-sm font-medium capitalize">{status}</p>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6 mb-8">
@@ -174,16 +156,16 @@ const Dashboard = () => {
         <div className="card">
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <FiTrendingUp className="w-5 h-5 text-green-600" />
-            Top Selling Products
+            Top Selling Products (This Month)
           </h2>
           {topProducts.length > 0 ? (
             <div className="space-y-4">
-              {topProducts.map((product, index) => (
+              {topProducts.slice(0, 5).map((product, index) => (
                 <div key={index} className="flex items-center gap-4">
                   <span className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center font-bold text-sm">
                     {index + 1}
                   </span>
-                  <img src={imageUrl + '/public' + (product.image || 'https://via.placeholder.com/40')} alt={product.name} className="w-12 h-12 object-cover rounded" />
+                  <img src={product.image || 'https://via.placeholder.com/40'} alt={product.name} className="w-12 h-12 object-cover rounded" />
                   <div className="flex-1">
                     <p className="font-medium text-sm truncate">{product.name}</p>
                     <p className="text-xs text-gray-500">{product.totalSold} sold</p>
@@ -210,7 +192,11 @@ const Dashboard = () => {
                   </div>
                   <div className="text-right">
                     <p className="font-semibold text-sm">৳{(order.totalPrice || 0).toLocaleString()}</p>
-                    <span className={`badge text-xs ${getStatusBadge(order.orderStatus)}`}>
+                    <span className={`badge text-xs ${
+                      order.orderStatus === 'Delivered' ? 'badge-success' :
+                      order.orderStatus === 'Cancelled' ? 'badge-danger' :
+                      'badge-primary'
+                    }`}>
                       {order.orderStatus}
                     </span>
                   </div>
@@ -223,12 +209,63 @@ const Dashboard = () => {
         </div>
       </div>
 
+      {/* Low Stock Alert */}
+      {lowStockProducts.length > 0 && (
+        <div className="card mb-8">
+          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <FiAlertTriangle className="w-5 h-5 text-yellow-600" />
+            Low Stock Alert
+          </h2>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left py-3 px-4 font-medium">Product</th>
+                  <th className="text-left py-3 px-4 font-medium">Current Stock</th>
+                  <th className="text-left py-3 px-4 font-medium">Threshold</th>
+                  <th className="text-left py-3 px-4 font-medium">Status</th>
+                  <th className="text-left py-3 px-4 font-medium">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {lowStockProducts.slice(0, 5).map((product) => (
+                  <tr key={product._id} className="border-b hover:bg-gray-50">
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-3">
+                        <img src={product.mainImage} alt={product.name} className="w-10 h-10 object-cover rounded" />
+                        <span className="font-medium">{product.name}</span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4">
+                      <span className={`font-bold ${product.stock <= 5 ? 'text-red-600' : 'text-yellow-600'}`}>
+                        {product.stock}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-gray-600">{product.lowStockThreshold}</td>
+                    <td className="py-3 px-4">
+                      <span className={`badge ${product.stock <= 5 ? 'badge-danger' : 'badge-warning'}`}>
+                        {product.stock <= 5 ? 'Critical' : 'Low'}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4">
+                      <Link to={`/admin/products/${product._id}/edit`} className="btn-secondary text-sm py-1 px-3">
+                        Update
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
       {/* Quick Actions */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Link to="/products/new" className="btn-primary text-center">Add Product</Link>
-        <Link to="/orders" className="btn-secondary text-center">View Orders</Link>
-        <Link to="/categories" className="btn-secondary text-center">Categories</Link>
-        <Link to="/users" className="btn-secondary text-center">Users</Link>
+        <Link to="/admin/products/new" className="btn-primary text-center">Add Product</Link>
+        <Link to="/admin/orders" className="btn-secondary text-center">View Orders</Link>
+        <Link to="/admin/categories" className="btn-secondary text-center">Categories</Link>
+        <Link to="/admin/users" className="btn-secondary text-center">Users</Link>
       </div>
     </div>
   );

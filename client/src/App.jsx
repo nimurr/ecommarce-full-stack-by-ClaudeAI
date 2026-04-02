@@ -20,6 +20,7 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import OrderConfirmation from './pages/OrderConfirmation';
 import OrderTracking from './pages/OrderTracking';
+import OrderTrackingPage from './pages/OrderTrackingPage';
 import Orders from './pages/Orders';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -59,6 +60,7 @@ function App() {
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/order-confirmation/:orderNumber" element={<OrderConfirmation />} />
             <Route path="/track-order/:orderNumber" element={<OrderTracking />} />
+            <Route path="/order-tracking" element={<OrderTrackingPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/wishlist" element={<Wishlist />} />

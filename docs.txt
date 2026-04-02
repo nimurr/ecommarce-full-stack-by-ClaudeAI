@@ -1,1 +1,57 @@
 Office PC :- qwen --resume d9c6b722-a367-4b86-bc48-0df242ea9ed7
+
+ 
+========================== New Features and Error's ======================= 
+
+=================================
+Fix order calculation issues in both Admin Dashboard and Client Site:
+
+Remove “Tax” from the order system completely (no tax should be applied).
+Client site :- "order-tracking" "track-order/ORD-MNHBZEMWQHR" pages also it working need .
+Shipping charge in Admin Dashboard is incorrect and not syncing with API data — fix it to match actual API value.
+When creating an order from the client site, shipping cost is being added to tax price incorrectly.
+Example issue: Shipping cost is 20, but Admin Dashboard shows 60 — fix this mismatch.
+Final order calculation should be:
+Total = Product Price + Shipping Cost (no tax).
+Ensure both Admin and Client sides use the same calculation logic and API data.
+
+Make sure everything is consistent and accurate across both sides.
+
+==================================
+Prompt:
+
+Add an Invoice feature in the Admin Dashboard:
+
+Show invoice in the Order Details page.
+Include order info, customer details, product list, and total price.
+Add a Download Invoice (PDF) option.
+Use a modern and clean design for the invoice layout.
+
+Ensure the invoice data is accurate and matches the order details.
+
+================================= 
+Fix Dashboard Status error in Admin Panel:
+
+Resolve Mongoose error:
+CastError: Cast to Number failed for value "$lowStockThreshold"
+Issue is caused by passing a string ("$lowStockThreshold") instead of a number in the query.
+Ensure stock field is always treated as a Number.
+Fix the query logic where lowStockThreshold is used — it should be a numeric value, not a string.
+Validate and convert input values before querying the database.
+
+Ensure dashboard stats (like low stock products) work correctly without errors.
+
+=================================
+
+Add Reviews & Testimonial feature:
+
+Allow Admin to manually add reviews from the Admin Dashboard.
+Include fields: customer name, review text, rating, and image upload.
+Store and manage reviews in the database.
+Create a Testimonial section on the Client Home page.
+Display added reviews dynamically (including image, name, rating, and comment).
+Use a clean and modern UI design for testimonials.
+
+Ensure reviews added by admin are properly shown on the client site.
+
+======================================

@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { FiCreditCard, FiDollarSign } from 'react-icons/fi';
 import { createOrder } from '../store/slices/orderSlice';
 import { useSettings } from '../context/SettingsContext';
+import imageUrl from '../../../admin/src/utils/baseUrl';
 
 const Checkout = () => {
   const dispatch = useDispatch();
@@ -40,7 +41,7 @@ const Checkout = () => {
     const freeShippingThreshold = settings?.shipping?.freeShippingThreshold || 1000;
     const dhakaFee = settings?.shipping?.dhakaShippingFee || 60;
     const othersFee = settings?.shipping?.othersShippingFee || 120;
-    
+
     if (subtotal > freeShippingThreshold) return 0; // Free shipping
     if (city.includes('dhaka')) return dhakaFee;
     return othersFee;
@@ -71,7 +72,7 @@ const Checkout = () => {
       };
 
       const result = await dispatch(createOrder(orderData));
-      
+
       if (createOrder.fulfilled.match(result)) {
         navigate(`/order-confirmation/${result.payload.orderNumber}`);
       } else {
@@ -230,24 +231,10 @@ const Checkout = () => {
                   <FiDollarSign className="w-5 h-5 text-green-600" />
                   <div>
                     <p className="font-medium">Cash on Delivery</p>
-                    <p className="text-sm text-gray-500">Pay when you receive your order</p>
+                    <p className="text-sm text-gray-500">Pay when you receive your product</p>
                   </div>
                 </label>
-                <label className="flex items-center gap-3 p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
-                  <input
-                    type="radio"
-                    name="payment"
-                    value="Online"
-                    checked={payment === 'Online'}
-                    onChange={(e) => setPayment(e.target.value)}
-                    className="w-4 h-4"
-                  />
-                  <FiCreditCard className="w-5 h-5 text-primary-600" />
-                  <div>
-                    <p className="font-medium">Online Payment</p>
-                    <p className="text-sm text-gray-500">Credit/Debit Card, Mobile Banking</p>
-                  </div>
-                </label>
+
               </div>
             </div>
           </div>
@@ -261,7 +248,7 @@ const Checkout = () => {
               <div className="space-y-3 mb-4 max-h-48 overflow-y-auto">
                 {cartItems.map((item, index) => (
                   <div key={index} className="flex gap-3">
-                    <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded" />
+                    <img src={imageUrl + '/public' + item.image} alt={item.name} className="w-16 h-16 object-cover rounded" />
                     <div className="flex-1">
                       <p className="text-sm font-medium line-clamp-1">{item.name}</p>
                       <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
@@ -311,8 +298,8 @@ const Checkout = () => {
                 </div>
                 {shippingPrice > 0 && (
                   <p className="text-xs text-gray-500">
-                    {formData.city.toLowerCase().includes('dhaka') 
-                      ? 'Dhaka shipping rate applied' 
+                    {formData.city.toLowerCase().includes('dhaka')
+                      ? 'Dhaka shipping rate applied'
                       : 'Other cities shipping rate applied'}
                   </p>
                 )}

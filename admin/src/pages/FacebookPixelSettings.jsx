@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { FiEye, FiEyeOff, FiSave } from 'react-icons/fi';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -48,7 +49,8 @@ const FacebookPixelSettings = () => {
           'Content-Type': 'application/json',
         },
       });
-      alert('Facebook Pixel settings saved successfully!');
+      // alert('Facebook Pixel settings saved successfully!');
+      toast.success('Facebook Pixel settings saved successfully!');
     } catch (error) {
       console.error('Failed to save settings:', error);
       alert(error.response?.data?.message || 'Failed to save settings');

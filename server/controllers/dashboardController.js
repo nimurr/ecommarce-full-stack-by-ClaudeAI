@@ -7,13 +7,13 @@ import Product from '../models/Product.js';
 // @route   GET /api/dashboard/stats
 // @access  Private/Admin
 export const getDashboardStats = asyncHandler(async (req, res) => {
+  // Current month dates
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+
   // Total users
   const totalUsers = await User.countDocuments();
-  
-  // New users this month
-  const startOfMonth = new Date();
-  startOfMonth.setDate(1);
-  startOfMonth.setHours(0, 0, 0, 0);
   const newUsersThisMonth = await User.countDocuments({
     createdAt: { $gte: startOfMonth }
   });
@@ -21,17 +21,51 @@ export const getDashboardStats = asyncHandler(async (req, res) => {
   // Total orders
   const totalOrders = await Order.countDocuments();
   
-  // Orders by status
-  const pendingOrders = await Order.countDocuments({ orderStatus: 'Pending' });
-  const confirmedOrders = await Order.countDocuments({ orderStatus: 'Confirmed' });
-  const processingOrders = await Order.countDocuments({ orderStatus: 'Processing' });
-  const shippedOrders = await Order.countDocuments({ orderStatus: 'Shipped' });
-  const deliveredOrders = await Order.countDocuments({ orderStatus: 'Delivered' });
-  const cancelledOrders = await Order.countDocuments({ orderStatus: 'Cancelled' });
+  // Current month orders
+  const monthOrders = await Order.find({
+    createdAt: { $gte: startOfMonth, $lte: endOfMonth }
+  });
 
-  // Revenue calculations
+  // Orders by status for current month
+  const pendingOrders = await Order.countDocuments({ 
+    orderStatus: 'Pending',
+    createdAt: { $gte: startOfMonth, $lte: endOfMonth }
+  });
+  
+  const confirmedOrders = await Order.countDocuments({ 
+    orderStatus: 'Confirmed',
+    createdAt: { $gte: startOfMonth, $lte: endOfMonth }
+  });
+  
+  const processingOrders = await Order.countDocuments({ 
+    orderStatus: 'Processing',
+    createdAt: { $gte: startOfMonth, $lte: endOfMonth }
+  });
+  
+  const shippedOrders = await Order.countDocuments({ 
+    orderStatus: 'Shipped',
+    createdAt: { $gte: startOfMonth, $lte: endOfMonth }
+  });
+  
+  const deliveredOrders = await Order.countDocuments({ 
+    orderStatus: 'Delivered',
+    createdAt: { $gte: startOfMonth, $lte: endOfMonth }
+  });
+  
+  const cancelledOrders = await Order.countDocuments({ 
+    orderStatus: 'Cancelled',
+    createdAt: { $gte: startOfMonth, $lte: endOfMonth }
+  });
+
+  // Revenue calculations for current month
   const revenueData = await Order.aggregate([
-    { $match: { paymentStatus: 'Paid', orderStatus: { $ne: 'Cancelled' } } },
+    { 
+      $match: { 
+        paymentStatus: 'Paid',
+        orderStatus: { $ne: 'Cancelled' },
+        createdAt: { $gte: startOfMonth, $lte: endOfMonth }
+      } 
+    },
     {
       $group: {
         _id: null,
@@ -46,7 +80,12 @@ export const getDashboardStats = asyncHandler(async (req, res) => {
 
   // Pending revenue (orders placed but not paid)
   const pendingRevenueData = await Order.aggregate([
-    { $match: { paymentStatus: 'Pending' } },
+    { 
+      $match: { 
+        paymentStatus: 'Pending',
+        createdAt: { $gte: startOfMonth, $lte: endOfMonth }
+      } 
+    },
     {
       $group: {
         _id: null,
@@ -58,33 +97,13 @@ export const getDashboardStats = asyncHandler(async (req, res) => {
 
   const pendingRevenue = pendingRevenueData.length > 0 ? pendingRevenueData[0].total : 0;
 
-  // Monthly revenue (last 6 months)
-  const sixMonthsAgo = new Date();
-  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-  
-  const monthlyRevenue = await Order.aggregate([
-    {
-      $match: {
-        paymentStatus: 'Paid',
-        orderStatus: { $ne: 'Cancelled' },
-        createdAt: { $gte: sixMonthsAgo }
-      }
-    },
-    {
-      $group: {
-        _id: {
-          year: { $year: '$createdAt' },
-          month: { $month: '$createdAt' }
-        },
-        revenue: { $sum: '$totalPrice' },
-        orders: { $sum: 1 }
-      }
-    },
-    { $sort: { '_id.year': 1, '_id.month': 1 } }
-  ]);
-
-  // Top selling products
+  // Top selling products this month
   const topProducts = await Order.aggregate([
+    { 
+      $match: {
+        createdAt: { $gte: startOfMonth, $lte: endOfMonth }
+      }
+    },
     { $unwind: '$orderItems' },
     {
       $group: {
@@ -95,7 +114,7 @@ export const getDashboardStats = asyncHandler(async (req, res) => {
       }
     },
     { $sort: { totalSold: -1 } },
-    { $limit: 5 },
+    { $limit: 10 },
     {
       $lookup: {
         from: 'products',
@@ -123,14 +142,21 @@ export const getDashboardStats = asyncHandler(async (req, res) => {
     .sort({ createdAt: -1 })
     .limit(5);
 
-  // Low stock products - fixed query
-  const allProducts = await Product.find({ active: true }).select('name slug stock lowStockThreshold images mainImage');
-  const lowStockProducts = allProducts.filter(p => p.stock <= p.lowStockThreshold).slice(0, 5);
+  // Low stock products
+  const lowStockProducts = await Product.find({
+    stock: { $lte: '$lowStockThreshold' },
+    active: true
+  })
+    .select('name slug stock lowStockThreshold images mainImage')
+    .limit(10);
 
   // Total products
   const totalProducts = await Product.countDocuments();
   const activeProducts = await Product.countDocuments({ active: true });
-  const lowStockCount = lowStockProducts.length;
+  const lowStockCount = await Product.countDocuments({
+    stock: { $lte: '$lowStockThreshold' },
+    active: true
+  });
 
   res.status(200).json({
     success: true,
@@ -146,6 +172,22 @@ export const getDashboardStats = asyncHandler(async (req, res) => {
         activeProducts,
         lowStockCount,
       },
+      // Current month specific stats
+      currentMonth: {
+        month: now.toLocaleString('default', { month: 'long' }),
+        year: now.getFullYear(),
+        totalOrders: monthOrders.length,
+        totalRevenue,
+        pendingRevenue,
+        ordersByStatus: {
+          pending: pendingOrders,
+          confirmed: confirmedOrders,
+          processing: processingOrders,
+          shipped: shippedOrders,
+          delivered: deliveredOrders,
+          cancelled: cancelledOrders,
+        },
+      },
       ordersByStatus: {
         pending: pendingOrders,
         confirmed: confirmedOrders,
@@ -154,7 +196,6 @@ export const getDashboardStats = asyncHandler(async (req, res) => {
         delivered: deliveredOrders,
         cancelled: cancelledOrders,
       },
-      monthlyRevenue,
       topProducts,
       recentOrders,
       lowStockProducts,
