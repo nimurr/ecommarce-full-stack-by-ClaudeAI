@@ -193,7 +193,8 @@ orderSchema.pre('save', function(next) {
 orderSchema.pre('save', function(next) {
   if (this.orderItems && this.orderItems.length > 0) {
     this.itemsPrice = this.orderItems.reduce((acc, item) => acc + item.subtotal, 0);
-    this.totalPrice = this.itemsPrice + this.shippingPrice + this.taxPrice - this.discountPrice;
+    // Total = itemsPrice + shippingPrice - discountPrice (no tax)
+    this.totalPrice = this.itemsPrice + this.shippingPrice - this.discountPrice;
   }
   next();
 });

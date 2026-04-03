@@ -9,10 +9,10 @@ const getToken = () => {
 
 export const fetchDashboardStats = createAsyncThunk(
   'dashboard/fetchStats',
-  async (_, { rejectWithValue }) => {
+  async (period = 'month', { rejectWithValue }) => {
     try {
       const token = getToken();
-      const response = await axios.get(`${API_URL}/dashboard/stats`, {
+      const response = await axios.get(`${API_URL}/dashboard/stats?period=${period}`, {
         headers: {
           'Authorization': token ? `Bearer ${token}` : '',
         },

@@ -15,6 +15,7 @@ import Pages from './pages/Pages';
 import Brands from './pages/Brands';
 import SubAdmins from './pages/SubAdmins';
 import FacebookPixelSettings from './pages/FacebookPixelSettings';
+import Testimonials from './pages/Testimonials';
 import Login from './pages/Login';
 
 const ProtectedRoute = ({ children }) => {
@@ -49,6 +50,7 @@ function App() {
         <Route path="brands" element={<Brands />} />
         <Route path="sub-admins" element={<SubAdmins />} />
         <Route path="facebook-pixel" element={<FacebookPixelSettings />} />
+        <Route path="testimonials" element={<Testimonials />} />
       </Route>
     </Routes>
   );

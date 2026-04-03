@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { FiCreditCard, FiDollarSign } from 'react-icons/fi';
+import { FiCreditCard, FiDollarSign, FiCheck, FiX, FiLoader } from 'react-icons/fi';
 import { createOrder } from '../store/slices/orderSlice';
 import { useSettings } from '../context/SettingsContext';
+import { validateCoupon } from '../api/couponAPI';
+import { toast } from 'react-toastify';
 import imageUrl from '../../../admin/src/utils/baseUrl';
 
 const Checkout = () => {
@@ -20,13 +22,14 @@ const Checkout = () => {
     address: shippingAddress?.address || '',
     city: shippingAddress?.city || '',
     state: shippingAddress?.state || '',
-    zipCode: shippingAddress?.zipCode || '',
-    country: shippingAddress?.country || 'Bangladesh',
     landmark: shippingAddress?.landmark || '',
   });
 
   const [payment, setPayment] = useState(paymentMethod || 'COD');
   const [couponCode, setCouponCode] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [discountAmount, setDiscountAmount] = useState(0);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -42,13 +45,63 @@ const Checkout = () => {
     const dhakaFee = settings?.shipping?.dhakaShippingFee || 60;
     const othersFee = settings?.shipping?.othersShippingFee || 120;
 
-    if (subtotal > freeShippingThreshold) return 0; // Free shipping
+    if (subtotal > freeShippingThreshold) return 0;
     if (city.includes('dhaka')) return dhakaFee;
     return othersFee;
   };
 
   const shippingPrice = calculateShipping();
-  const totalPrice = subtotal + shippingPrice;
+  const totalPrice = subtotal + shippingPrice - discountAmount;
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) {
+      toast.error('Please enter a coupon code');
+      return;
+    }
+
+    setCouponLoading(true);
+    try {
+      const result = await validateCoupon(couponCode.trim(), user?._id, subtotal);
+
+      if (result.success && result.data) {
+        const coupon = result.data;
+        setAppliedCoupon(coupon);
+
+        // Calculate discount
+        let discount = 0;
+        if (coupon.discountType === 'percentage') {
+          discount = (subtotal * coupon.discountValue) / 100;
+          if (coupon.maxDiscount && discount > coupon.maxDiscount) {
+            discount = coupon.maxDiscount;
+          }
+        } else if (coupon.discountType === 'fixed') {
+          discount = coupon.discountValue;
+        } else if (coupon.discountType === 'free_shipping') {
+          discount = shippingPrice;
+        }
+
+        setDiscountAmount(discount);
+        toast.success(`Coupon applied! You saved ৳${discount.toLocaleString()}`);
+      } else {
+        toast.error(result.message || 'Invalid coupon code');
+        setAppliedCoupon(null);
+        setDiscountAmount(0);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to validate coupon');
+      setAppliedCoupon(null);
+      setDiscountAmount(0);
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setCouponCode('');
+    setAppliedCoupon(null);
+    setDiscountAmount(0);
+    toast.info('Coupon removed');
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -68,7 +121,7 @@ const Checkout = () => {
         })),
         shippingAddress: formData,
         paymentMethod: payment,
-        couponCode: couponCode || undefined,
+        couponCode: appliedCoupon ? appliedCoupon.code : undefined,
       };
 
       const result = await dispatch(createOrder(orderData));
@@ -76,10 +129,10 @@ const Checkout = () => {
       if (createOrder.fulfilled.match(result)) {
         navigate(`/order-confirmation/${result.payload.orderNumber}`);
       } else {
-        alert(result.payload?.message || 'Failed to create order. Please try again.');
+        toast.error(result.payload?.message || 'Failed to create order. Please try again.');
       }
     } catch (error) {
-      alert(error.message || 'Failed to create order. Please try again.');
+      toast.error(error.message || 'Failed to create order. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -179,28 +232,6 @@ const Checkout = () => {
                     />
                   </div>
                 </div>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">ZIP Code</label>
-                    <input
-                      type="text"
-                      name="zipCode"
-                      value={formData.zipCode}
-                      onChange={handleChange}
-                      className="input-field"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
-                    <input
-                      type="text"
-                      name="country"
-                      value={formData.country}
-                      onChange={handleChange}
-                      className="input-field"
-                    />
-                  </div>
-                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Landmark (Optional)</label>
                   <input
@@ -234,7 +265,6 @@ const Checkout = () => {
                     <p className="text-sm text-gray-500">Pay when you receive your product</p>
                   </div>
                 </label>
-
               </div>
             </div>
           </div>
@@ -266,18 +296,48 @@ const Checkout = () => {
 
               {/* Coupon */}
               <div className="border-t pt-4 mb-4">
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Coupon code"
-                    value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value)}
-                    className="input-field py-2 text-sm flex-1"
-                  />
-                  <button type="button" className="btn-secondary text-sm px-4">
-                    Apply
-                  </button>
-                </div>
+                {appliedCoupon ? (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <FiCheck className="text-green-600" />
+                        <span className="text-sm font-medium text-green-800">{appliedCoupon.code}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleRemoveCoupon}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <FiX />
+                      </button>
+                    </div>
+                    <p className="text-xs text-green-600 mt-1">
+                      {appliedCoupon.discountType === 'percentage'
+                        ? `${appliedCoupon.discountValue}% off`
+                        : appliedCoupon.discountType === 'fixed'
+                        ? `৳${appliedCoupon.discountValue} off`
+                        : 'Free shipping'}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Enter coupon code"
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                      className="input-field py-2 text-sm flex-1"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleApplyCoupon}
+                      disabled={couponLoading}
+                      className="btn-secondary text-sm px-4 flex items-center gap-1"
+                    >
+                      {couponLoading ? <FiLoader className="animate-spin" /> : 'Apply'}
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Totals */}
@@ -296,7 +356,13 @@ const Checkout = () => {
                     )}
                   </span>
                 </div>
-                {shippingPrice > 0 && (
+                {discountAmount > 0 && (
+                  <div className="flex justify-between text-green-600 font-medium">
+                    <span>Discount</span>
+                    <span>-৳{discountAmount.toLocaleString()}</span>
+                  </div>
+                )}
+                {shippingPrice > 0 && !appliedCoupon && (
                   <p className="text-xs text-gray-500">
                     {formData.city.toLowerCase().includes('dhaka')
                       ? 'Dhaka shipping rate applied'

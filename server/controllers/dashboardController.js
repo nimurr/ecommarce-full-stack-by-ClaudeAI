@@ -7,10 +7,16 @@ import Product from '../models/Product.js';
 // @route   GET /api/dashboard/stats
 // @access  Private/Admin
 export const getDashboardStats = asyncHandler(async (req, res) => {
+  const { period } = req.query; // 'month' or 'all'
+
   // Current month dates
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+
+  // Determine date filter based on period
+  const dateFilter = period === 'all' ? {} : { createdAt: { $gte: startOfMonth, $lte: endOfMonth } };
+  const periodLabel = period === 'all' ? 'All Time' : now.toLocaleString('default', { month: 'long', year: 'numeric' });
 
   // Total users
   const totalUsers = await User.countDocuments();
@@ -20,52 +26,49 @@ export const getDashboardStats = asyncHandler(async (req, res) => {
 
   // Total orders
   const totalOrders = await Order.countDocuments();
-  
-  // Current month orders
-  const monthOrders = await Order.find({
-    createdAt: { $gte: startOfMonth, $lte: endOfMonth }
-  });
 
-  // Orders by status for current month
-  const pendingOrders = await Order.countDocuments({ 
+  // Orders by status based on period
+  const pendingOrders = await Order.countDocuments({
     orderStatus: 'Pending',
-    createdAt: { $gte: startOfMonth, $lte: endOfMonth }
-  });
-  
-  const confirmedOrders = await Order.countDocuments({ 
-    orderStatus: 'Confirmed',
-    createdAt: { $gte: startOfMonth, $lte: endOfMonth }
-  });
-  
-  const processingOrders = await Order.countDocuments({ 
-    orderStatus: 'Processing',
-    createdAt: { $gte: startOfMonth, $lte: endOfMonth }
-  });
-  
-  const shippedOrders = await Order.countDocuments({ 
-    orderStatus: 'Shipped',
-    createdAt: { $gte: startOfMonth, $lte: endOfMonth }
-  });
-  
-  const deliveredOrders = await Order.countDocuments({ 
-    orderStatus: 'Delivered',
-    createdAt: { $gte: startOfMonth, $lte: endOfMonth }
-  });
-  
-  const cancelledOrders = await Order.countDocuments({ 
-    orderStatus: 'Cancelled',
-    createdAt: { $gte: startOfMonth, $lte: endOfMonth }
+    ...dateFilter
   });
 
-  // Revenue calculations for current month
+  const confirmedOrders = await Order.countDocuments({
+    orderStatus: 'Confirmed',
+    ...dateFilter
+  });
+
+  const processingOrders = await Order.countDocuments({
+    orderStatus: 'Processing',
+    ...dateFilter
+  });
+
+  const shippedOrders = await Order.countDocuments({
+    orderStatus: 'Shipped',
+    ...dateFilter
+  });
+
+  const deliveredOrders = await Order.countDocuments({
+    orderStatus: 'Delivered',
+    ...dateFilter
+  });
+
+  const cancelledOrders = await Order.countDocuments({
+    orderStatus: 'Cancelled',
+    ...dateFilter
+  });
+
+  // Revenue calculations based on period
+  const revenueMatch = {
+    paymentStatus: 'Paid',
+    orderStatus: { $ne: 'Cancelled' }
+  };
+  if (period !== 'all') {
+    revenueMatch.createdAt = { $gte: startOfMonth, $lte: endOfMonth };
+  }
+
   const revenueData = await Order.aggregate([
-    { 
-      $match: { 
-        paymentStatus: 'Paid',
-        orderStatus: { $ne: 'Cancelled' },
-        createdAt: { $gte: startOfMonth, $lte: endOfMonth }
-      } 
-    },
+    { $match: revenueMatch },
     {
       $group: {
         _id: null,
@@ -78,14 +81,14 @@ export const getDashboardStats = asyncHandler(async (req, res) => {
   const totalRevenue = revenueData.length > 0 ? revenueData[0].total : 0;
   const totalPaidOrders = revenueData.length > 0 ? revenueData[0].count : 0;
 
-  // Pending revenue (orders placed but not paid)
+  // Pending revenue based on period
+  const pendingMatch = { paymentStatus: 'Pending' };
+  if (period !== 'all') {
+    pendingMatch.createdAt = { $gte: startOfMonth, $lte: endOfMonth };
+  }
+
   const pendingRevenueData = await Order.aggregate([
-    { 
-      $match: { 
-        paymentStatus: 'Pending',
-        createdAt: { $gte: startOfMonth, $lte: endOfMonth }
-      } 
-    },
+    { $match: pendingMatch },
     {
       $group: {
         _id: null,
@@ -97,13 +100,19 @@ export const getDashboardStats = asyncHandler(async (req, res) => {
 
   const pendingRevenue = pendingRevenueData.length > 0 ? pendingRevenueData[0].total : 0;
 
-  // Top selling products this month
+  // Orders count based on period
+  const ordersCount = period === 'all'
+    ? await Order.countDocuments()
+    : await Order.countDocuments(dateFilter);
+
+  // Top selling products based on period
+  const topProductsMatch = {};
+  if (period !== 'all') {
+    topProductsMatch.createdAt = { $gte: startOfMonth, $lte: endOfMonth };
+  }
+
   const topProducts = await Order.aggregate([
-    { 
-      $match: {
-        createdAt: { $gte: startOfMonth, $lte: endOfMonth }
-      }
-    },
+    { $match: topProductsMatch },
     { $unwind: '$orderItems' },
     {
       $group: {
@@ -142,9 +151,9 @@ export const getDashboardStats = asyncHandler(async (req, res) => {
     .sort({ createdAt: -1 })
     .limit(5);
 
-  // Low stock products
+  // Low stock products - using $expr to compare stock field with lowStockThreshold field
   const lowStockProducts = await Product.find({
-    stock: { $lte: '$lowStockThreshold' },
+    $expr: { $lte: ['$stock', '$lowStockThreshold'] },
     active: true
   })
     .select('name slug stock lowStockThreshold images mainImage')
@@ -154,39 +163,25 @@ export const getDashboardStats = asyncHandler(async (req, res) => {
   const totalProducts = await Product.countDocuments();
   const activeProducts = await Product.countDocuments({ active: true });
   const lowStockCount = await Product.countDocuments({
-    stock: { $lte: '$lowStockThreshold' },
+    $expr: { $lte: ['$stock', '$lowStockThreshold'] },
     active: true
   });
 
   res.status(200).json({
     success: true,
     data: {
+      period: periodLabel,
       overview: {
         totalRevenue,
         pendingRevenue,
         totalOrders,
         totalPaidOrders,
+        ordersCount,
         totalUsers,
         newUsersThisMonth,
         totalProducts,
         activeProducts,
         lowStockCount,
-      },
-      // Current month specific stats
-      currentMonth: {
-        month: now.toLocaleString('default', { month: 'long' }),
-        year: now.getFullYear(),
-        totalOrders: monthOrders.length,
-        totalRevenue,
-        pendingRevenue,
-        ordersByStatus: {
-          pending: pendingOrders,
-          confirmed: confirmedOrders,
-          processing: processingOrders,
-          shipped: shippedOrders,
-          delivered: deliveredOrders,
-          cancelled: cancelledOrders,
-        },
       },
       ordersByStatus: {
         pending: pendingOrders,

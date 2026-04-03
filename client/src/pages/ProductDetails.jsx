@@ -5,7 +5,10 @@ import { fetchProductBySlug, clearProduct } from '../store/slices/productSlice';
 import { addToCart } from '../store/slices/cartSlice';
 import { addToWishlist, removeFromWishlist } from '../store/slices/authSlice';
 import { FiShoppingCart, FiHeart, FiTruck, FiShield, FiRefreshCw, FiStar, FiCheck } from 'react-icons/fi';
+import { toast } from 'react-toastify';
 import imageUrl from '../../../admin/src/utils/baseUrl';
+import { FaSquareWhatsapp } from "react-icons/fa6";
+
 
 const ProductDetails = () => {
   const { slug } = useParams();
@@ -19,32 +22,34 @@ const ProductDetails = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedColor, setSelectedColor] = useState('');
   const [selectedSize, setSelectedSize] = useState('');
-  const [showError, setShowError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     dispatch(fetchProductBySlug(slug));
     return () => dispatch(clearProduct());
   }, [dispatch, slug]);
 
+  // Reset selected image when product changes
+  useEffect(() => {
+    setSelectedImage(0);
+  }, [product]);
+
+  // Build all images array (mainImage + additional images)
+  const allImages = product ? [product.mainImage, ...(product.images?.map(img => img.url) || [])] : [];
+
   const validateSelection = () => {
     const needsColor = product.availableColors && product.availableColors.length > 0;
     const needsSize = product.availableSizes && product.availableSizes.length > 0;
 
     if (needsColor && !selectedColor) {
-      setErrorMessage('Please select a color');
-      setShowError(true);
+      toast.error('Please select a color');
       return false;
     }
 
     if (needsSize && !selectedSize) {
-      setErrorMessage('Please select a size');
-      setShowError(true);
+      toast.error('Please select a size');
       return false;
     }
 
-    setShowError(false);
-    setErrorMessage('');
     return true;
   };
 
@@ -64,6 +69,7 @@ const ProductDetails = () => {
       selectedColor: selectedColor || null,
       selectedSize: selectedSize || null,
     }));
+    toast.success('Added to cart');
   };
 
   const handleBuyNow = () => {
@@ -107,6 +113,7 @@ const ProductDetails = () => {
 
   const discount = product.originalPrice ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) : 0;
   const isInWishlist = wishlist.includes(product._id);
+  const currentImage = allImages[selectedImage] || product.mainImage;
 
   return (
     <div className="container-custom py-8">
@@ -124,21 +131,21 @@ const ProductDetails = () => {
         <div>
           <div className="card mb-4">
             <img
-              src={imageUrl + '/public' + product.mainImage || 'https://via.placeholder.com/500x500'}
+              src={imageUrl + '/public' + currentImage}
               alt={product.name}
               className="w-full aspect-square object-cover"
             />
           </div>
-          {product.images && product.images.length > 1 && (
+          {allImages.length > 1 && (
             <div className="flex gap-2 overflow-x-auto">
-              {product.images.map((img, index) => (
+              {allImages.map((img, index) => (
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
                   className={`w-20 h-20 rounded-lg overflow-hidden border-2 flex-shrink-0 ${selectedImage === index ? 'border-primary-600' : 'border-gray-200'
                     }`}
                 >
-                  <img src={img.url} alt={img.alt} className="w-full h-full object-cover" />
+                  <img src={imageUrl + '/public' + img} alt={product.name} className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>
@@ -151,7 +158,7 @@ const ProductDetails = () => {
           <h1 className="text-2xl md:text-3xl font-bold mb-4">{product.name}</h1>
 
           {/* Rating */}
-          <div className="flex items-center gap-4 mb-6">
+          <div className="flex items-center gap-4 mb-2">
             <div className="flex items-center text-yellow-400">
               {[...Array(5)].map((_, i) => (
                 <FiStar key={i} className={`w-5 h-5 ${i < Math.floor(product.rating) ? 'fill-current' : 'text-gray-300'}`} />
@@ -161,7 +168,7 @@ const ProductDetails = () => {
           </div>
 
           {/* Price */}
-          <div className="mb-6">
+          <div className="mb-3">
             <div className="flex items-center gap-4">
               <span className="text-3xl font-bold text-primary-600">৳{product.price.toLocaleString()}</span>
               {product.originalPrice && (
@@ -174,7 +181,7 @@ const ProductDetails = () => {
           </div>
 
           {/* Stock */}
-          <div className={`mb-6 ${product.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
+          <div className={`mb-3 ${product.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
             {product.stock > 0 ? (
               <p className="flex items-center gap-2">
                 <FiCheck className="w-5 h-5" />
@@ -184,6 +191,8 @@ const ProductDetails = () => {
               <p>✗ Out of Stock</p>
             )}
           </div>
+
+          {/* whats app number */}
 
           {/* Description */}
           <p className="text-gray-600 mb-6">{product.shortDescription || product.description}</p>
@@ -283,9 +292,12 @@ const ProductDetails = () => {
               </button>
             </div>
           </div>
+          <a href="https://wa.me/01852219894" target="_blank" rel="noopener noreferrer" className="btn-primary mb-2 flex items-center justify-center gap-2">
+            <FaSquareWhatsapp className='text-3xl' /> Contact on WhatsApp
+          </a>
 
           {/* Features */}
-          <div className="space-y-3 pt-6 border-t">
+          <div className="space-y-3 pt-6 mt-3 border-t">
             <div className="flex items-center gap-3 text-sm text-gray-600">
               <FiTruck className="w-5 h-5 text-primary-600" />
               <span>Free delivery on orders over ৳1000</span>

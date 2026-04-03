@@ -2,8 +2,11 @@ import { useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchOrder, updateOrderStatus } from '../store/slices/orderSlice';
-import { FiArrowLeft, FiPackage, FiCheckCircle, FiClock, FiTruck } from 'react-icons/fi';
+import { FiArrowLeft, FiPackage, FiCheckCircle, FiClock, FiTruck, FiDownload } from 'react-icons/fi';
+import { toast } from 'react-toastify';
 import imageUrl from '../utils/baseUrl';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const OrderDetail = () => {
   const { id } = useParams();
@@ -17,6 +20,34 @@ const OrderDetail = () => {
 
   const handleStatusChange = async (newStatus) => {
     await dispatch(updateOrderStatus({ id, data: { orderStatus: newStatus } }));
+  };
+
+  const handleDownloadInvoice = async () => {
+    try {
+      const token = localStorage.getItem('adminToken');
+      const response = await fetch(`${API_URL}/orders/${id}/invoice`, {
+        headers: {
+          'Authorization': token ? `Bearer ${token}` : '',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate invoice');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `invoice-${order?.orderNumber}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      toast.success('Invoice downloaded successfully');
+    } catch (error) {
+      toast.error('Failed to download invoice');
+    }
   };
 
   if (loading || !order) {
@@ -56,19 +87,28 @@ const OrderDetail = () => {
                 <h1 className="text-2xl font-bold mb-2">Order #{order.orderNumber}</h1>
                 <p className="text-gray-600">Placed on {new Date(order.createdAt).toLocaleDateString()}</p>
               </div>
-              <select
-                value={order.orderStatus}
-                onChange={(e) => handleStatusChange(e.target.value)}
-                className={`text-sm font-medium px-4 py-2 rounded-lg ${getStatusBadge(order.orderStatus)}`}
-              >
-                <option value="Pending">Pending</option>
-                <option value="Confirmed">Confirmed</option>
-                <option value="Processing">Processing</option>
-                <option value="Shipped">Shipped</option>
-                <option value="Out for Delivery">Out for Delivery</option>
-                <option value="Delivered">Delivered</option>
-                <option value="Cancelled">Cancelled</option>
-              </select>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleDownloadInvoice}
+                  className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium transition-colors"
+                >
+                  <FiDownload className="w-4 h-4" />
+                  Download Invoice
+                </button>
+                <select
+                  value={order.orderStatus}
+                  onChange={(e) => handleStatusChange(e.target.value)}
+                  className={`text-sm font-medium px-4 py-2 rounded-lg ${getStatusBadge(order.orderStatus)}`}
+                >
+                  <option value="Pending">Pending</option>
+                  <option value="Confirmed">Confirmed</option>
+                  <option value="Processing">Processing</option>
+                  <option value="Shipped">Shipped</option>
+                  <option value="Out for Delivery">Out for Delivery</option>
+                  <option value="Delivered">Delivered</option>
+                  <option value="Cancelled">Cancelled</option>
+                </select>
+              </div>
             </div>
 
             <h2 className="font-semibold mb-4">Order Items</h2>
@@ -137,10 +177,6 @@ const OrderDetail = () => {
               <div className="flex justify-between">
                 <span className="text-gray-600">Shipping</span>
                 <span>৳{order.shippingPrice?.toLocaleString() || 0}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Tax</span>
-                <span>৳{order.taxPrice?.toLocaleString() || 0}</span>
               </div>
               {order.discountPrice > 0 && (
                 <div className="flex justify-between text-green-600">

@@ -262,10 +262,6 @@ const OrderTrackingPage = () => {
                 <span className="text-gray-600">Shipping</span>
                 <span>৳{order.shippingPrice?.toLocaleString() || 0}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Tax</span>
-                <span>৳{order.taxPrice?.toLocaleString() || 0}</span>
-              </div>
               {order.discountPrice > 0 && (
                 <div className="flex justify-between text-green-600">
                   <span>Discount</span>

@@ -59,10 +59,10 @@ const Header = () => {
       <div className="bg-primary-700 text-white py-2 text-sm">
         <div className="container-custom flex justify-between items-center">
           <div className="flex items-center gap-4">
-            <span>🎉 Free Shipping on Orders Over ৳1000</span>
+            <span>🎉 Free Shipping on Orders Over ৳2000</span>
           </div>
           <div className="hidden md:flex items-center gap-4">
-            <button className='underline'>Order Tracking</button>
+            <a href='/order-tracking' className='underline'>Order Tracking</a>
             {contactPhone && (
               <a href={`tel:${contactPhone}`} className="flex items-center gap-1 hover:text-primary-200">
                 <FiPhone className="w-4 h-4" />
@@ -244,8 +244,7 @@ const Header = () => {
                   {category.name}
                 </Link>
               </li>
-            ))}
-            <li><Link to="/order-tracking" className="font-medium hover:text-primary-600 transition-colors">Order Tracking</Link></li>
+            ))} 
           </ul>
         </div>
       </nav>

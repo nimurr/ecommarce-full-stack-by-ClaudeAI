@@ -8,6 +8,7 @@ import { getHomepageCoupon } from '../api/couponAPI';
 import { getFeaturedBrands } from '../api/brandAPI';
 import ProductCard from '../components/products/ProductCard';
 import CategoryCard from '../components/categories/CategoryCard';
+import TestimonialsSection from '../components/testimonials/TestimonialsSection';
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -204,23 +205,23 @@ const Home = () => {
       <section className="py-16">
         <div className="container-custom">
           {couponLoading ? (
-            <div className="bg-gradient-to-r from-accent-600 to-accent-700 rounded-2xl p-8 md:p-12 text-white text-center animate-pulse">
+            <div className="bg-gradient-to-r from-[#0369a1] to-[#203047] rounded-2xl p-8 md:p-12 text-white text-center animate-pulse">
               <div className="h-8 bg-white bg-opacity-20 rounded w-3/4 mx-auto mb-4"></div>
               <div className="h-6 bg-white bg-opacity-20 rounded w-1/2 mx-auto"></div>
             </div>
           ) : homepageCoupon ? (
-            <div className="bg-gradient-to-r from-accent-600 to-accent-700 rounded-2xl p-8 md:p-12 text-white text-center">
+            <div className="bg-gradient-to-r from-[#0369a1] to-[#203047] rounded-2xl p-8 md:p-12 text-white text-center">
               <h2 className="text-3xl md:text-4xl font-bold font-display mb-4">🎉 {homepageCoupon.description || 'Special Offer!'}</h2>
               <p className="text-lg md:text-xl mb-6 text-accent-100">
-                Use code <span className="font-bold bg-white text-accent-600 px-6 py-3 rounded-lg text-xl">{homepageCoupon.code}</span>{' '}
+                Use code <span className="font-bold bg-white text-[#0369a1] px-6 py-3 rounded-lg text-xl">{homepageCoupon.code}</span>{' '}
                 {formatDiscount(homepageCoupon) && `at checkout and get ${formatDiscount(homepageCoupon)}!`}
               </p>
               {homepageCoupon.minPurchase > 0 && (
                 <p className="text-sm mb-8 text-accent-200">Minimum purchase of ৳{homepageCoupon.minPurchase} required</p>
               )}
               <div className="flex flex-wrap justify-center gap-4">
-                <Link to="/register" className="btn-primary bg-white text-accent-600 hover:bg-gray-100">Register Now</Link>
-                <Link to="/products" className="btn-outline border-white text-white hover:bg-white hover:text-accent-600">Shop Now</Link>
+                <Link to="/register" className="btn-primary bg-white text-[#0369a1] hover:bg-gray-100">Register Now</Link>
+                <Link to="/products" className="btn-outline border-white text-white hover:bg-white hover:text-[#0369a1]">Shop Now</Link>
               </div>
             </div>
           ) : (
@@ -270,6 +271,9 @@ const Home = () => {
           )}
         </div>
       </section>
+
+      {/* Testimonials Section */}
+      <TestimonialsSection />
     </div>
   );
 };

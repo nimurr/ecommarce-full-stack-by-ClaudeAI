@@ -61,6 +61,11 @@ export const adminAPI = {
   deleteCoupon: (id) => api.delete(`/coupons/${id}`),
   getSettings: () => api.get('/settings'),
   updateSettings: (data) => api.put('/settings', data),
+  getTestimonials: (params) => api.get('/testimonials/admin', { params }),
+  createTestimonial: (data) => api.post('/testimonials', data),
+  updateTestimonial: (id, data) => api.put(`/testimonials/${id}`, data),
+  deleteTestimonial: (id) => api.delete(`/testimonials/${id}`),
+  toggleTestimonialActive: (id) => api.put(`/testimonials/${id}/toggle-active`),
 };
 
 export default api;

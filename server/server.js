@@ -34,6 +34,7 @@ import brandRoutes from './routes/brandRoutes.js';
 import subAdminRoutes from './routes/subAdminRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
+import testimonialRoutes from './routes/testimonialRoutes.js';
 
 // Load env vars
 dotenv.config();
@@ -95,6 +96,7 @@ app.use('/api/brands', brandRoutes);
 app.use('/api/admin/sub-admins', subAdminRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/testimonials', testimonialRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

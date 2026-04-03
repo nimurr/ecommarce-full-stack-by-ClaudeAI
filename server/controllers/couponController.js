@@ -99,8 +99,32 @@ export const validateCoupon = asyncHandler(async (req, res) => {
 
   // Check if coupon is valid
   if (!coupon.isValid()) {
+    // Determine specific reason
+    const now = new Date();
+    const startDate = new Date(coupon.startDate);
+    startDate.setHours(0, 0, 0, 0);
+    const endDate = new Date(coupon.endDate);
+    endDate.setHours(23, 59, 59, 999);
+
+    if (!coupon.active) {
+      res.status(400);
+      throw new Error('This coupon is currently inactive');
+    }
+    if (startDate > now) {
+      res.status(400);
+      throw new Error(`This coupon starts on ${startDate.toLocaleDateString('en-BD', { day: 'numeric', month: 'short', year: 'numeric' })}. It is not active yet.`);
+    }
+    if (endDate < now) {
+      res.status(400);
+      throw new Error(`This coupon expired on ${endDate.toLocaleDateString('en-BD', { day: 'numeric', month: 'short', year: 'numeric' })}`);
+    }
+    if (coupon.usageLimit && coupon.usageCount >= coupon.usageLimit) {
+      res.status(400);
+      throw new Error('Coupon usage limit has been reached');
+    }
+
     res.status(400);
-    throw new Error('Coupon is not valid or expired');
+    throw new Error('Coupon is not valid');
   }
 
   // Check usage limit

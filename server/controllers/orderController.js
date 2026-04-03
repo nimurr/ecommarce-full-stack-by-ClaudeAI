@@ -1,4 +1,5 @@
 import asyncHandler from 'express-async-handler';
+import mongoose from 'mongoose';
 import Order from '../models/Order.js';
 import Product from '../models/Product.js';
 import Coupon from '../models/Coupon.js';
@@ -167,6 +168,7 @@ export const createOrder = asyncHandler(async (req, res) => {
   // Apply coupon if provided
   let discountPrice = 0;
   let coupon = null;
+  let isFreeShipping = false;
 
   if (couponCode) {
     coupon = await Coupon.findOne({ code: couponCode.toUpperCase() });
@@ -194,20 +196,42 @@ export const createOrder = asyncHandler(async (req, res) => {
       }
     } else if (coupon.discountType === 'fixed') {
       discountPrice = coupon.discountValue;
+    } else if (coupon.discountType === 'free_shipping') {
+      isFreeShipping = true;
     }
 
     coupon.usageCount += 1;
     await coupon.save();
   }
 
-  // Shipping price (free shipping for orders over 1000 BDT)
-  const shippingPrice = itemsPrice > 1000 ? 0 : 60;
+  // Shipping price - fetch from Settings
+  const Settings = mongoose.model('Settings');
+  const settings = await Settings.findOne();
+  const freeThreshold = settings?.shipping?.freeShippingThreshold ?? 1000;
+  const dhakaFee = settings?.shipping?.dhakaShippingFee ?? 60;
+  const othersFee = settings?.shipping?.othersShippingFee ?? 120;
 
-  // Tax (VAT 5%)
-  const taxPrice = itemsPrice * 0.05;
+  let shippingPrice = 0;
+  if (itemsPrice <= freeThreshold) {
+    const city = (shippingAddress?.city || '').toLowerCase();
+    if (city.includes('dhaka')) {
+      shippingPrice = dhakaFee;
+    } else {
+      shippingPrice = othersFee;
+    }
+  }
 
-  // Total
-  const totalPrice = itemsPrice + shippingPrice + taxPrice - discountPrice;
+  // Apply free shipping coupon — record shipping savings as discount
+  if (isFreeShipping) {
+    discountPrice = shippingPrice;
+    shippingPrice = 0;
+  }
+
+  // No tax
+  const taxPrice = 0;
+
+  // Total = itemsPrice + shippingPrice - discountPrice (no tax)
+  const totalPrice = itemsPrice + shippingPrice - discountPrice;
 
   // Create order (user is optional for guest checkout)
   const orderData = {

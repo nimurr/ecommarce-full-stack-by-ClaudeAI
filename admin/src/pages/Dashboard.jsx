@@ -1,16 +1,18 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchDashboardStats } from '../store/slices/dashboardSlice';
 import { FiDollarSign, FiShoppingCart, FiUsers, FiPackage, FiTrendingUp, FiAlertTriangle, FiCheckCircle, FiClock, FiTruck, FiXCircle } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
+import imageUrl from '../utils/baseUrl';
 
 const Dashboard = () => {
   const dispatch = useDispatch();
   const { stats, loading, error } = useSelector((state) => state.dashboard);
+  const [period, setPeriod] = useState('all');
 
   useEffect(() => {
-    dispatch(fetchDashboardStats());
-  }, [dispatch]);
+    dispatch(fetchDashboardStats(period));
+  }, [dispatch, period]);
 
   if (loading) {
     return (
@@ -24,7 +26,7 @@ const Dashboard = () => {
     return (
       <div className="text-center py-12">
         <p className="text-red-600 text-lg">{error}</p>
-        <button onClick={() => dispatch(fetchDashboardStats())} className="btn-primary mt-4">
+        <button onClick={() => dispatch(fetchDashboardStats(period))} className="btn-primary mt-4">
           Retry
         </button>
       </div>
@@ -32,11 +34,11 @@ const Dashboard = () => {
   }
 
   const overview = stats?.overview || {};
-  const currentMonth = stats?.currentMonth || {};
-  const ordersByStatus = currentMonth.ordersByStatus || {};
+  const ordersByStatus = stats?.ordersByStatus || {};
   const topProducts = stats?.topProducts || [];
   const recentOrders = stats?.recentOrders || [];
   const lowStockProducts = stats?.lowStockProducts || [];
+  const periodLabel = stats?.period || '';
 
   const statusColors = {
     pending: 'bg-yellow-100 text-yellow-800',
@@ -60,18 +62,38 @@ const Dashboard = () => {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Dashboard Overview</h1>
-        <p className="text-gray-600">
-          {currentMonth.month} {currentMonth.year}
-        </p>
+        <div className="flex items-center gap-3">
+          {/* <span className="text-gray-600 text-sm">{periodLabel}</span> */}
+          <div className="bg-gray-100 rounded-lg p-1 flex gap-1">
+            <button
+              onClick={() => setPeriod('month')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${period === 'month'
+                ? 'bg-primary-600 text-white shadow-sm'
+                : 'text-gray-600 hover:text-gray-900 bg-gray-200'
+                }`}
+            >
+              This Month
+            </button>
+            <button
+              onClick={() => setPeriod('all')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${period === 'all'
+                ? 'bg-primary-600 text-white shadow-sm'
+                : 'text-gray-600 hover:text-gray-900 bg-gray-200'
+                }`}
+            >
+              All Time
+            </button>
+          </div>
+        </div>
       </div>
 
-      {/* Current Month Overview Cards */}
+      {/* Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {/* Total Revenue */}
         <div className="card bg-gradient-to-br from-green-500 to-green-600 text-white">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-green-100 text-sm mb-1">Total Revenue (This Month)</p>
+              <p className="text-green-100 text-sm mb-1">Total Revenue</p>
               <p className="text-3xl font-bold">৳{(overview.totalRevenue || 0).toLocaleString()}</p>
               <p className="text-green-100 text-xs mt-2">
                 Pending: ৳{(overview.pendingRevenue || 0).toLocaleString()}
@@ -87,10 +109,10 @@ const Dashboard = () => {
         <div className="card bg-gradient-to-br from-blue-500 to-blue-600 text-white">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-blue-100 text-sm mb-1">Total Orders (This Month)</p>
-              <p className="text-3xl font-bold">{currentMonth.totalOrders || 0}</p>
+              <p className="text-blue-100 text-sm mb-1">Total Orders</p>
+              <p className="text-3xl font-bold">{overview.ordersCount || 0}</p>
               <p className="text-blue-100 text-xs mt-2">
-                All Time: {overview.totalOrders || 0}
+                Paid: {overview.totalPaidOrders || 0}
               </p>
             </div>
             <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
@@ -134,7 +156,7 @@ const Dashboard = () => {
 
       {/* Orders by Status */}
       <div className="card mb-8">
-        <h2 className="text-lg font-semibold mb-4">Orders by Status ({currentMonth.month} {currentMonth.year})</h2>
+        <h2 className="text-lg font-semibold mb-4">Orders by Status</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {Object.entries(ordersByStatus).map(([status, count]) => {
             const IconComponent = statusIcons[status] || FiPackage;
@@ -156,7 +178,7 @@ const Dashboard = () => {
         <div className="card">
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <FiTrendingUp className="w-5 h-5 text-green-600" />
-            Top Selling Products (This Month)
+            Top Selling Products
           </h2>
           {topProducts.length > 0 ? (
             <div className="space-y-4">
@@ -165,7 +187,7 @@ const Dashboard = () => {
                   <span className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center font-bold text-sm">
                     {index + 1}
                   </span>
-                  <img src={product.image || 'https://via.placeholder.com/40'} alt={product.name} className="w-12 h-12 object-cover rounded" />
+                  <img src={imageUrl + '/public' + product.image || 'https://via.placeholder.com/40'} alt={product.name} className="w-12 h-12 object-cover rounded" />
                   <div className="flex-1">
                     <p className="font-medium text-sm truncate">{product.name}</p>
                     <p className="text-xs text-gray-500">{product.totalSold} sold</p>
@@ -192,11 +214,10 @@ const Dashboard = () => {
                   </div>
                   <div className="text-right">
                     <p className="font-semibold text-sm">৳{(order.totalPrice || 0).toLocaleString()}</p>
-                    <span className={`badge text-xs ${
-                      order.orderStatus === 'Delivered' ? 'badge-success' :
+                    <span className={`badge text-xs ${order.orderStatus === 'Delivered' ? 'badge-success' :
                       order.orderStatus === 'Cancelled' ? 'badge-danger' :
-                      'badge-primary'
-                    }`}>
+                        'badge-primary'
+                      }`}>
                       {order.orderStatus}
                     </span>
                   </div>

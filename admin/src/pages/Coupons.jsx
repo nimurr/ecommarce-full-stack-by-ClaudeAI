@@ -10,7 +10,7 @@ const Coupons = () => {
   const [editing, setEditing] = useState(null);
   const [formData, setFormData] = useState({
     code: '', description: '', discountType: 'percentage', discountValue: '',
-    minPurchase: '0', startDate: '', endDate: '', active: true,
+    minPurchase: '0', maxDiscount: '', startDate: '', endDate: '', active: true,
   });
 
   useEffect(() => {
@@ -23,6 +23,7 @@ const Coupons = () => {
       ...formData,
       discountValue: Number(formData.discountValue),
       minPurchase: Number(formData.minPurchase),
+      maxDiscount: formData.maxDiscount ? Number(formData.maxDiscount) : null,
     };
     if (editing) {
       await dispatch(updateCoupon({ id: editing._id, data }));
@@ -31,7 +32,7 @@ const Coupons = () => {
     }
     setShowModal(false);
     setEditing(null);
-    setFormData({ code: '', description: '', discountType: 'percentage', discountValue: '', minPurchase: '0', startDate: '', endDate: '', active: true });
+    setFormData({ code: '', description: '', discountType: 'percentage', discountValue: '', minPurchase: '0', maxDiscount: '', startDate: '', endDate: '', active: true });
   };
 
   const handleEdit = (coupon) => {
@@ -39,6 +40,7 @@ const Coupons = () => {
     setFormData({
       code: coupon.code, description: coupon.description || '', discountType: coupon.discountType,
       discountValue: coupon.discountValue, minPurchase: coupon.minPurchase,
+      maxDiscount: coupon.maxDiscount || '',
       startDate: new Date(coupon.startDate).toISOString().split('T')[0],
       endDate: new Date(coupon.endDate).toISOString().split('T')[0],
       active: coupon.active,
@@ -54,7 +56,11 @@ const Coupons = () => {
 
   const isValid = (coupon) => {
     const now = new Date();
-    return coupon.active && new Date(coupon.startDate) <= now && new Date(coupon.endDate) >= now;
+    const startDate = new Date(coupon.startDate);
+    startDate.setHours(0, 0, 0, 0);
+    const endDate = new Date(coupon.endDate);
+    endDate.setHours(23, 59, 59, 999);
+    return coupon.active && startDate <= now && endDate >= now;
   };
 
   return (
@@ -128,6 +134,7 @@ const Coupons = () => {
                   <select value={formData.discountType} onChange={(e) => setFormData({ ...formData, discountType: e.target.value })} className="input-field">
                     <option value="percentage">Percentage</option>
                     <option value="fixed">Fixed Amount</option>
+                    <option value="free_shipping">Free Shipping</option>
                   </select>
                 </div>
                 <div>
@@ -135,6 +142,13 @@ const Coupons = () => {
                   <input type="number" value={formData.discountValue} onChange={(e) => setFormData({ ...formData, discountValue: e.target.value })} required className="input-field" />
                 </div>
               </div>
+              {formData.discountType === 'percentage' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Max Discount (optional)</label>
+                  <input type="number" value={formData.maxDiscount} onChange={(e) => setFormData({ ...formData, maxDiscount: e.target.value })} placeholder="Maximum discount amount" className="input-field" />
+                  <p className="text-xs text-gray-500 mt-1">Cap for percentage discounts</p>
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Minimum Purchase</label>
                 <input type="number" value={formData.minPurchase} onChange={(e) => setFormData({ ...formData, minPurchase: e.target.value })} className="input-field" />

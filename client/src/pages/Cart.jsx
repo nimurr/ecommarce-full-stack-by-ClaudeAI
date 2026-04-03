@@ -118,12 +118,8 @@ const Cart = () => {
                 <span>৳{totals.subtotal.toLocaleString()}</span>
               </div>
               <div className="flex justify-between text-gray-600">
-                <span>Shipping</span>
+                <span>Shipping ( Dhaka City ৳60)</span>
                 <span>{totals.shipping === 0 ? 'Free' : `৳${totals.shipping.toLocaleString()}`}</span>
-              </div>
-              <div className="flex justify-between text-gray-600">
-                <span>Tax (5%)</span>
-                <span>৳{totals.tax.toLocaleString()}</span>
               </div>
               {totals.discount > 0 && (
                 <div className="flex justify-between text-green-600">

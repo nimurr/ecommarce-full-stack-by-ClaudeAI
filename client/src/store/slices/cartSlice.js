@@ -98,14 +98,12 @@ export const selectCartTotal = (state) => {
   const cart = state.cart.cartItems;
   const subtotal = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const shipping = subtotal > 1000 ? 0 : 60;
-  const tax = subtotal * 0.05;
   const discount = state.cart.discount;
   return {
     subtotal,
     shipping,
-    tax,
     discount,
-    total: subtotal + shipping + tax - discount,
+    total: subtotal + shipping - discount,
   };
 };
 

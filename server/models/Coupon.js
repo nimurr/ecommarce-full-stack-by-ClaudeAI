@@ -88,10 +88,16 @@ const couponSchema = new mongoose.Schema({
 // Check if coupon is valid
 couponSchema.methods.isValid = function() {
   const now = new Date();
+  // Normalize startDate to beginning of day (00:00:00.000)
+  const startDate = new Date(this.startDate);
+  startDate.setHours(0, 0, 0, 0);
+  // Normalize endDate to end of day (23:59:59.999)
+  const endDate = new Date(this.endDate);
+  endDate.setHours(23, 59, 59, 999);
   return (
     this.active &&
-    this.startDate <= now &&
-    this.endDate >= now &&
+    startDate <= now &&
+    endDate >= now &&
     (this.usageLimit === null || this.usageCount < this.usageLimit)
   );
 };

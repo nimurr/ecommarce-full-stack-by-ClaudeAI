@@ -257,7 +257,7 @@ export const getDashboardStats = asyncHandler(async (req, res) => {
   // Low stock products
   const Product = mongoose.model('Product');
   const lowStockProducts = await Product.find({
-    stock: { $lte: '$lowStockThreshold' },
+    $expr: { $lte: ['$stock', '$lowStockThreshold'] },
     active: true,
   })
     .select('name slug stock lowStockThreshold images mainImage')
