@@ -33,6 +33,7 @@ import pageRoutes from './routes/pageRoutes.js';
 import brandRoutes from './routes/brandRoutes.js';
 import subAdminRoutes from './routes/subAdminRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
+import sliderRoutes from './routes/sliderRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import testimonialRoutes from './routes/testimonialRoutes.js';
 
