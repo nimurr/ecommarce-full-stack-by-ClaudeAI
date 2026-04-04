@@ -407,11 +407,7 @@ const Settings = () => {
                 </button>
               ))}
             </nav>
-            <div>
-              <Link to="/sliders" className="mt-4 w-full inline-flex items-center gap-4 px-4 py-3 bg-white text-gray-700 rounded-lg font-semibold  hover:bg-gray-100 transition-colors">
-                <FiImage className="w-5 h-5" />Hero Sliders
-              </Link>
-            </div>
+           
           </div>
         </div>
 
