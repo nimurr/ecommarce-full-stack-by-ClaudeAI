@@ -33,14 +33,11 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
           <div>
-            <div className="flex items-center space-x-2 mb-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">E</span>
+            <Link to="/" className="flex items-center space-x-2 mb-5 shadow-lg">
+              <div className="w-32 rounded-lg flex items-center justify-center">
+                <img src="https://res.cloudinary.com/nerob/image/upload/v1775298183/Gadgets%20Lagbe/Screenshot_43-removebg-preview_ndwbas.png" alt="" />
               </div>
-              <span className="text-xl font-bold font-display text-white">
-                {siteName}
-              </span>
-            </div>
+            </Link>
             <p className="text-gray-400 mb-4">
               {siteDescription}
             </p>
@@ -176,7 +173,7 @@ const Footer = () => {
               © {currentYear} {siteName}. All rights reserved.
             </p>
             <div className="flex items-center gap-4">
-              <img src="https://hostxio.com/wp-content/uploads/2022/08/pay.png" alt="Payment Methods" className="h-6" /> 
+              <img src="https://hostxio.com/wp-content/uploads/2022/08/pay.png" alt="Payment Methods" className="h-6" />
             </div>
           </div>
         </div>

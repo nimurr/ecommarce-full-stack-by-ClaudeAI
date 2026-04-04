@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchSettings, saveSettings } from '../store/slices/settingsSlice';
-import { FiSave, FiMail, FiPhone, FiMapPin, FiClock, FiTruck, FiSettings, FiGlobe, FiActivity, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
+import { FiSave, FiMail, FiPhone, FiMapPin, FiClock, FiTruck, FiSettings, FiGlobe, FiActivity, FiLock, FiEye, FiEyeOff, FiImage, FiPlus, FiEdit2, FiTrash2, FiArrowUp, FiArrowDown, FiToggleLeft, FiToggleRight, FiUpload } from 'react-icons/fi';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { Link } from 'react-router-dom';
+import imageUrl from '../utils/baseUrl';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -52,9 +54,218 @@ const Settings = () => {
     currencySymbol: '৳',
   });
 
+  // Slider management state
+  const [sliders, setSliders] = useState([]);
+  const [sliderLoading, setSliderLoading] = useState(true);
+  const [showSliderModal, setShowSliderModal] = useState(false);
+  const [editingSlider, setEditingSlider] = useState(null);
+  const [sliderFormData, setSliderFormData] = useState({
+    title: '',
+    subtitle: '',
+    description: '',
+    image: '',
+    buttonText: 'Shop Now',
+    buttonLink: '/products',
+    linkType: 'route',
+    isActive: true,
+    order: 0,
+    bgColorStart: '#037dbc',
+    bgColorEnd: '#075c89',
+  });
+  const [sliderImageFile, setSliderImageFile] = useState(null);
+  const [sliderImagePreview, setSliderImagePreview] = useState(null);
+  const [uploadingSliderImage, setUploadingSliderImage] = useState(false);
+
   useEffect(() => {
     dispatch(fetchSettings());
+    fetchSliders();
   }, [dispatch]);
+
+  // Slider management functions
+  const fetchSliders = async () => {
+    try {
+      const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
+      const response = await axios.get(`${API_URL}/sliders`, {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      setSliders(response.data.data);
+    } catch (error) {
+      console.error('Failed to fetch sliders:', error);
+    } finally {
+      setSliderLoading(false);
+    }
+  };
+
+  const handleSliderImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSliderImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSliderImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const uploadSliderImage = async () => {
+    if (!sliderImageFile) return null;
+    
+    setUploadingSliderImage(true);
+    try {
+      const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
+      const formData = new FormData();
+      formData.append('image', sliderImageFile);
+      
+      const response = await axios.post(`${API_URL}/upload/single`, formData, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      
+      return response.data.data.url;
+    } catch (error) {
+      console.error('Failed to upload image:', error);
+      toast.error('Failed to upload image');
+      return null;
+    } finally {
+      setUploadingSliderImage(false);
+    }
+  };
+
+  const handleSliderSubmit = async (e) => {
+    e.preventDefault();
+    
+    let imageUrl = sliderFormData.image;
+    
+    // Upload image if a new one is selected
+    if (sliderImageFile) {
+      const uploadedUrl = await uploadSliderImage();
+      if (uploadedUrl) {
+        imageUrl = uploadedUrl;
+      } else {
+        return; // Stop if upload failed
+      }
+    }
+    
+    try {
+      const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
+      const sliderData = { ...sliderFormData, image: imageUrl };
+      
+      if (editingSlider) {
+        await axios.put(`${API_URL}/sliders/${editingSlider._id}`, sliderData, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        toast.success('Slider updated successfully');
+      } else {
+        await axios.post(`${API_URL}/sliders`, sliderData, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        toast.success('Slider created successfully');
+      }
+      fetchSliders();
+      setShowSliderModal(false);
+      setEditingSlider(null);
+      resetSliderForm();
+    } catch (error) {
+      console.error('Failed to save slider:', error);
+      toast.error(error.response?.data?.message || 'Failed to save slider');
+    }
+  };
+
+  const handleEditSlider = (slider) => {
+    setEditingSlider(slider);
+    setSliderFormData({
+      title: slider.title,
+      subtitle: slider.subtitle || '',
+      description: slider.description || '',
+      image: slider.image,
+      buttonText: slider.buttonText || 'Shop Now',
+      buttonLink: slider.buttonLink || '/products',
+      linkType: slider.linkType || 'route',
+      isActive: slider.isActive,
+      order: slider.order || 0,
+      bgColorStart: slider.bgColorStart || '#037dbc',
+      bgColorEnd: slider.bgColorEnd || '#075c89',
+    });
+    setSliderImagePreview(slider.image);
+    setSliderImageFile(null);
+    setShowSliderModal(true);
+  };
+
+  const handleDeleteSlider = async (id) => {
+    if (window.confirm('Delete this slider?')) {
+      try {
+        const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
+        await axios.delete(`${API_URL}/sliders/${id}`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        toast.success('Slider deleted successfully');
+        fetchSliders();
+      } catch (error) {
+        console.error('Failed to delete slider:', error);
+        toast.error('Failed to delete slider');
+      }
+    }
+  };
+
+  const handleToggleSliderStatus = async (id) => {
+    try {
+      const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
+      await axios.put(`${API_URL}/sliders/${id}/toggle`, {}, {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      fetchSliders();
+    } catch (error) {
+      console.error('Failed to toggle status:', error);
+    }
+  };
+
+  const handleMoveSliderUp = async (id, currentOrder) => {
+    if (currentOrder <= 0) return;
+    try {
+      const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
+      await axios.put(`${API_URL}/sliders/${id}/order`, 
+        { order: currentOrder - 1 },
+        { headers: { 'Authorization': `Bearer ${token}` } }
+      );
+      fetchSliders();
+    } catch (error) {
+      console.error('Failed to move slider:', error);
+    }
+  };
+
+  const handleMoveSliderDown = async (id, currentOrder) => {
+    try {
+      const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
+      await axios.put(`${API_URL}/sliders/${id}/order`, 
+        { order: currentOrder + 1 },
+        { headers: { 'Authorization': `Bearer ${token}` } }
+      );
+      fetchSliders();
+    } catch (error) {
+      console.error('Failed to move slider:', error);
+    }
+  };
+
+  const resetSliderForm = () => {
+    setSliderFormData({
+      title: '',
+      subtitle: '',
+      description: '',
+      image: '',
+      buttonText: 'Shop Now',
+      buttonLink: '/products',
+      linkType: 'route',
+      isActive: true,
+      order: sliders.length,
+      bgColorStart: '#037dbc',
+      bgColorEnd: '#075c89',
+    });
+    setSliderImageFile(null);
+    setSliderImagePreview(null);
+  };
 
   useEffect(() => {
     if (settings) {
@@ -115,7 +326,7 @@ const Settings = () => {
 
   const handlePasswordChange = async (e) => {
     e.preventDefault();
-    
+
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       toast.error('New passwords do not match');
       return;
@@ -139,7 +350,7 @@ const Settings = () => {
           'Content-Type': 'application/json',
         },
       });
-      
+
       toast.success('Password updated successfully!');
       setPasswordData({
         currentPassword: '',
@@ -160,6 +371,7 @@ const Settings = () => {
     { id: 'address', label: 'Address', icon: FiMapPin },
     { id: 'social', label: 'Social Media', icon: FiGlobe },
     { id: 'shipping', label: 'Shipping', icon: FiTruck },
+    { id: 'sliders', label: 'Hero Sliders', icon: FiImage },
     { id: 'password', label: 'Change Password', icon: FiLock },
   ];
 
@@ -185,17 +397,21 @@ const Settings = () => {
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                    activeTab === tab.id
-                      ? 'bg-primary-600 text-white'
-                      : 'text-gray-600 hover:bg-gray-100'
-                  }`}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeTab === tab.id
+                    ? 'bg-primary-600 text-white'
+                    : 'text-gray-600 hover:bg-gray-100'
+                    }`}
                 >
                   <tab.icon className="w-5 h-5" />
                   <span className="font-medium">{tab.label}</span>
                 </button>
               ))}
             </nav>
+            <div>
+              <Link to="/sliders" className="mt-4 w-full inline-flex items-center gap-4 px-4 py-3 bg-white text-gray-700 rounded-lg font-semibold  hover:bg-gray-100 transition-colors">
+                <FiImage className="w-5 h-5" />Hero Sliders
+              </Link>
+            </div>
           </div>
         </div>
 
@@ -504,6 +720,104 @@ const Settings = () => {
               </form>
             )}
 
+            {/* Hero Sliders Settings */}
+            {activeTab === 'sliders' && (
+              <div className="space-y-4">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-lg font-semibold">Hero Slider Management</h2>
+                  <button 
+                    onClick={() => { resetSliderForm(); setEditingSlider(null); setShowSliderModal(true); }} 
+                    className="btn-primary flex items-center gap-2"
+                  >
+                    <FiPlus className="w-5 h-5" />
+                    Add Slider
+                  </button>
+                </div>
+
+                {sliderLoading ? (
+                  <div className="flex items-center justify-center h-32">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600" />
+                  </div>
+                ) : sliders.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <FiImage className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                    <p>No sliders created yet. Click "Add Slider" to create one.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {sliders.map((slider, index) => (
+                      <div key={slider._id} className={`card p-4 ${!slider.isActive ? 'opacity-50' : ''}`}>
+                        <div className="flex items-center gap-4">
+                          {/* Order Controls */}
+                          <div className="flex flex-col gap-1">
+                            <button 
+                              onClick={() => handleMoveSliderUp(slider._id, slider.order)}
+                              disabled={slider.order === 0}
+                              className="p-1 hover:bg-gray-100 rounded disabled:opacity-30"
+                            >
+                              <FiArrowUp className="w-4 h-4" />
+                            </button>
+                            <span className="text-xs text-center font-medium">{slider.order}</span>
+                            <button 
+                              onClick={() => handleMoveSliderDown(slider._id, slider.order)}
+                              className="p-1 hover:bg-gray-100 rounded"
+                            >
+                              <FiArrowDown className="w-4 h-4" />
+                            </button>
+                          </div>
+
+                          {/* Image Preview */}
+                          <div 
+                            className="w-32 h-20 rounded bg-cover bg-center"
+                            style={{ backgroundImage: `url(${imageUrl}${slider.image})` }}
+                          />
+
+                          {/* Content */}
+                          <div className="flex-1">
+                            <h3 className="font-semibold">{slider.title}</h3>
+                            {slider.subtitle && <p className="text-sm text-gray-600">{slider.subtitle}</p>}
+                            <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                              <span>Button: {slider.buttonText}</span>
+                              <span>Link: {slider.buttonLink}</span>
+                            </div>
+                          </div>
+
+                          {/* Status Toggle */}
+                          <button
+                            onClick={() => handleToggleSliderStatus(slider._id)}
+                            className={`flex items-center gap-2 px-3 py-1 rounded ${
+                              slider.isActive ? 'text-green-600 bg-green-50' : 'text-gray-400 bg-gray-50'
+                            }`}
+                          >
+                            {slider.isActive ? <FiToggleRight className="w-6 h-6" /> : <FiToggleLeft className="w-6 h-6" />}
+                            <span className="text-sm">{slider.isActive ? 'Active' : 'Inactive'}</span>
+                          </button>
+
+                          {/* Actions */}
+                          <div className="flex gap-2">
+                            <button 
+                              onClick={() => handleEditSlider(slider)} 
+                              className="p-2 hover:bg-gray-200 rounded"
+                              title="Edit"
+                            >
+                              <FiEdit2 className="w-4 h-4" />
+                            </button>
+                            <button 
+                              onClick={() => handleDeleteSlider(slider._id)} 
+                              className="p-2 hover:bg-red-100 text-red-600 rounded"
+                              title="Delete"
+                            >
+                              <FiTrash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Change Password */}
             {activeTab === 'password' && (
               <form onSubmit={handlePasswordChange} className="space-y-4">
@@ -591,6 +905,219 @@ const Settings = () => {
           </div>
         </div>
       </div>
+
+      {/* Slider Modal */}
+      {showSliderModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
+          <div className="card w-full max-w-2xl my-8">
+            <h2 className="text-xl font-bold mb-4">{editingSlider ? 'Edit' : 'Add'} Slider</h2>
+            <form onSubmit={handleSliderSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Title *</label>
+                <input
+                  type="text"
+                  value={sliderFormData.title}
+                  onChange={(e) => setSliderFormData({ ...sliderFormData, title: e.target.value })}
+                  className="input-field"
+                  required
+                  placeholder="Discover the Latest in Electronics"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Subtitle</label>
+                <input
+                  type="text"
+                  value={sliderFormData.subtitle}
+                  onChange={(e) => setSliderFormData({ ...sliderFormData, subtitle: e.target.value })}
+                  className="input-field"
+                  placeholder="Shop premium gadgets at unbeatable prices"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                <textarea
+                  value={sliderFormData.description}
+                  onChange={(e) => setSliderFormData({ ...sliderFormData, description: e.target.value })}
+                  rows={3}
+                  className="input-field"
+                  placeholder="Additional description text..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Slider Image *</label>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                  {sliderImagePreview ? (
+                    <div className="space-y-4">
+                      <img 
+                        src={sliderImagePreview} 
+                        alt="Slider preview" 
+                        className="max-h-48 mx-auto rounded-lg"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSliderImageFile(null);
+                          setSliderImagePreview(null);
+                          setSliderFormData({ ...sliderFormData, image: '' });
+                        }}
+                        className="text-sm text-red-600 hover:text-red-700"
+                      >
+                        Remove image
+                      </button>
+                    </div>
+                  ) : (
+                    <div>
+                      <FiUpload className="w-12 h-12 mx-auto text-gray-400 mb-2" />
+                      <p className="text-sm text-gray-600 mb-2">Click to upload or drag and drop</p>
+                      <p className="text-xs text-gray-500">PNG, JPG, WEBP up to 5MB</p>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleSliderImageChange}
+                        className="hidden"
+                        id="slider-image-upload"
+                      />
+                      <label
+                        htmlFor="slider-image-upload"
+                        className="inline-block mt-2 px-4 py-2 bg-primary-600 text-white rounded-lg cursor-pointer hover:bg-primary-700"
+                      >
+                        Upload Image
+                      </label>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Button Text</label>
+                  <input
+                    type="text"
+                    value={sliderFormData.buttonText}
+                    onChange={(e) => setSliderFormData({ ...sliderFormData, buttonText: e.target.value })}
+                    className="input-field"
+                    placeholder="Shop Now"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Button Link</label>
+                  <input
+                    type="text"
+                    value={sliderFormData.buttonLink}
+                    onChange={(e) => setSliderFormData({ ...sliderFormData, buttonLink: e.target.value })}
+                    className="input-field"
+                    placeholder="/products or https://example.com"
+                  />
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Link Type</label>
+                  <select
+                    value={sliderFormData.linkType}
+                    onChange={(e) => setSliderFormData({ ...sliderFormData, linkType: e.target.value })}
+                    className="input-field"
+                  >
+                    <option value="route">Internal Route</option>
+                    <option value="url">External URL</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Order</label>
+                  <input
+                    type="number"
+                    value={sliderFormData.order}
+                    onChange={(e) => setSliderFormData({ ...sliderFormData, order: Number(e.target.value) })}
+                    className="input-field"
+                    min="0"
+                  />
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Background Gradient Start</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={sliderFormData.bgColorStart}
+                      onChange={(e) => setSliderFormData({ ...sliderFormData, bgColorStart: e.target.value })}
+                      className="w-10 h-10 rounded cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={sliderFormData.bgColorStart}
+                      onChange={(e) => setSliderFormData({ ...sliderFormData, bgColorStart: e.target.value })}
+                      className="input-field flex-1"
+                      placeholder="#037dbc"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Background Gradient End</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={sliderFormData.bgColorEnd}
+                      onChange={(e) => setSliderFormData({ ...sliderFormData, bgColorEnd: e.target.value })}
+                      className="w-10 h-10 rounded cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={sliderFormData.bgColorEnd}
+                      onChange={(e) => setSliderFormData({ ...sliderFormData, bgColorEnd: e.target.value })}
+                      className="input-field flex-1"
+                      placeholder="#075c89"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Gradient Preview */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Gradient Preview</label>
+                <div 
+                  className="h-16 rounded-lg"
+                  style={{
+                    background: `linear-gradient(to right, ${sliderFormData.bgColorStart}, ${sliderFormData.bgColorEnd})`
+                  }}
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={sliderFormData.isActive}
+                  onChange={(e) => setSliderFormData({ ...sliderFormData, isActive: e.target.checked })}
+                  className="w-4 h-4"
+                />
+                <span className="text-sm font-medium">Active</span>
+              </div>
+
+              <div className="flex gap-2 pt-4 border-t">
+                <button 
+                  type="submit" 
+                  disabled={uploadingSliderImage}
+                  className="btn-primary flex-1"
+                >
+                  {uploadingSliderImage ? 'Uploading...' : editingSlider ? 'Update' : 'Create'} Slider
+                </button>
+                <button 
+                  type="button" 
+                  onClick={() => { setShowSliderModal(false); setEditingSlider(null); resetSliderForm(); }} 
+                  className="btn-secondary flex-1"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

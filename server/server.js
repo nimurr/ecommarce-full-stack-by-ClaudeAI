@@ -96,6 +96,7 @@ app.use('/api/pages', pageRoutes);
 app.use('/api/brands', brandRoutes);
 app.use('/api/admin/sub-admins', subAdminRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/sliders', sliderRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/testimonials', testimonialRoutes);
 

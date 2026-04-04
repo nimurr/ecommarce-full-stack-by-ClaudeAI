@@ -17,6 +17,7 @@ import SubAdmins from './pages/SubAdmins';
 import FacebookPixelSettings from './pages/FacebookPixelSettings';
 import GoogleTagManagerSettings from './pages/GoogleTagManagerSettings';
 import Testimonials from './pages/Testimonials';
+import Sliders from './pages/Sliders';
 import Login from './pages/Login';
 
 const ProtectedRoute = ({ children }) => {
@@ -53,6 +54,7 @@ function App() {
         <Route path="facebook-pixel" element={<FacebookPixelSettings />} />
         <Route path="google-tag-manager" element={<GoogleTagManagerSettings />} />
         <Route path="testimonials" element={<Testimonials />} />
+        <Route path="sliders" element={<Sliders />} />
       </Route>
     </Routes>
   );

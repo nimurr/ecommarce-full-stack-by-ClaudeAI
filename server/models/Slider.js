@@ -45,6 +45,15 @@ const sliderSchema = new mongoose.Schema({
     enum: ['route', 'url'],
     default: 'route',
   },
+  // Background gradient colors
+  bgColorStart: {
+    type: String,
+    default: '#037dbc',
+  },
+  bgColorEnd: {
+    type: String,
+    default: '#075c89',
+  },
 }, {
   timestamps: true,
 });

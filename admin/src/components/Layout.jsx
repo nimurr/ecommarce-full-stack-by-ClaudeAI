@@ -1,6 +1,6 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { FiHome, FiPackage, FiList, FiShoppingCart, FiUsers, FiStar, FiTag, FiSettings, FiFileText, FiUserPlus, FiActivity, FiBell, FiLogOut, FiMenu, FiX, FiMessageCircle, FiCode, FiFacebook } from 'react-icons/fi';
+import { FiHome, FiPackage, FiList, FiShoppingCart, FiUsers, FiStar, FiTag, FiSettings, FiFileText, FiUserPlus, FiActivity, FiBell, FiLogOut, FiMenu, FiX, FiMessageCircle, FiCode, FiFacebook, FiImage } from 'react-icons/fi';
 import { SiGoogletagmanager } from "react-icons/si";
 import { BiSolidOffer } from "react-icons/bi";
 import { adminLogout } from '../store/slices/authSlice';
@@ -25,6 +25,7 @@ const Layout = () => {
     { name: 'Brands', href: 'brands', icon: FiTag },
     { name: 'Testimonials', href: 'testimonials', icon: FiMessageCircle },
     { name: 'Pages', href: 'pages', icon: FiFileText },
+    // { name: 'Hero Sliders', href: 'sliders', icon: FiImage },
     { name: 'Facebook Pixel', href: 'facebook-pixel', icon: FiFacebook },
     { name: 'Google Tag Manager', href: 'google-tag-manager', icon: SiGoogletagmanager },
     { name: 'Sub-Admins', href: 'sub-admins', icon: FiUserPlus },

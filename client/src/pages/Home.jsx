@@ -6,6 +6,7 @@ import { fetchFeaturedProducts, fetchNewArrivals } from '../store/slices/product
 import { fetchFeaturedCategories } from '../store/slices/categorySlice';
 import { getHomepageCoupon } from '../api/couponAPI';
 import { getFeaturedBrands } from '../api/brandAPI';
+import HeroSlider from '../components/HeroSlider';
 import ProductCard from '../components/products/ProductCard';
 import CategoryCard from '../components/categories/CategoryCard';
 import TestimonialsSection from '../components/testimonials/TestimonialsSection';
@@ -73,32 +74,8 @@ const Home = () => {
 
   return (
     <div className="animate-fade-in">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-primary-600 to-primary-800 text-white">
-        <div className="container-custom py-12 md:py-20">
-          <div className="grid md:grid-cols-2 gap-8 items-center">
-            <div className="space-y-6">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-display leading-tight">
-                Discover the Latest in <span className="text-yellow-300">Electronics</span>
-              </h1>
-              <p className="text-lg md:text-xl text-primary-100">
-                Shop premium gadgets at unbeatable prices. From smartphones to laptops, we have it all.
-              </p>
-              <div className="flex flex-wrap gap-4">
-                <Link to="/products" className="btn-primary bg-white text-primary-600 hover:bg-gray-100">
-                  Shop Now <FiArrowRight className="inline ml-2" />
-                </Link>
-                <Link to="/products?sale=true" className="btn-outline border-white text-white hover:bg-white hover:text-primary-600">
-                  View Deals
-                </Link>
-              </div>
-            </div>
-            <div className="hidden md:block">
-              <img src="https://images.unsplash.com/photo-1550009158-9ebf69173e03?w=600&h=400&fit=crop" alt="Electronics" className="rounded-2xl shadow-2xl w-full" />
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Hero Slider Section */}
+      <HeroSlider />
 
       {/* Features */}
       <section className="py-12 bg-white">
