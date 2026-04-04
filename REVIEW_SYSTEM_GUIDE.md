@@ -82,7 +82,7 @@ Individual Reviews:
 
 ### 1. **Reviews Management Page**
 
-**Where:** `/admin/reviews`
+**Where:** `/reviews`
 
 **Features:**
 ```

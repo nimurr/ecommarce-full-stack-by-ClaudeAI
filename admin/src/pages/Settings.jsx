@@ -1,12 +1,25 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchSettings, saveSettings } from '../store/slices/settingsSlice';
-import { FiSave, FiMail, FiPhone, FiMapPin, FiClock, FiTruck, FiSettings, FiGlobe, FiActivity } from 'react-icons/fi';
+import { FiSave, FiMail, FiPhone, FiMapPin, FiClock, FiTruck, FiSettings, FiGlobe, FiActivity, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
+import axios from 'axios';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const Settings = () => {
   const dispatch = useDispatch();
   const { settings, loading } = useSelector((state) => state.settings);
+  const { user } = useSelector((state) => state.auth);
   const [activeTab, setActiveTab] = useState('general');
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
   const [formData, setFormData] = useState({
     siteName: '',
     siteTagline: '',

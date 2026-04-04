@@ -269,7 +269,7 @@ const Dashboard = () => {
                       </span>
                     </td>
                     <td className="py-3 px-4">
-                      <Link to={`/admin/products/${product._id}/edit`} className="btn-secondary text-sm py-1 px-3">
+                      <Link to={`/products/${product._id}/edit`} className="btn-secondary text-sm py-1 px-3">
                         Update
                       </Link>
                     </td>
@@ -283,10 +283,10 @@ const Dashboard = () => {
 
       {/* Quick Actions */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Link to="/admin/products/new" className="btn-primary text-center">Add Product</Link>
-        <Link to="/admin/orders" className="btn-secondary text-center">View Orders</Link>
-        <Link to="/admin/categories" className="btn-secondary text-center">Categories</Link>
-        <Link to="/admin/users" className="btn-secondary text-center">Users</Link>
+        <Link to="/products/new" className="btn-primary text-center">Add Product</Link>
+        <Link to="/orders" className="btn-secondary text-center">View Orders</Link>
+        <Link to="/categories" className="btn-secondary text-center">Categories</Link>
+        <Link to="/users" className="btn-secondary text-center">Users</Link>
       </div>
     </div>
   );

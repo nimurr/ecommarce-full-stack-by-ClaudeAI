@@ -120,7 +120,7 @@ Response:
       "priority": "high",
       "isRead": false,
       "createdAt": "2024-01-15T10:30:00Z",
-      "actionUrl": "/admin/orders/..."
+      "actionUrl": "/orders/..."
     }
   ]
 }
@@ -312,7 +312,7 @@ notificationSchema.statics.createYourNewType = async function(data) {
     message: 'Your message',
     icon: '🎯',
     priority: 'medium',
-    actionUrl: '/admin/your-page',
+    actionUrl: '/your-page',
   });
 };
 ```

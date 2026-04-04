@@ -1,6 +1,8 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { FiHome, FiPackage, FiList, FiShoppingCart, FiUsers, FiStar, FiTag, FiSettings, FiFileText, FiUserPlus, FiActivity, FiBell, FiLogOut, FiMenu, FiX, FiMessageCircle, FiCode } from 'react-icons/fi';
+import { FiHome, FiPackage, FiList, FiShoppingCart, FiUsers, FiStar, FiTag, FiSettings, FiFileText, FiUserPlus, FiActivity, FiBell, FiLogOut, FiMenu, FiX, FiMessageCircle, FiCode, FiFacebook } from 'react-icons/fi';
+import { SiGoogletagmanager } from "react-icons/si";
+import { BiSolidOffer } from "react-icons/bi";
 import { adminLogout } from '../store/slices/authSlice';
 import { useState } from 'react';
 import Notifications from './Notifications';
@@ -19,12 +21,12 @@ const Layout = () => {
     { name: 'Orders', href: 'orders', icon: FiShoppingCart },
     { name: 'Users', href: 'users', icon: FiUsers },
     { name: 'Reviews', href: 'reviews', icon: FiStar },
-    { name: 'Coupons', href: 'coupons', icon: FiTag },
+    { name: 'Coupons', href: 'coupons', icon: BiSolidOffer  },
     { name: 'Brands', href: 'brands', icon: FiTag },
     { name: 'Testimonials', href: 'testimonials', icon: FiMessageCircle },
     { name: 'Pages', href: 'pages', icon: FiFileText },
-    { name: 'Facebook Pixel', href: 'facebook-pixel', icon: FiActivity },
-    { name: 'Google Tag Manager', href: 'google-tag-manager', icon: FiCode },
+    { name: 'Facebook Pixel', href: 'facebook-pixel', icon: FiFacebook },
+    { name: 'Google Tag Manager', href: 'google-tag-manager', icon: SiGoogletagmanager},
     { name: 'Sub-Admins', href: 'sub-admins', icon: FiUserPlus },
     { name: 'Settings', href: 'settings', icon: FiSettings },
   ];
@@ -82,7 +84,7 @@ const Layout = () => {
           <div className="flex items-center gap-4 ml-auto">
             {/* Notifications */}
             <Notifications />
-            
+
             <div>
               <button onClick={handleReloadDah} className='py-2 px-5 bg-blue-500 text-white rounded-md'>Refresh 🔄️</button>
             </div>
