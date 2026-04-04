@@ -21,12 +21,12 @@ const Layout = () => {
     { name: 'Orders', href: 'orders', icon: FiShoppingCart },
     { name: 'Users', href: 'users', icon: FiUsers },
     { name: 'Reviews', href: 'reviews', icon: FiStar },
-    { name: 'Coupons', href: 'coupons', icon: BiSolidOffer  },
+    { name: 'Coupons', href: 'coupons', icon: BiSolidOffer },
     { name: 'Brands', href: 'brands', icon: FiTag },
     { name: 'Testimonials', href: 'testimonials', icon: FiMessageCircle },
     { name: 'Pages', href: 'pages', icon: FiFileText },
     { name: 'Facebook Pixel', href: 'facebook-pixel', icon: FiFacebook },
-    { name: 'Google Tag Manager', href: 'google-tag-manager', icon: SiGoogletagmanager},
+    { name: 'Google Tag Manager', href: 'google-tag-manager', icon: SiGoogletagmanager },
     { name: 'Sub-Admins', href: 'sub-admins', icon: FiUserPlus },
     { name: 'Settings', href: 'settings', icon: FiSettings },
   ];
@@ -44,8 +44,8 @@ const Layout = () => {
     <div className="min-h-screen bg-gray-100">
       {/* Sidebar */}
       <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-gray-900 text-white transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
-        <div className="flex items-center justify-between h-16 px-6 bg-gray-800">
-          <span className="text-2xl font-bold text-center block">Busy World <sup className='text-xs'>Admin</sup></span>
+        <div className="flex items-center justify-between h-16 px-6 bg-gray-800 relative">
+          <span className="text-2xl font-bold text-center flex items-end uppercase"><span className='text-primary-600 text-5xl'>G</span>adgets <span className='text-primary-600 text-5xl'>L</span>agbe <sup className='text-xs text-yellow-600 absolute top-4 right-5'>Admin</sup></span>
           <button onClick={() => setSidebarOpen(false)} className="lg:hidden">
             <FiX className="w-6 h-6" />
           </button>
