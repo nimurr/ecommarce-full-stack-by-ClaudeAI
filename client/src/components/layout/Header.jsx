@@ -84,12 +84,9 @@ const Header = () => {
         <div className="flex items-center justify-between gap-4">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">BW</span>
+            <div className="w-32 rounded-lg flex items-center justify-center">
+              <img src="https://res.cloudinary.com/nerob/image/upload/v1775298183/Gadgets%20Lagbe/Screenshot_43-removebg-preview_ndwbas.png" alt="" />
             </div>
-            <span className="text-xl font-bold font-display hidden sm:block">
-              {siteName}
-            </span>
           </Link>
 
           {/* Search Bar */}
