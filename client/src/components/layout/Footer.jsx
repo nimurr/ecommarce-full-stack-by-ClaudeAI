@@ -73,7 +73,7 @@ const Footer = () => {
             <h3 className="text-white font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2">
               {navigationPages.length > 0 ? (
-                navigationPages.slice(0, 5).map((page) => (
+                navigationPages.slice(0, 4).map((page) => (
                   <li key={page._id}>
                     <Link to={`/page/${page.slug}`} className="hover:text-primary-400 transition-colors capitalize">
                       {page.title}
@@ -97,7 +97,7 @@ const Footer = () => {
             <h3 className="text-white font-semibold mb-4">Customer Service</h3>
             <ul className="space-y-2">
               {navigationPages.length > 0 ? (
-                navigationPages.slice(5, 10).map((page) => (
+                navigationPages.slice(4, 10).map((page) => (
                   <li key={page._id}>
                     <Link to={`/page/${page.slug}`} className="hover:text-primary-400 transition-colors capitalize">
                       {page.title}

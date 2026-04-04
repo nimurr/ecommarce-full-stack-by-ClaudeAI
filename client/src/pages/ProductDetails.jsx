@@ -330,9 +330,9 @@ const ProductDetails = () => {
           <h2 className="text-xl font-bold mb-4">Specifications</h2>
           <div className="grid md:grid-cols-2 gap-4">
             {Object.entries(product.specifications).map(([key, value]) => (
-              <div key={key} className="flex border-b pb-2">
-                <span className="font-medium w-1/3 text-gray-600">{key}</span>
-                <span className="w-2/3">{value}</span>
+              <div key={key} className="border-b pb-2">
+                <span className=" w-1/3 text-gray-600 block font-semibold underline">{key}</span>
+                <span className=" text-sm mt-5 block">{value}</span>
               </div>
             ))}
           </div>
