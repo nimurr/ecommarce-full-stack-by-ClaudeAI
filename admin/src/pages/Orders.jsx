@@ -1,22 +1,36 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchOrders, updateOrderStatus, updatePaymentStatus } from '../store/slices/orderSlice';
-import { FiEye } from 'react-icons/fi';
+import { FiEye, FiSearch, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import imageUrl from '../utils/baseUrl';
 
 const Orders = () => {
   const dispatch = useDispatch();
-  const { orders, loading, total } = useSelector((state) => state.orders);
+  const { orders, loading, total, page, pages } = useSelector((state) => state.orders);
   const [statusFilter, setStatusFilter] = useState('');
   const [paymentFilter, setPaymentFilter] = useState('');
+  const [search, setSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [limit, setLimit] = useState(10);
 
   useEffect(() => {
-    const params = {};
+    const params = { page: currentPage, limit };
     if (statusFilter) params.status = statusFilter;
     if (paymentFilter) params.paymentStatus = paymentFilter;
+    if (search) params.search = search;
     dispatch(fetchOrders(params));
-  }, [dispatch, statusFilter, paymentFilter]);
+  }, [dispatch, currentPage, limit, statusFilter, paymentFilter]);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    setCurrentPage(1);
+    const params = { page: 1, limit };
+    if (statusFilter) params.status = statusFilter;
+    if (paymentFilter) params.paymentStatus = paymentFilter;
+    if (search) params.search = search;
+    dispatch(fetchOrders(params));
+  };
 
   const handleStatusChange = async (id, newStatus) => {
     await dispatch(updateOrderStatus({ id, data: { orderStatus: newStatus } }));
@@ -24,6 +38,23 @@ const Orders = () => {
 
   const handlePaymentStatusChange = async (id, newStatus) => {
     await dispatch(updatePaymentStatus({ id, data: { paymentStatus: newStatus } }));
+  };
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= pages) {
+      setCurrentPage(newPage);
+    }
+  };
+
+  const handleLimitChange = (e) => {
+    const newLimit = Number(e.target.value);
+    setLimit(newLimit);
+    setCurrentPage(1);
+    const params = { page: 1, limit: newLimit };
+    if (statusFilter) params.status = statusFilter;
+    if (paymentFilter) params.paymentStatus = paymentFilter;
+    if (search) params.search = search;
+    dispatch(fetchOrders(params));
   };
 
   const getStatusBadge = (status) => {
@@ -49,11 +80,54 @@ const Orders = () => {
     return badges[status] || 'badge-primary';
   };
 
+  // Generate page numbers to show
+  const getPageNumbers = () => {
+    const pageNumbers = [];
+    const maxVisible = 5;
+    
+    if (pages <= maxVisible) {
+      for (let i = 1; i <= pages; i++) {
+        pageNumbers.push(i);
+      }
+    } else {
+      if (page <= 3) {
+        for (let i = 1; i <= 4; i++) pageNumbers.push(i);
+        pageNumbers.push('...');
+        pageNumbers.push(pages);
+      } else if (page >= pages - 2) {
+        pageNumbers.push(1);
+        pageNumbers.push('...');
+        for (let i = pages - 3; i <= pages; i++) pageNumbers.push(i);
+      } else {
+        pageNumbers.push(1);
+        pageNumbers.push('...');
+        for (let i = page - 1; i <= page + 1; i++) pageNumbers.push(i);
+        pageNumbers.push('...');
+        pageNumbers.push(pages);
+      }
+    }
+    return pageNumbers;
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Orders ({total})</h1>
       </div>
+
+      {/* Search by Order ID */}
+      <form onSubmit={handleSearch} className="mb-6 flex gap-2">
+        <input
+          type="text"
+          placeholder="Search by Order ID or Order Number..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="input-field flex-1"
+        />
+        <button type="submit" className="btn-primary">
+          <FiSearch className="w-5 h-5" />
+        </button>
+      </form>
 
       {/* Filters */}
       <div className="card mb-6">
@@ -62,7 +136,7 @@ const Orders = () => {
             <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Status</label>
             <select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
+              onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(1); }}
               className="input-field"
             >
               <option value="">All Status</option>
@@ -79,7 +153,7 @@ const Orders = () => {
             <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Payment</label>
             <select
               value={paymentFilter}
-              onChange={(e) => setPaymentFilter(e.target.value)}
+              onChange={(e) => { setPaymentFilter(e.target.value); setCurrentPage(1); }}
               className="input-field"
             >
               <option value="">All Payment</option>
@@ -95,6 +169,10 @@ const Orders = () => {
       {loading ? (
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600" />
+        </div>
+      ) : orders.length === 0 ? (
+        <div className="card text-center py-12 text-gray-500">
+          <p className="text-lg">No orders found</p>
         </div>
       ) : (
         <div className="card overflow-hidden">
@@ -181,6 +259,68 @@ const Orders = () => {
               ))}
             </tbody>
           </table>
+
+          {/* Pagination Controls */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 py-4 border-t bg-gray-50">
+            {/* Per-page selector */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">Show:</span>
+              <select
+                value={limit}
+                onChange={handleLimitChange}
+                className="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+              >
+                {[5, 10, 20, 50, 100].map((size) => (
+                  <option key={size} value={size}>{size}</option>
+                ))}
+              </select>
+              <span className="text-sm text-gray-600">per page</span>
+            </div>
+
+            {/* Page info */}
+            <div className="text-sm text-gray-600">
+              Showing {((page - 1) * limit) + 1} to {Math.min(page * limit, total)} of {total} results
+            </div>
+
+            {/* Page navigation */}
+            {pages > 1 && (
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => handlePageChange(page - 1)}
+                  disabled={page === 1}
+                  className="px-3 py-1 rounded border text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-100"
+                >
+                  <FiChevronLeft className="w-4 h-4" />
+                </button>
+
+                {getPageNumbers().map((num, idx) => (
+                  num === '...' ? (
+                    <span key={`ellipsis-${idx}`} className="px-2 py-1 text-gray-400">…</span>
+                  ) : (
+                    <button
+                      key={num}
+                      onClick={() => handlePageChange(num)}
+                      className={`px-3 py-1 rounded border text-sm ${
+                        page === num
+                          ? 'bg-primary-600 text-white border-primary-600'
+                          : 'hover:bg-gray-100'
+                      }`}
+                    >
+                      {num}
+                    </button>
+                  )
+                ))}
+
+                <button
+                  onClick={() => handlePageChange(page + 1)}
+                  disabled={page === pages}
+                  className="px-3 py-1 rounded border text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-100"
+                >
+                  <FiChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>

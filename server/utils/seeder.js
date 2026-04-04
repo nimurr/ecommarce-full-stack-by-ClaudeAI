@@ -1,21 +1,29 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import User from '../models/User.js';
 import Product from '../models/Product.js';
 import Category from '../models/Category.js';
-import config from '../config/config.js';
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load env from project root
+const result = dotenv.config({ path: path.join(__dirname, '../../.env') });
+
+// Force reload of MONGODB_URI
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/electronics_ecommerce';
 
 const sampleCategories = [
-  { name: 'Smartphones', description: 'Latest smartphones from top brands', featured: true },
-  { name: 'Laptops', description: 'Powerful laptops for work and gaming', featured: true },
-  { name: 'Audio', description: 'Headphones, earbuds, and speakers', featured: true },
-  { name: 'Smartwatch', description: 'Wearable technology and fitness trackers', featured: true },
-  { name: 'Tablets', description: 'Tablets and e-readers', featured: false },
-  { name: 'Cameras', description: 'Digital cameras and accessories', featured: false },
-  { name: 'Gaming', description: 'Gaming consoles and accessories', featured: true },
-  { name: 'Accessories', description: 'Chargers, cables, and more', featured: false },
+  { name: 'Smartphones', slug: 'smartphones', description: 'Latest smartphones from top brands', featured: true },
+  { name: 'Laptops', slug: 'laptops', description: 'Powerful laptops for work and gaming', featured: true },
+  { name: 'Audio', slug: 'audio', description: 'Headphones, earbuds, and speakers', featured: true },
+  { name: 'Smartwatch', slug: 'smartwatch', description: 'Wearable technology and fitness trackers', featured: true },
+  { name: 'Tablets', slug: 'tablets', description: 'Tablets and e-readers', featured: false },
+  { name: 'Cameras', slug: 'cameras', description: 'Digital cameras and accessories', featured: false },
+  { name: 'Gaming', slug: 'gaming', description: 'Gaming consoles and accessories', featured: true },
+  { name: 'Accessories', slug: 'accessories', description: 'Chargers, cables, and more', featured: false },
 ];
 
 const sampleProducts = [
@@ -216,7 +224,7 @@ const sampleProducts = [
 const seedDatabase = async () => {
   try {
     // Connect to MongoDB
-    await mongoose.connect(config.mongoUri);
+    await mongoose.connect(MONGODB_URI);
     console.log('✅ MongoDB Connected Successfully');
 
     // Clear existing data
@@ -229,13 +237,13 @@ const seedDatabase = async () => {
     console.log('👤 Creating admin user...');
     const admin = await User.create({
       name: 'Admin',
-      email: 'admin@example.com',
-      phone: '01234567890',
-      password: 'admin123',
+      email: 'nimurnerob404@gmail.com',
+      phone: '01708784404',
+      password: 'nerob404A@',
       role: 'admin',
       verified: true,
     });
-    console.log('   ✓ Admin created: admin@example.com / admin123');
+    console.log('   ✓ Admin created: nimurnerob404@gmail.com / nerob404A@');
 
     // Create sample user
     console.log('👤 Creating sample user...');
@@ -281,7 +289,11 @@ const seedDatabase = async () => {
 
     // Create products
     console.log('📦 Creating products...');
-    const createdProducts = await Product.insertMany(sampleProducts);
+    const createdProducts = [];
+    for (const product of sampleProducts) {
+      const created = await Product.create(product);
+      createdProducts.push(created);
+    }
     console.log(`   ✓ Created ${createdProducts.length} products`);
 
     // Update category products array
@@ -289,7 +301,7 @@ const seedDatabase = async () => {
       const categoryProducts = createdProducts
         .filter(p => p.category.toString() === category._id.toString())
         .map(p => p._id);
-      
+
       category.products = categoryProducts;
       await category.save();
     }
@@ -300,8 +312,8 @@ const seedDatabase = async () => {
     console.log('\n📋 LOGIN CREDENTIALS:');
     console.log('   ┌─────────────────────────────────────────┐');
     console.log('   │ ADMIN:                                  │');
-    console.log('   │ Email:    admin@example.com             │');
-    console.log('   │ Password: admin123                      │');
+    console.log('   │ Email:    nimurnerob404@gmail.com       │');
+    console.log('   │ Password: nerob404A@                    │');
     console.log('   ├─────────────────────────────────────────┤');
     console.log('   │ USER:                                   │');
     console.log('   │ Email:    user@example.com              │');
@@ -312,7 +324,7 @@ const seedDatabase = async () => {
     console.log('   • Admin Dashboard: http://localhost:5174');
     console.log('   • API: http://localhost:5000/api');
     console.log('\n========================================\n');
-    
+
     process.exit(0);
   } catch (error) {
     console.error('\n❌ Error seeding database:', error.message);

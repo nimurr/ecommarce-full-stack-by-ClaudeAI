@@ -12,11 +12,22 @@ import config from '../config/config.js';
 // @route   GET /api/orders
 // @access  Private/Admin
 export const getOrders = asyncHandler(async (req, res) => {
-  const { status, paymentStatus, page = 1, limit = 20, startDate, endDate } = req.query;
+  const { status, paymentStatus, page = 1, limit = 20, startDate, endDate, search } = req.query;
 
   const query = {};
   if (status) query.orderStatus = status;
   if (paymentStatus) query.paymentStatus = paymentStatus;
+
+  // Search by order ID or order number
+  if (search) {
+    // Check if search is a valid MongoDB ObjectId
+    if (mongoose.Types.ObjectId.isValid(search)) {
+      query._id = search;
+    }
+    // Also search by orderNumber (partial match)
+    query.$or = query.$or || [];
+    query.$or.push({ orderNumber: { $regex: search, $options: 'i' } });
+  }
 
   // Date range filter
   if (startDate || endDate) {

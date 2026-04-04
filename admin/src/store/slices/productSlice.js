@@ -62,6 +62,8 @@ const initialState = {
   loading: false,
   error: null,
   total: 0,
+  page: 1,
+  pages: 1,
 };
 
 const productSlice = createSlice({
@@ -82,6 +84,8 @@ const productSlice = createSlice({
         state.loading = false;
         state.products = action.payload.data;
         state.total = action.payload.total;
+        state.page = action.payload.page;
+        state.pages = action.payload.pages;
       })
       .addCase(fetchProducts.rejected, (state, action) => {
         state.loading = false;
