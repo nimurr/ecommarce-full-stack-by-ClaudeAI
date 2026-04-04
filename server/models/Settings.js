@@ -163,6 +163,17 @@ const settingsSchema = new mongoose.Schema({
       default: false,
     },
   },
+  googleTagManager: {
+    trackingId: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    isEnabled: {
+      type: Boolean,
+      default: false,
+    },
+  },
   googleAnalytics: {
     trackingId: {
       type: String,

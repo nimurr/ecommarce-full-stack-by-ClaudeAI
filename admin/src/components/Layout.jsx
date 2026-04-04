@@ -1,6 +1,6 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { FiHome, FiPackage, FiList, FiShoppingCart, FiUsers, FiStar, FiTag, FiSettings, FiFileText, FiUserPlus, FiActivity, FiBell, FiLogOut, FiMenu, FiX, FiMessageCircle } from 'react-icons/fi';
+import { FiHome, FiPackage, FiList, FiShoppingCart, FiUsers, FiStar, FiTag, FiSettings, FiFileText, FiUserPlus, FiActivity, FiBell, FiLogOut, FiMenu, FiX, FiMessageCircle, FiCode } from 'react-icons/fi';
 import { adminLogout } from '../store/slices/authSlice';
 import { useState } from 'react';
 import Notifications from './Notifications';
@@ -21,9 +21,10 @@ const Layout = () => {
     { name: 'Reviews', href: 'reviews', icon: FiStar },
     { name: 'Coupons', href: 'coupons', icon: FiTag },
     { name: 'Brands', href: 'brands', icon: FiTag },
-    { name: 'Facebook Pixel', href: 'facebook-pixel', icon: FiActivity },
     { name: 'Testimonials', href: 'testimonials', icon: FiMessageCircle },
     { name: 'Pages', href: 'pages', icon: FiFileText },
+    { name: 'Facebook Pixel', href: 'facebook-pixel', icon: FiActivity },
+    { name: 'Google Tag Manager', href: 'google-tag-manager', icon: FiCode },
     { name: 'Sub-Admins', href: 'sub-admins', icon: FiUserPlus },
     { name: 'Settings', href: 'settings', icon: FiSettings },
   ];

@@ -4,4 +4,17 @@ Office PC :- qwen --resume d9c6b722-a367-4b86-bc48-0df242ea9ed7
 ========================== New Features and Error's ======================= 
 
 =================================
- 
+
+Update This project:
+
+Remove all Facebook Pixel scripts from client (React)
+Remove Pixel settings from admin dashboard
+Remove any Pixel-related code from backend (server)
+Clean unused state, API, and environment variables
+Add Google Tag Manager (GTM):
+Add GTM script in React app (head & body)
+Allow GTM ID setup from admin dashboard
+Store GTM ID in backend ( DB)
+Dynamically load GTM using saved ID
+
+Goal: Replace Facebook Pixel with Google Tag Manager tracking

@@ -3,6 +3,7 @@ import {
   getSettings,
   updateSettings,
   updateFacebookPixel,
+  updateGoogleTagManager,
   getPublicSettings,
 } from '../controllers/settingsController.js';
 import { protect, authorize } from '../middleware/auth.js';
@@ -16,5 +17,6 @@ router.get('/public', getPublicSettings);
 // Protected routes (Admin only)
 router.put('/', protect, authorize('admin'), updateSettings);
 router.put('/facebook-pixel', protect, authorize('admin'), updateFacebookPixel);
+router.put('/google-tag-manager', protect, authorize('admin'), updateGoogleTagManager);
 
 export default router;

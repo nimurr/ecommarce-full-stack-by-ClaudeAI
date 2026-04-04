@@ -10,7 +10,7 @@ import 'react-toastify/dist/ReactToastify.css';
 // Layout
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
-import FacebookPixel from './components/FacebookPixel';
+import GoogleTagManager from './components/GoogleTagManager';
 
 // Pages
 import Home from './pages/Home';
@@ -49,7 +49,7 @@ function App() {
   return (
     <HelmetProvider>
       <div className="min-h-screen flex flex-col">
-        <FacebookPixel />
+        <GoogleTagManager />
         <Header />
         <main className="flex-grow">
           <Routes>

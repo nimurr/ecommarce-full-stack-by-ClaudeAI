@@ -1,6 +1,5 @@
 import asyncHandler from 'express-async-handler';
 import Settings from '../models/Settings.js';
-import facebookPixelService from '../services/facebookPixel.js';
 
 // @desc    Get settings
 // @route   GET /api/settings
@@ -73,9 +72,6 @@ export const updateFacebookPixel = asyncHandler(async (req, res) => {
   } else {
     settings.facebookPixel = { pixelId, accessToken, isEnabled };
     await settings.save();
-    
-    // Reinitialize pixel service with new config
-    await facebookPixelService.initialize();
   }
   
   res.status(200).json({
@@ -84,6 +80,33 @@ export const updateFacebookPixel = asyncHandler(async (req, res) => {
     data: {
       pixelId: settings.facebookPixel.pixelId,
       isEnabled: settings.facebookPixel.isEnabled,
+    },
+  });
+});
+
+// @desc    Update Google Tag Manager settings
+// @route   PUT /api/settings/google-tag-manager
+// @access  Private/Admin
+export const updateGoogleTagManager = asyncHandler(async (req, res) => {
+  const { trackingId, isEnabled } = req.body;
+  
+  let settings = await Settings.findOne();
+  
+  if (!settings) {
+    settings = await Settings.create({
+      googleTagManager: { trackingId, isEnabled },
+    });
+  } else {
+    settings.googleTagManager = { trackingId, isEnabled };
+    await settings.save();
+  }
+  
+  res.status(200).json({
+    success: true,
+    message: 'Google Tag Manager settings updated successfully',
+    data: {
+      trackingId: settings.googleTagManager.trackingId,
+      isEnabled: settings.googleTagManager.isEnabled,
     },
   });
 });
@@ -113,6 +136,10 @@ export const getPublicSettings = asyncHandler(async (req, res) => {
     facebookPixel: {
       pixelId: settings.facebookPixel?.pixelId,
       isEnabled: settings.facebookPixel?.isEnabled,
+    },
+    googleTagManager: {
+      trackingId: settings.googleTagManager?.trackingId,
+      isEnabled: settings.googleTagManager?.isEnabled,
     },
     googleAnalytics: {
       trackingId: settings.googleAnalytics?.trackingId,
