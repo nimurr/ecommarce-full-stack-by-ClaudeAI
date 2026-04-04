@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchSettings, saveSettings } from '../store/slices/settingsSlice';
-import { FiSave, FiMail, FiPhone, FiMapPin, FiClock, FiTruck, FiSettings, FiGlobe } from 'react-icons/fi';
+import { FiSave, FiMail, FiPhone, FiMapPin, FiClock, FiTruck, FiSettings, FiGlobe, FiActivity } from 'react-icons/fi';
 
 const Settings = () => {
   const dispatch = useDispatch();
@@ -107,6 +107,7 @@ const Settings = () => {
     { id: 'shipping', label: 'Shipping', icon: FiTruck },
   ];
 
+ 
   if (loading && !settings) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -130,11 +131,10 @@ const Settings = () => {
                     key={tab.id}
                     type="button"
                     onClick={() => setActiveTab(tab.id)}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                      activeTab === tab.id
-                        ? 'bg-primary-600 text-white'
-                        : 'text-gray-600 hover:bg-gray-100'
-                    }`}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeTab === tab.id
+                      ? 'bg-primary-600 text-white'
+                      : 'text-gray-600 hover:bg-gray-100'
+                      }`}
                   >
                     <tab.icon className="w-5 h-5" />
                     <span className="font-medium">{tab.label}</span>
