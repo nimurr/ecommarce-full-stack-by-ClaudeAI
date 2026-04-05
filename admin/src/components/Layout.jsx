@@ -29,7 +29,7 @@ const Layout = () => {
     { name: 'Facebook Pixel', href: 'facebook-pixel', icon: FiFacebook, roles: ['admin'] },
     { name: 'Google Tag Manager', href: 'google-tag-manager', icon: SiGoogletagmanager, roles: ['admin'] },
     { name: 'Sub-Admins', href: 'sub-admins', icon: FiUserPlus, roles: ['admin'] },
-    { name: 'Settings', href: 'settings', icon: FiSettings, roles: ['admin'] },
+    { name: 'Settings', href: 'settings', icon: FiSettings, roles: ['admin', 'sub-admin'] },
   ];
 
   // Filter navigation based on user role
@@ -38,8 +38,12 @@ const Layout = () => {
   );
 
   const handleLogout = () => {
-    dispatch(adminLogout());
-    navigate('/login');
+    const confirmLogout = window.confirm("Are you sure you want to logout?");
+
+    if (confirmLogout) {
+      dispatch(adminLogout());
+      navigate('/login');
+    }
   };
 
   const handleReloadDah = () => {
@@ -72,7 +76,7 @@ const Layout = () => {
             );
           })}
         </nav>
-        <div className="  bg-gray-800">
+        <div className="  bg-gray-800 mt-5">
           <button onClick={handleLogout} className="flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-gray-700 rounded-lg w-full transition-colors">
             <FiLogOut className="w-5 h-5" />
             <span>Logout</span>

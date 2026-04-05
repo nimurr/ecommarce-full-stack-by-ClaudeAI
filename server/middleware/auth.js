@@ -59,13 +59,14 @@ export const authorize = (...roles) => {
       // Get full path for checking
       const fullPath = (req.originalUrl || req.url || '').split('?')[0];
       
-      // Dashboard, Products, Categories, Orders are accessible to any sub-admin by default
+      // Dashboard, Products, Categories, Orders, Settings are accessible to any sub-admin by default
       // We check if the URL contains these resources anywhere
       const isAllowed = 
         fullPath.includes('/dashboard') || 
         fullPath.includes('/products') || 
         fullPath.includes('/categories') || 
-        fullPath.includes('/orders');
+        fullPath.includes('/orders') ||
+        fullPath.includes('/settings');
       
       if (isAllowed) {
         return next();

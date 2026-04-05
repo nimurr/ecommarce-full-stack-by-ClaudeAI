@@ -115,7 +115,7 @@ const SubAdmins = () => {
 
   const handleToggleStatus = async (id, currentStatus) => {
     try {
-      await axios.put(`${API_URL}/admin/sub-admins/${id}/status`, 
+      await axios.put(`${API_URL}/admin/sub-admins/${id}/status`,
         { isActive: !currentStatus },
         { headers: { 'Authorization': `Bearer ${token}` } }
       );
@@ -159,8 +159,8 @@ const SubAdmins = () => {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Sub-Admin Management</h1>
-        <button 
-          onClick={() => { resetForm(); setEditing(null); setShowModal(true); }} 
+        <button
+          onClick={() => { resetForm(); setEditing(null); setShowModal(true); }}
           className="btn-primary flex items-center gap-2"
         >
           <FiPlus className="w-5 h-5" />
@@ -205,15 +205,15 @@ const SubAdmins = () => {
                   </td>
                   <td className="py-3 px-4">
                     <div className="flex gap-2">
-                      <button 
-                        onClick={() => handleEdit(admin)} 
+                      <button
+                        onClick={() => handleEdit(admin)}
                         className="p-2 hover:bg-gray-200 rounded"
                         title="Edit"
                       >
                         <FiEdit2 className="w-4 h-4" />
                       </button>
-                      <button 
-                        onClick={() => handleDelete(admin._id)} 
+                      <button
+                        onClick={() => handleDelete(admin._id)}
                         className="p-2 hover:bg-red-100 text-red-600 rounded"
                         title="Delete"
                       >
@@ -322,14 +322,14 @@ const SubAdmins = () => {
                   </div>
 
                   {/* Users */}
-                  <div className="border rounded-lg p-4">
+                  {/* <div className="border rounded-lg p-4">
                     <h4 className="font-medium mb-3">Users</h4>
                     <div className="space-y-2">
                       <PermissionToggle resource="users" action="view" label="View" />
                     </div>
-                  </div>
+                  </div> */}
 
-                  {/* Reviews */}
+                  {/* Reviews
                   <div className="border rounded-lg p-4">
                     <h4 className="font-medium mb-3">Reviews</h4>
                     <div className="space-y-2">
@@ -337,10 +337,10 @@ const SubAdmins = () => {
                       <PermissionToggle resource="reviews" action="approve" label="Approve" />
                       <PermissionToggle resource="reviews" action="delete" label="Delete" />
                     </div>
-                  </div>
+                  </div> */}
 
                   {/* Coupons */}
-                  <div className="border rounded-lg p-4">
+                  {/* <div className="border rounded-lg p-4">
                     <h4 className="font-medium mb-3">Coupons</h4>
                     <div className="space-y-2">
                       <PermissionToggle resource="coupons" action="view" label="View" />
@@ -348,16 +348,16 @@ const SubAdmins = () => {
                       <PermissionToggle resource="coupons" action="edit" label="Edit" />
                       <PermissionToggle resource="coupons" action="delete" label="Delete" />
                     </div>
-                  </div>
+                  </div> */}
 
                   {/* Pages */}
-                  <div className="border rounded-lg p-4">
+                  {/* <div className="border rounded-lg p-4">
                     <h4 className="font-medium mb-3">Pages</h4>
                     <div className="space-y-2">
                       <PermissionToggle resource="pages" action="view" label="View" />
                       <PermissionToggle resource="pages" action="edit" label="Edit" />
                     </div>
-                  </div>
+                  </div> */}
                 </div>
               </div>
 
@@ -365,9 +365,9 @@ const SubAdmins = () => {
                 <button type="submit" className="btn-primary flex-1">
                   {editing ? 'Update' : 'Create'} Sub-Admin
                 </button>
-                <button 
-                  type="button" 
-                  onClick={() => { setShowModal(false); setEditing(null); resetForm(); }} 
+                <button
+                  type="button"
+                  onClick={() => { setShowModal(false); setEditing(null); resetForm(); }}
                   className="btn-secondary flex-1"
                 >
                   Cancel
