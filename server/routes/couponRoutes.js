@@ -21,12 +21,12 @@ router.get('/homepage', getHomepageCoupon);
 router.post('/validate', validateCoupon);
 
 // Protected routes (Admin only)
-router.get('/', protect, authorize('admin'), getCoupons);
-router.get('/:id', protect, authorize('admin'), getCoupon);
-router.post('/', protect, authorize('admin'), createCoupon);
-router.put('/:id', protect, authorize('admin'), updateCoupon);
-router.delete('/:id', protect, authorize('admin'), deleteCoupon);
-router.put('/:id/deactivate', protect, authorize('admin'), deactivateCoupon);
-router.put('/:id/activate', protect, authorize('admin'), activateCoupon);
+router.get('/', protect, authorize('admin', 'sub-admin'), getCoupons);
+router.get('/:id', protect, authorize('admin', 'sub-admin'), getCoupon);
+router.post('/', protect, authorize('admin', 'sub-admin'), createCoupon);
+router.put('/:id', protect, authorize('admin', 'sub-admin'), updateCoupon);
+router.delete('/:id', protect, authorize('admin', 'sub-admin'), deleteCoupon);
+router.put('/:id/deactivate', protect, authorize('admin', 'sub-admin'), deactivateCoupon);
+router.put('/:id/activate', protect, authorize('admin', 'sub-admin'), activateCoupon);
 
 export default router;

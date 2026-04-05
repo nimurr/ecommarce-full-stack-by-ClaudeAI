@@ -49,13 +49,62 @@ export const protect = asyncHandler(async (req, res, next) => {
 // Authorize specific roles
 export const authorize = (...roles) => {
   return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
-      return res.status(403).json({
-        success: false,
-        message: `User role '${req.user.role}' is not authorized to access this route`,
-      });
+    // Admin has access to everything
+    if (req.user.role === 'admin') {
+      return next();
     }
-    next();
+
+    // For sub-admins, check if sub-admin role is allowed
+    if (req.user.role === 'sub-admin' && roles.includes('sub-admin')) {
+      // Get full path for checking
+      const fullPath = (req.originalUrl || req.url || '').split('?')[0];
+      
+      // Dashboard, Products, Categories, Orders are accessible to any sub-admin by default
+      // We check if the URL contains these resources anywhere
+      const isAllowed = 
+        fullPath.includes('/dashboard') || 
+        fullPath.includes('/products') || 
+        fullPath.includes('/categories') || 
+        fullPath.includes('/orders');
+      
+      if (isAllowed) {
+        return next();
+      }
+      
+      // Map route names to permission resources for other routes
+      const pathParts = fullPath.split('/').filter(Boolean);
+      const resourceIndex = pathParts.indexOf('api') !== -1 ? pathParts.indexOf('api') + 1 : 0;
+      const resource = pathParts[resourceIndex] || '';
+      
+      const resourceMap = {
+        'products': 'products',
+        'orders': 'orders',
+        'categories': 'categories',
+        'users': 'users',
+        'reviews': 'reviews',
+        'coupons': 'coupons',
+        'pages': 'pages',
+        'brands': 'products',
+        'settings': 'pages',
+        'notifications': 'orders',
+        'sliders': 'products',
+        'testimonials': 'reviews',
+        'upload': 'products',
+      };
+      
+      // Check if resource exists in permissions and sub-admin has at least one permission enabled
+      if (resourceMap[resource] && req.user.permissions[resourceMap[resource]]) {
+        const hasAccess = Object.values(req.user.permissions[resourceMap[resource]]).some(val => val === true);
+        if (hasAccess) {
+          return next();
+        }
+      }
+    }
+
+    return res.status(403).json({
+      success: false,
+      message: `User role '${req.user.role}' is not authorized to access this route`,
+    });
   };
 };
 

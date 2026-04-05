@@ -15,22 +15,27 @@ const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const navigation = [
-    { name: 'Dashboard', href: '', icon: FiHome },
-    { name: 'Products', href: 'products', icon: FiPackage },
-    { name: 'Categories', href: 'categories', icon: FiList },
-    { name: 'Orders', href: 'orders', icon: FiShoppingCart },
-    { name: 'Users', href: 'users', icon: FiUsers },
-    { name: 'Reviews', href: 'reviews', icon: FiStar },
-    { name: 'Coupons', href: 'coupons', icon: BiSolidOffer },
-    { name: 'Brands', href: 'brands', icon: FiTag },
-    { name: 'Testimonials', href: 'testimonials', icon: FiMessageCircle },
-    { name: 'Pages', href: 'pages', icon: FiFileText },
-    // { name: 'Hero Sliders', href: 'sliders', icon: FiImage },
-    { name: 'Facebook Pixel', href: 'facebook-pixel', icon: FiFacebook },
-    { name: 'Google Tag Manager', href: 'google-tag-manager', icon: SiGoogletagmanager },
-    { name: 'Sub-Admins', href: 'sub-admins', icon: FiUserPlus },
-    { name: 'Settings', href: 'settings', icon: FiSettings },
+    { name: 'Dashboard', href: '', icon: FiHome, roles: ['admin', 'sub-admin'] },
+    { name: 'Products', href: 'products', icon: FiPackage, roles: ['admin', 'sub-admin'] },
+    { name: 'Categories', href: 'categories', icon: FiList, roles: ['admin', 'sub-admin'] },
+    { name: 'Orders', href: 'orders', icon: FiShoppingCart, roles: ['admin', 'sub-admin'] },
+    { name: 'Users', href: 'users', icon: FiUsers, roles: ['admin'] },
+    { name: 'Reviews', href: 'reviews', icon: FiStar, roles: ['admin'] },
+    { name: 'Coupons', href: 'coupons', icon: BiSolidOffer, roles: ['admin'] },
+    { name: 'Brands', href: 'brands', icon: FiTag, roles: ['admin'] },
+    { name: 'Testimonials', href: 'testimonials', icon: FiMessageCircle, roles: ['admin'] },
+    { name: 'Pages', href: 'pages', icon: FiFileText, roles: ['admin'] },
+    // { name: 'Hero Sliders', href: 'sliders', icon: FiImage, roles: ['admin'] },
+    { name: 'Facebook Pixel', href: 'facebook-pixel', icon: FiFacebook, roles: ['admin'] },
+    { name: 'Google Tag Manager', href: 'google-tag-manager', icon: SiGoogletagmanager, roles: ['admin'] },
+    { name: 'Sub-Admins', href: 'sub-admins', icon: FiUserPlus, roles: ['admin'] },
+    { name: 'Settings', href: 'settings', icon: FiSettings, roles: ['admin'] },
   ];
+
+  // Filter navigation based on user role
+  const filteredNavigation = navigation.filter(item =>
+    item.roles.includes(user?.role || 'user')
+  );
 
   const handleLogout = () => {
     dispatch(adminLogout());
@@ -44,7 +49,7 @@ const Layout = () => {
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-gray-900 text-white transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+      <aside className={`fixed inset-y-0 left-0 z-50 min-h-[80vh] overflow-y-auto w-64 bg-gray-900 text-white transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
         <div className="flex items-center justify-between h-16 px-6 bg-gray-800 relative">
           <span className="text-2xl font-bold text-center flex items-end uppercase"><span className='text-primary-600 text-5xl'>G</span>adgets <span className='text-primary-600 text-5xl'>L</span>agbe <sup className='text-xs text-yellow-600 absolute top-4 right-5'>Admin</sup></span>
           <button onClick={() => setSidebarOpen(false)} className="lg:hidden">
@@ -52,7 +57,7 @@ const Layout = () => {
           </button>
         </div>
         <nav className="p-4 space-y-1">
-          {navigation.map((item) => {
+          {filteredNavigation.map((item) => {
             const isActive = location.pathname === `/${item.href}` || (item.href === '' && location.pathname === '/');
             return (
               <Link
@@ -67,7 +72,7 @@ const Layout = () => {
             );
           })}
         </nav>
-        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gray-800">
+        <div className="  bg-gray-800">
           <button onClick={handleLogout} className="flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-gray-700 rounded-lg w-full transition-colors">
             <FiLogOut className="w-5 h-5" />
             <span>Logout</span>
@@ -91,7 +96,7 @@ const Layout = () => {
             </div>
             <div className="text-right">
               <p className="font-medium text-sm">{user?.name}</p>
-              <p className="text-xs text-gray-500">Administrator</p>
+              <p className="text-xs text-gray-500 capitalize">{user?.role}</p>
             </div>
             <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
               {/* <span className="text-primary-600 font-bold">{user?.name?.charAt(0)}</span> */}

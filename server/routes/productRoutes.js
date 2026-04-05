@@ -29,7 +29,7 @@ router.get('/:id', getProduct);
 // Create product WITH image upload
 router.post('/', 
   protect, 
-  authorize('admin'), 
+  authorize('admin', 'sub-admin'), 
   upload.array('images', 10), // Upload multiple images for product
   createProduct
 );
@@ -37,11 +37,11 @@ router.post('/',
 // Update product WITH image upload
 router.put('/:id', 
   protect, 
-  authorize('admin'), 
+  authorize('admin', 'sub-admin'), 
   upload.array('images', 10), // Upload new images
   updateProduct
 );
 
-router.delete('/:id', protect, authorize('admin'), deleteProduct);
+router.delete('/:id', protect, authorize('admin', 'sub-admin'), deleteProduct);
 
 export default router;

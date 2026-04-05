@@ -19,10 +19,10 @@ router.get('/slug/:slug', getPageBySlug);
 router.get('/type/:type', getPagesByType);
 
 // Protected routes (Admin only)
-router.get('/', protect, authorize('admin'), getPages);
-router.get('/:id', protect, authorize('admin'), getPageById);
-router.post('/', protect, authorize('admin'), createPage);
-router.put('/:id', protect, authorize('admin'), updatePage);
-router.delete('/:id', protect, authorize('admin'), deletePage);
+router.get('/', protect, authorize('admin', 'sub-admin'), getPages);
+router.get('/:id', protect, authorize('admin', 'sub-admin'), getPageById);
+router.post('/', protect, authorize('admin', 'sub-admin'), createPage);
+router.put('/:id', protect, authorize('admin', 'sub-admin'), updatePage);
+router.delete('/:id', protect, authorize('admin', 'sub-admin'), deletePage);
 
 export default router;

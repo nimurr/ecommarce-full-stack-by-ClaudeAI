@@ -27,7 +27,7 @@ router.get('/:id', getCategory);
 // Create category WITH image upload
 router.post('/', 
   protect, 
-  authorize('admin'), 
+  authorize('admin', 'sub-admin'), 
   upload.single('image'), // Upload single image for category
   createCategory
 );
@@ -35,11 +35,11 @@ router.post('/',
 // Update category WITH image upload
 router.put('/:id', 
   protect, 
-  authorize('admin'), 
+  authorize('admin', 'sub-admin'), 
   upload.single('image'), // Upload new image
   updateCategory
 );
 
-router.delete('/:id', protect, authorize('admin'), deleteCategory);
+router.delete('/:id', protect, authorize('admin', 'sub-admin'), deleteCategory);
 
 export default router;

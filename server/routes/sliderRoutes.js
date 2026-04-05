@@ -16,11 +16,11 @@ const router = express.Router();
 router.get('/', getSliders);
 
 // Protected routes (Admin only)
-router.get('/:id', protect, authorize('admin'), getSlider);
-router.post('/', protect, authorize('admin'), createSlider);
-router.put('/:id', protect, authorize('admin'), updateSlider);
-router.delete('/:id', protect, authorize('admin'), deleteSlider);
-router.put('/:id/toggle', protect, authorize('admin'), toggleSliderStatus);
-router.put('/:id/order', protect, authorize('admin'), updateSliderOrder);
+router.get('/:id', protect, authorize('admin', 'sub-admin'), getSlider);
+router.post('/', protect, authorize('admin', 'sub-admin'), createSlider);
+router.put('/:id', protect, authorize('admin', 'sub-admin'), updateSlider);
+router.delete('/:id', protect, authorize('admin', 'sub-admin'), deleteSlider);
+router.put('/:id/toggle', protect, authorize('admin', 'sub-admin'), toggleSliderStatus);
+router.put('/:id/order', protect, authorize('admin', 'sub-admin'), updateSliderOrder);
 
 export default router;

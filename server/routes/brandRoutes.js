@@ -20,9 +20,9 @@ router.get('/', getBrands);
 router.get('/:id', getBrand);
 
 // Protected routes (Admin only)
-router.post('/', protect, authorize('admin'), createBrand);
-router.put('/:id', protect, authorize('admin'), updateBrand);
-router.put('/:id/featured', protect, authorize('admin'), toggleFeatured);
-router.delete('/:id', protect, authorize('admin'), deleteBrand);
+router.post('/', protect, authorize('admin', 'sub-admin'), createBrand);
+router.put('/:id', protect, authorize('admin', 'sub-admin'), updateBrand);
+router.put('/:id/featured', protect, authorize('admin', 'sub-admin'), toggleFeatured);
+router.delete('/:id', protect, authorize('admin', 'sub-admin'), deleteBrand);
 
 export default router;

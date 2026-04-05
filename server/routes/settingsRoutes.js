@@ -15,8 +15,8 @@ router.get('/', getSettings);
 router.get('/public', getPublicSettings);
 
 // Protected routes (Admin only)
-router.put('/', protect, authorize('admin'), updateSettings);
-router.put('/facebook-pixel', protect, authorize('admin'), updateFacebookPixel);
-router.put('/google-tag-manager', protect, authorize('admin'), updateGoogleTagManager);
+router.put('/', protect, authorize('admin', 'sub-admin'), updateSettings);
+router.put('/facebook-pixel', protect, authorize('admin', 'sub-admin'), updateFacebookPixel);
+router.put('/google-tag-manager', protect, authorize('admin', 'sub-admin'), updateGoogleTagManager);
 
 export default router;

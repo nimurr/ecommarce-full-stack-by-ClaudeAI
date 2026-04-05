@@ -11,7 +11,7 @@ const router = express.Router();
 // Upload single image (for categories, single product image)
 router.post('/single', 
   protect, 
-  authorize('admin'), 
+  authorize('admin', 'sub-admin'), 
   upload.single('image'), 
   uploadSingleImage
 );
@@ -19,7 +19,7 @@ router.post('/single',
 // Upload multiple images (for products)
 router.post('/multiple', 
   protect, 
-  authorize('admin'), 
+  authorize('admin', 'sub-admin'), 
   upload.array('images', 10), 
   uploadMultipleImages
 );

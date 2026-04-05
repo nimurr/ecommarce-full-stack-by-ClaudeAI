@@ -12,7 +12,7 @@ import { protect, authorize } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// All routes require admin role
+// All routes require admin role (sub-admins cannot manage other sub-admins)
 router.use(protect);
 router.use(authorize('admin'));
 
