@@ -8,6 +8,7 @@ import { FiShoppingCart, FiHeart, FiTruck, FiShield, FiRefreshCw, FiStar, FiChec
 import { toast } from 'react-toastify';
 import imageUrl from '../../../admin/src/utils/baseUrl';
 import { FaSquareWhatsapp } from "react-icons/fa6";
+import ReviewsSection from '../components/reviews/ReviewsSection';
 
 
 const ProductDetails = () => {
@@ -328,16 +329,24 @@ const ProductDetails = () => {
       {product.specifications && Object.keys(product.specifications).length > 0 && (
         <div className="card p-6 mb-8">
           <h2 className="text-xl font-bold mb-4">Specifications</h2>
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid md:grid-cols-2 gap-x-5 gap-y-2">
             {Object.entries(product.specifications).map(([key, value]) => (
-              <div key={key} className="border-b pb-2">
-                <span className=" w-1/3 text-gray-600 block font-semibold underline">{key}</span>
-                <span className=" text-sm mt-5 block">{value}</span>
+              <div key={key} className="border rounded  flex items-center gap-4 justify-between p-2">
+                <span className=" w-1/3 text-gray-600  font-semibold underline">{key}</span>
+                <span className=" text-sm ">{value}</span>
               </div>
             ))}
           </div>
         </div>
       )}
+
+      {/* Reviews Section */}
+      <ReviewsSection
+        productId={product._id}
+        productRating={product.rating}
+        productNumReviews={product.numReviews}
+        userHasPurchased={user?.hasPurchased?.includes(product._id)}
+      />
 
       {/* Related Products */}
       {relatedProducts && relatedProducts.length > 0 && (

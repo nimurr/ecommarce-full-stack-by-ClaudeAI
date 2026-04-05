@@ -54,6 +54,18 @@ export const markHelpful = createAsyncThunk(
   }
 );
 
+export const markNotHelpful = createAsyncThunk(
+  'reviews/markNotHelpful',
+  async (reviewId, { rejectWithValue }) => {
+    try {
+      await reviewAPI.markNotHelpful(reviewId);
+      return reviewId;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message);
+    }
+  }
+);
+
 const initialState = {
   reviews: [],
   loading: false,
@@ -116,6 +128,13 @@ const reviewSlice = createSlice({
         const review = state.reviews.find(r => r._id === action.payload);
         if (review) {
           review.helpful += 1;
+        }
+      })
+      // Mark not helpful
+      .addCase(markNotHelpful.fulfilled, (state, action) => {
+        const review = state.reviews.find(r => r._id === action.payload);
+        if (review) {
+          review.notHelpful += 1;
         }
       });
   },

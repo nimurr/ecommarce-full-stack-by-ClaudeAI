@@ -1,17 +1,44 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchMyOrders } from '../store/slices/orderSlice';
-import { FiPackage, FiChevronRight, FiClock } from 'react-icons/fi';
+import { FiPackage, FiChevronRight, FiClock, FiStar, FiX } from 'react-icons/fi';
 import imageUrl from '../../../admin/src/utils/baseUrl';
+import { ReviewForm } from '../components/reviews/ReviewForm';
+import { toast } from 'react-toastify';
 
 const Orders = () => {
   const dispatch = useDispatch();
   const { orders, loading, total } = useSelector((state) => state.orders);
+  const [reviewModal, setReviewModal] = useState({
+    open: false,
+    productId: null,
+    productName: '',
+    orderItemId: null,
+  });
 
   useEffect(() => {
     dispatch(fetchMyOrders({}));
   }, [dispatch]);
+
+  const handleOpenReview = (orderItem) => {
+    setReviewModal({
+      open: true,
+      productId: orderItem.product,
+      productName: orderItem.name,
+      orderItemId: orderItem._id,
+    });
+  };
+
+  const handleCloseReview = () => {
+    setReviewModal({ open: false, productId: null, productName: '', orderItemId: null });
+  };
+
+  const handleReviewSuccess = () => {
+    handleCloseReview();
+    toast.success('Thank you for your review!');
+    dispatch(fetchMyOrders({}));
+  };
 
   const getStatusBadge = (status) => {
     const badges = {
@@ -87,6 +114,15 @@ const Orders = () => {
                       <FiClock className="w-4 h-4" />
                       {order.paymentMethod}
                     </span>
+                    {order.orderStatus === 'Delivered' && order.orderItems.length > 0 && (
+                      <button
+                        onClick={() => handleOpenReview(order.orderItems[0])}
+                        className="text-sm text-green-600 flex items-center gap-1 hover:underline"
+                      >
+                        <FiStar className="w-4 h-4" />
+                        Write Review
+                      </button>
+                    )}
                   </div>
                   <div className="flex items-center gap-4">
                     <span className="font-bold text-lg">৳{order.totalPrice.toLocaleString()}</span>
@@ -101,6 +137,33 @@ const Orders = () => {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Review Modal */}
+      {reviewModal.open && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
+              <div>
+                <h2 className="text-xl font-bold">Write a Review</h2>
+                <p className="text-sm text-gray-600">for {reviewModal.productName}</p>
+              </div>
+              <button
+                onClick={handleCloseReview}
+                className="text-gray-400 hover:text-gray-600 p-2"
+              >
+                <FiX className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="p-6">
+              <ReviewForm
+                productId={reviewModal.productId}
+                productName={reviewModal.productName}
+                onSuccess={handleReviewSuccess}
+              />
+            </div>
+          </div>
         </div>
       )}
     </div>
