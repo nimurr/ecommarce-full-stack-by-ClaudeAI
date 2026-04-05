@@ -27,7 +27,7 @@ const Notifications = () => {
 
   const fetchNotifications = async () => {
     try {
-      const response = await axios.get(`${API_URL}/notifications?limit=10`, {
+      const response = await axios.get(`${API_URL}/notifications?limit=10&subtype=new_order`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
       setNotifications(response.data.data);
