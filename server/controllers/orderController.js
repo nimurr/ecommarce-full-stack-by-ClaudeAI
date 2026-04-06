@@ -246,6 +246,7 @@ export const createOrder = asyncHandler(async (req, res) => {
 
   // Create order (user is optional for guest checkout)
   const orderData = {
+    name: shippingAddress.name,
     orderItems: validatedItems,
     shippingAddress,
     paymentMethod,
@@ -352,16 +353,7 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
       await Notification.createOrderNotification(order, 'order_cancelled');
     }
 
-    // Send SMS notification
-    try {
-      await smsService.sendSMS(
-        order.shippingAddress.phone,
-        smsService.getOrderStatusSMS(order, orderStatus),
-        'bulk' // Use BulkSMSBD
-      );
-    } catch (error) {
-      console.error('Failed to send status SMS:', error);
-    }
+    // No SMS for status updates - only sent on order creation
   }
 
   if (deliveryStatus) {
@@ -453,16 +445,7 @@ export const cancelOrder = asyncHandler(async (req, res) => {
 
   await order.save();
 
-  // Send cancellation SMS
-  try {
-    await smsService.sendSMS(
-      order.shippingAddress.phone,
-      smsService.getOrderStatusSMS(order, 'Cancelled'),
-      'bulk' // Use BulkSMSBD
-    );
-  } catch (error) {
-    console.error('Failed to send cancellation SMS:', error);
-  }
+  // No SMS for cancellation - only sent on order creation
 
   res.status(200).json({
     success: true,

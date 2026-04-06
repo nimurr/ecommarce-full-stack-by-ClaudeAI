@@ -89,11 +89,11 @@ class SMSService {
     try {
       // Get settings from database first, fallback to .env
       const dbSettings = await this.getDBSettings();
-      
+
       const apiKey = dbSettings?.apiKey || this.bulkSmsBd.apiKey;
       const senderId = dbSettings?.senderId || this.bulkSmsBd.senderId || 'INFO';
       const isEnabled = dbSettings?.isEnabled !== undefined ? dbSettings.isEnabled : true;
-      
+
       if (!apiKey) {
         console.warn('BulkSMSBD API credentials not configured');
         return { success: false, message: 'SMS credentials not configured' };
@@ -108,7 +108,7 @@ class SMSService {
 
       // BulkSMSBD API endpoint
       const url = `https://bulksmsbd.net/api/smsapi`;
-      
+
       const data = {
         api_key: apiKey,
         senderid: senderId,
@@ -128,9 +128,9 @@ class SMSService {
       console.log('BulkSMSBD Response:', response.data);
 
       // Check response format: {"response_code":"success","message":"Successfully sent"}
-      const isSuccess = response.data?.response_code === 'success' || 
-                        response.data?.status === 'success' ||
-                        response.data?.message?.toLowerCase().includes('success');
+      const isSuccess = response.data?.response_code === 'success' ||
+        response.data?.status === 'success' ||
+        response.data?.message?.toLowerCase().includes('success');
 
       return {
         success: isSuccess,
@@ -155,23 +155,33 @@ class SMSService {
     return await this.sendSSLWireless(phone, message);
   }
 
-  // Order confirmation SMS template
+  // Order confirmation SMS template (max 159 chars)
   getOrderConfirmationSMS(order) {
-    return `Dear ${order.shippingAddress.fullName}, your order #${order.orderNumber} has been placed successfully! Total: ৳${order.totalPrice}. We will deliver to: ${order.shippingAddress.address}, ${order.shippingAddress.city}. Track: ${config.clientUrl}/track-order/${order.orderNumber}`;
+    const trackLink = `${config.clientUrl}/order-tracking`;
+    const msg = `Gadgets Lagbe Order Confirmed! \nAddress: ${order.shippingAddress.address}
+    \nTrack: ${trackLink + '/' + order.orderNumber}`;
+
+    // Truncate to 159 characters if needed
+    return msg.length > 159 ? msg.substring(0, 156) + '...' : msg;
   }
 
-  // Order status update SMS template
+  // Order status update SMS template (max 159 chars)
   getOrderStatusSMS(order, status) {
+    const trackLink = `${config.clientUrl}/order-tracking`;
+
     const statusMessages = {
-      'Confirmed': `Your order #${order.orderNumber} has been confirmed!`,
-      'Processing': `Your order #${order.orderNumber} is being processed.`,
-      'Shipped': `Great news! Your order #${order.orderNumber} has been shipped.`,
-      'Out for Delivery': `Your order #${order.orderNumber} is out for delivery today!`,
-      'Delivered': `Your order #${order.orderNumber} has been delivered. Thank you for shopping with us!`,
-      'Cancelled': `Your order #${order.orderNumber} has been cancelled.`,
+      'Confirmed': `Order #${order.orderNumber} confirmed!\nAmount: ৳${order.totalPrice}\nTrack: ${trackLink}`,
+      'Processing': `Order #${order.orderNumber} is being processed.\nTrack: ${trackLink}`,
+      'Shipped': `Order #${order.orderNumber} shipped! 🚚\nTrack: ${trackLink}`,
+      'Out for Delivery': `Order #${order.orderNumber} out for delivery today! 📦\nTrack: ${trackLink}`,
+      'Delivered': `Order #${order.orderNumber} delivered! ✅\nThank you for shopping with us!\nTrack: ${trackLink}`,
+      'Cancelled': `Order #${order.orderNumber} cancelled.\nPlease contact support for assistance.\nTrack: ${trackLink}`,
     };
 
-    return statusMessages[status] || `Your order #${order.orderNumber} status: ${status}`;
+    const msg = statusMessages[status] || `Order #${order.orderNumber}: ${status}\nTrack: ${trackLink}`;
+
+    // Truncate to 159 characters if needed
+    return msg.length > 159 ? msg.substring(0, 156) + '...' : msg;
   }
 
   // OTP SMS template
