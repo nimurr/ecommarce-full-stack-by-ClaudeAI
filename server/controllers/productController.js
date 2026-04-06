@@ -1,4 +1,5 @@
 import asyncHandler from 'express-async-handler';
+import mongoose from 'mongoose';
 import Product from '../models/Product.js';
 import Category from '../models/Category.js';
 import { invalidateCache } from '../services/cacheInvalidation.js';
@@ -340,5 +341,3 @@ export const getSearchSuggestions = asyncHandler(async (req, res) => {
     data: { products, categories, brands: brands.slice(0, 5) },
   });
 });
-
-import mongoose from 'mongoose';
