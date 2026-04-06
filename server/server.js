@@ -15,9 +15,14 @@ import { fileURLToPath } from 'url';
 // Import config and database
 import config from './config/config.js';
 import connectDB from './config/db.js';
+import { optimizeConnection, createIndexes } from './config/databaseOptimizer.js';
+import cacheService from './services/cache.js';
 
 // Import error handlers
 import { errorHandler, notFound } from './middleware/error.js';
+
+// Import performance middleware
+import { enableCompression, enableSecurity, apiRateLimiter, enableLogging, responseTime } from './middleware/performance.js';
 
 // Import routes
 import authRoutes from './routes/authRoutes.js';
@@ -43,8 +48,9 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Connect to database
+// Connect to database with optimizations
 connectDB();
+optimizeConnection();
 
 // Initialize express app
 const app = express();

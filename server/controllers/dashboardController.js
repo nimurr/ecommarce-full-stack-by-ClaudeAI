@@ -144,10 +144,8 @@ export const getDashboardStats = asyncHandler(async (req, res) => {
     }
   ]);
 
-  // Recent orders
+  // Recent orders - without populate to avoid lean() conflict
   const recentOrders = await Order.find()
-    .populate('user', 'name email')
-    .populate('orderItems.product', 'name images mainImage')
     .sort({ createdAt: -1 })
     .limit(5);
 

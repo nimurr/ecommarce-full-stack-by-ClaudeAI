@@ -1,6 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import Product from '../models/Product.js';
 import Category from '../models/Category.js';
+import { invalidateCache } from '../services/cacheInvalidation.js';
 
 // @desc    Get all products with filtering, sorting, pagination
 // @route   GET /api/products
