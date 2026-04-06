@@ -4,6 +4,7 @@ import {
   updateSettings,
   updateFacebookPixel,
   updateGoogleTagManager,
+  updateBulkSMSBD,
   getPublicSettings,
 } from '../controllers/settingsController.js';
 import { protect, authorize } from '../middleware/auth.js';
@@ -18,5 +19,6 @@ router.get('/public', getPublicSettings);
 router.put('/', protect, authorize('admin', 'sub-admin'), updateSettings);
 router.put('/facebook-pixel', protect, authorize('admin', 'sub-admin'), updateFacebookPixel);
 router.put('/google-tag-manager', protect, authorize('admin', 'sub-admin'), updateGoogleTagManager);
+router.put('/bulk-sms', protect, authorize('admin'), updateBulkSMSBD);
 
 export default router;

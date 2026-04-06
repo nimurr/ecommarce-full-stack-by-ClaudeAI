@@ -273,7 +273,8 @@ export const createOrder = asyncHandler(async (req, res) => {
   try {
     await smsService.sendSMS(
       shippingAddress.phone,
-      smsService.getOrderConfirmationSMS(order)
+      smsService.getOrderConfirmationSMS(order),
+      'bulk' // Use BulkSMSBD
     );
   } catch (error) {
     console.error('Failed to send order SMS:', error);
@@ -355,7 +356,8 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
     try {
       await smsService.sendSMS(
         order.shippingAddress.phone,
-        smsService.getOrderStatusSMS(order, orderStatus)
+        smsService.getOrderStatusSMS(order, orderStatus),
+        'bulk' // Use BulkSMSBD
       );
     } catch (error) {
       console.error('Failed to send status SMS:', error);
@@ -455,7 +457,8 @@ export const cancelOrder = asyncHandler(async (req, res) => {
   try {
     await smsService.sendSMS(
       order.shippingAddress.phone,
-      smsService.getOrderStatusSMS(order, 'Cancelled')
+      smsService.getOrderStatusSMS(order, 'Cancelled'),
+      'bulk' // Use BulkSMSBD
     );
   } catch (error) {
     console.error('Failed to send cancellation SMS:', error);

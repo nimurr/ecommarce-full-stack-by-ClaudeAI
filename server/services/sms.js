@@ -1,10 +1,32 @@
 import axios from 'axios';
 import config from '../config/config.js';
+import Settings from '../models/Settings.js';
 
 class SMSService {
   constructor() {
     this.sslWireless = config.sms.sslWireless;
     this.bulkSmsBd = config.sms.bulkSmsBd;
+    this.dbSettings = null;
+  }
+
+  // Fetch SMS settings from database
+  async getDBSettings() {
+    if (!this.dbSettings) {
+      try {
+        const settings = await Settings.findOne();
+        if (settings?.bulkSMSBD) {
+          this.dbSettings = settings.bulkSMSBD;
+        }
+      } catch (error) {
+        console.error('Failed to fetch SMS settings from DB:', error);
+      }
+    }
+    return this.dbSettings;
+  }
+
+  // Clear cached settings (call after admin updates)
+  clearSettingsCache() {
+    this.dbSettings = null;
   }
 
   // Format phone number (remove leading 0, add 880)
@@ -65,35 +87,56 @@ class SMSService {
   // Send SMS using BulkSMSBD
   async sendBulkSMSBD(phone, message) {
     try {
-      if (!this.bulkSmsBd.apiKey) {
+      // Get settings from database first, fallback to .env
+      const dbSettings = await this.getDBSettings();
+      
+      const apiKey = dbSettings?.apiKey || this.bulkSmsBd.apiKey;
+      const senderId = dbSettings?.senderId || this.bulkSmsBd.senderId || 'INFO';
+      const isEnabled = dbSettings?.isEnabled !== undefined ? dbSettings.isEnabled : true;
+      
+      if (!apiKey) {
         console.warn('BulkSMSBD API credentials not configured');
         return { success: false, message: 'SMS credentials not configured' };
       }
 
+      if (!isEnabled) {
+        console.log('BulkSMSBD is disabled in settings');
+        return { success: false, message: 'SMS service is disabled' };
+      }
+
       const formattedPhone = this.formatPhoneNumber(phone);
 
-      const params = {
-        api_key: this.bulkSmsBd.apiKey,
-        type: 'text',
-        contacts: formattedPhone,
-        senderid: this.bulkSmsBd.senderId || 'INFO',
-        msg: message,
+      // BulkSMSBD API endpoint
+      const url = `https://bulksmsbd.net/api/smsapi`;
+      
+      const data = {
+        api_key: apiKey,
+        senderid: senderId,
+        number: formattedPhone,
+        message: message,
       };
 
-      const response = await axios.post(
-        'https://api.bulksmsbd.com/api/sms/send',
-        params,
-        {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-        }
-      );
+      console.log('Sending BulkSMSBD SMS to:', formattedPhone);
+      console.log('BulkSMSBD Data:', { ...data, api_key: '***' });
+
+      const response = await axios.post(url, data, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      console.log('BulkSMSBD Response:', response.data);
+
+      // Check response format: {"response_code":"success","message":"Successfully sent"}
+      const isSuccess = response.data?.response_code === 'success' || 
+                        response.data?.status === 'success' ||
+                        response.data?.message?.toLowerCase().includes('success');
 
       return {
-        success: response.data?.status === 'success',
-        messageId: response.data?.data?.message_id,
-        status: response.data?.status,
+        success: isSuccess,
+        messageId: response.data?.message_id || response.data?.sms_id,
+        status: response.data?.response_code || response.data?.status,
+        message: response.data?.message,
       };
     } catch (error) {
       console.error('BulkSMSBD Error:', error.response?.data || error.message);

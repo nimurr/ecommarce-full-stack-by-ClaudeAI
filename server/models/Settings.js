@@ -174,6 +174,22 @@ const settingsSchema = new mongoose.Schema({
       default: false,
     },
   },
+  bulkSMSBD: {
+    apiKey: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    senderId: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    isEnabled: {
+      type: Boolean,
+      default: false,
+    },
+  },
   googleAnalytics: {
     trackingId: {
       type: String,

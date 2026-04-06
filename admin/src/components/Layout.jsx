@@ -1,6 +1,6 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { FiHome, FiPackage, FiList, FiShoppingCart, FiUsers, FiStar, FiTag, FiSettings, FiFileText, FiUserPlus, FiActivity, FiBell, FiLogOut, FiMenu, FiX, FiMessageCircle, FiCode, FiFacebook, FiImage } from 'react-icons/fi';
+import { FiHome, FiPackage, FiList, FiShoppingCart, FiUsers, FiStar, FiTag, FiSettings, FiFileText, FiUserPlus, FiActivity, FiBell, FiLogOut, FiMenu, FiX, FiMessageCircle, FiCode, FiFacebook, FiImage, FiMessageSquare } from 'react-icons/fi';
 import { SiGoogletagmanager } from "react-icons/si";
 import { BiSolidOffer } from "react-icons/bi";
 import { adminLogout } from '../store/slices/authSlice';
@@ -30,6 +30,7 @@ const Layout = () => {
     { name: 'Google Tag Manager', href: 'google-tag-manager', icon: SiGoogletagmanager, roles: ['admin'] },
     { name: 'Sub-Admins', href: 'sub-admins', icon: FiUserPlus, roles: ['admin'] },
     { name: 'Settings', href: 'settings', icon: FiSettings, roles: ['admin', 'sub-admin'] },
+    { name: 'SMS Settings', href: 'bulk-sms', icon: FiMessageSquare, roles: ['admin'] },
   ];
 
   // Filter navigation based on user role

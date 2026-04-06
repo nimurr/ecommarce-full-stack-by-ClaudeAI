@@ -111,6 +111,34 @@ export const updateGoogleTagManager = asyncHandler(async (req, res) => {
   });
 });
 
+// @desc    Update BulkSMSBD settings
+// @route   PUT /api/settings/bulk-sms
+// @access  Private/Admin
+export const updateBulkSMSBD = asyncHandler(async (req, res) => {
+  const { apiKey, senderId, isEnabled } = req.body;
+  
+  let settings = await Settings.findOne();
+  
+  if (!settings) {
+    settings = await Settings.create({
+      bulkSMSBD: { apiKey, senderId, isEnabled },
+    });
+  } else {
+    settings.bulkSMSBD = { apiKey, senderId, isEnabled };
+    await settings.save();
+  }
+  
+  res.status(200).json({
+    success: true,
+    message: 'BulkSMSBD settings updated successfully',
+    data: {
+      apiKey: settings.bulkSMSBD.apiKey,
+      senderId: settings.bulkSMSBD.senderId,
+      isEnabled: settings.bulkSMSBD.isEnabled,
+    },
+  });
+});
+
 // @desc    Get public settings (for client)
 // @route   GET /api/settings/public
 // @access  Public
@@ -140,6 +168,11 @@ export const getPublicSettings = asyncHandler(async (req, res) => {
     googleTagManager: {
       trackingId: settings.googleTagManager?.trackingId,
       isEnabled: settings.googleTagManager?.isEnabled,
+    },
+    bulkSMSBD: {
+      apiKey: settings.bulkSMSBD?.apiKey,
+      senderId: settings.bulkSMSBD?.senderId,
+      isEnabled: settings.bulkSMSBD?.isEnabled,
     },
     googleAnalytics: {
       trackingId: settings.googleAnalytics?.trackingId,

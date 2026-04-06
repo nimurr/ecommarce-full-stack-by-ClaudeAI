@@ -18,6 +18,7 @@ import FacebookPixelSettings from './pages/FacebookPixelSettings';
 import GoogleTagManagerSettings from './pages/GoogleTagManagerSettings';
 import Testimonials from './pages/Testimonials';
 import Sliders from './pages/Sliders';
+import BulkSMSSettings from './pages/BulkSMSSettings';
 import Login from './pages/Login';
 
 const ProtectedRoute = ({ children }) => {
@@ -55,6 +56,7 @@ function App() {
         <Route path="google-tag-manager" element={<GoogleTagManagerSettings />} />
         <Route path="testimonials" element={<Testimonials />} />
         <Route path="sliders" element={<Sliders />} />
+        <Route path="bulk-sms" element={<BulkSMSSettings />} />
       </Route>
     </Routes>
   );
