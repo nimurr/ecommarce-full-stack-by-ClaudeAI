@@ -41,6 +41,10 @@ import notificationRoutes from './routes/notificationRoutes.js';
 import sliderRoutes from './routes/sliderRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import testimonialRoutes from './routes/testimonialRoutes.js';
+import visitorRoutes from './routes/visitorRoutes.js';
+
+// Import middleware
+import { trackVisitor } from './middleware/visitorTracking.js';
 
 // Load env vars
 dotenv.config();
@@ -105,6 +109,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/sliders', sliderRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/testimonials', testimonialRoutes);
+app.use('/api/visitors', visitorRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

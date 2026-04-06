@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchDashboardStats } from '../store/slices/dashboardSlice';
-import { FiDollarSign, FiShoppingCart, FiUsers, FiPackage, FiTrendingUp, FiAlertTriangle, FiCheckCircle, FiClock, FiTruck, FiXCircle } from 'react-icons/fi';
+import { FiDollarSign, FiShoppingCart, FiUsers, FiPackage, FiTrendingUp, FiAlertTriangle, FiCheckCircle, FiClock, FiTruck, FiXCircle, FiEye } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import imageUrl from '../utils/baseUrl';
 
@@ -39,6 +39,9 @@ const Dashboard = () => {
   const recentOrders = stats?.recentOrders || [];
   const lowStockProducts = stats?.lowStockProducts || [];
   const periodLabel = stats?.period || '';
+  const totalUniqueVisitors = overview.totalUniqueVisitors || 0;
+  const todayVisitors = overview.todayVisitors || 0;
+  const newVisitorsThisMonth = overview.newVisitorsThisMonth || 0;
 
   const statusColors = {
     pending: 'bg-yellow-100 text-yellow-800',
@@ -88,7 +91,7 @@ const Dashboard = () => {
       </div>
 
       {/* Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
         {/* Total Revenue */}
         <div className="card bg-gradient-to-br from-green-500 to-green-600 text-white">
           <div className="flex items-center justify-between">
@@ -149,6 +152,22 @@ const Dashboard = () => {
             </div>
             <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
               <FiPackage className="w-8 h-8" />
+            </div>
+          </div>
+        </div>
+
+        {/* Unique Visitors */}
+        <div className="card bg-gradient-to-br from-teal-500 to-teal-600 text-white">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-teal-100 text-sm mb-1">Unique Visitors</p>
+              <p className="text-3xl font-bold">{totalUniqueVisitors.toLocaleString()}</p>
+              <p className="text-teal-100 text-xs mt-2">
+                Today: {todayVisitors.toLocaleString()}
+              </p>
+            </div>
+            <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+              <FiEye className="w-8 h-8" />
             </div>
           </div>
         </div>

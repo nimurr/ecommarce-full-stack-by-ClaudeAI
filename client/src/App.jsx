@@ -11,6 +11,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import GoogleTagManager from './components/GoogleTagManager';
+import VisitorTracker from './components/VisitorTracker';
 
 // Pages
 import Home from './pages/Home';
@@ -50,6 +51,7 @@ function App() {
     <HelmetProvider>
       <div className="min-h-screen flex flex-col">
         <GoogleTagManager />
+        <VisitorTracker />
         <Header />
         <main className="flex-grow">
           <Routes>

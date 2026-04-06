@@ -2,6 +2,7 @@ import asyncHandler from 'express-async-handler';
 import Order from '../models/Order.js';
 import User from '../models/User.js';
 import Product from '../models/Product.js';
+import Visitor from '../models/Visitor.js';
 
 // @desc    Get dashboard statistics
 // @route   GET /api/dashboard/stats
@@ -165,6 +166,25 @@ export const getDashboardStats = asyncHandler(async (req, res) => {
     active: true
   });
 
+  // Visitor statistics - Unique IPs (client site only)
+  const totalUniqueVisitors = await Visitor.aggregate([
+    { $group: { _id: '$ip' } },
+    { $count: 'total' }
+  ]);
+
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const todayVisitors = await Visitor.aggregate([
+    { $match: { createdAt: { $gte: today } } },
+    { $group: { _id: '$ip' } },
+    { $count: 'total' }
+  ]);
+
+  const newVisitorsThisMonth = await Visitor.aggregate([
+    { $match: { createdAt: { $gte: startOfMonth }, isFirstVisit: true } },
+    { $group: { _id: '$ip' } },
+    { $count: 'total' }
+  ]);
+
   res.status(200).json({
     success: true,
     data: {
@@ -180,6 +200,9 @@ export const getDashboardStats = asyncHandler(async (req, res) => {
         totalProducts,
         activeProducts,
         lowStockCount,
+        totalUniqueVisitors: totalUniqueVisitors[0]?.total || 0,
+        todayVisitors: todayVisitors[0]?.total || 0,
+        newVisitorsThisMonth: newVisitorsThisMonth[0]?.total || 0,
       },
       ordersByStatus: {
         pending: pendingOrders,

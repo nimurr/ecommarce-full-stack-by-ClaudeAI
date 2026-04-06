@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 // Enable MongoDB query profiling for slow queries
 mongoose.set('debug', (collection, method, query, doc) => {
   if (process.env.NODE_ENV === 'development') {
-    console.log(`📊 MongoDB: ${collection}.${method}`, JSON.stringify(query).substring(0, 200));
+    // console.log(`📊 MongoDB: ${collection}.${method}`, JSON.stringify(query).substring(0, 200));
   }
 });
 
