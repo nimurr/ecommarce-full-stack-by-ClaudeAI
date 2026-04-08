@@ -7,3 +7,30 @@ last Update :- 6d78f7d8e6009d68e0d3c6acb4a550ad7141af6c
 ========================== New Features and Error's ======================= 
 
 =================================
+
+======================= AWS server Git pull and build =============
+✦ Here are the exact commands to update your project from Git and rebuild everything.
+
+    Run these one by one:
+
+    1️⃣ Pull Latest Code & Update Server
+
+     1 cd ~/Project/ecommarce-full-stack-by-ClaudeAI
+     2 git pull
+     3 cd server
+     4 npm install --production
+     5 cd ..
+
+    2️⃣ Rebuild Client & Admin
+
+     1 cd client && npm install && npm run build && cd ..
+     2 cd admin && npm install && npm run build && cd ..
+
+    3️⃣ Copy Files & Restart Services
+
+     1 sudo cp -r client/dist /var/www/gadgetslagbe/client/
+     2 sudo cp -r admin/dist /var/www/gadgetslagbe/admin/
+     3 pm2 restart all
+     4 pm2 save
+
+    That's it! Your site is now updated. 🚀 
