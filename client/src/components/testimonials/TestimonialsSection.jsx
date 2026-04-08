@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { FiStar, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { testimonialAPI } from '../../api/testimonialAPI';
-import imageUrl from '../../utils/baseUrl';
+import { getImageUrl } from '../../utils/baseUrl';
 
 const TestimonialsSection = () => {
   const [testimonials, setTestimonials] = useState([]);
@@ -87,7 +87,7 @@ const TestimonialsSection = () => {
                 <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
                   {testimonial.image ? (
                     <img
-                      src={imageUrl + testimonial.image}
+                      src={getImageUrl(testimonial.image)}
                       alt={testimonial.customerName}
                       className="w-12 h-12 rounded-full object-cover"
                     />

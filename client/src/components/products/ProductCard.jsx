@@ -3,7 +3,7 @@ import { FiHeart, FiShoppingCart, FiZap } from 'react-icons/fi';
 import { useDispatch, useSelector } from 'react-redux';
 import { addToCart } from '../../store/slices/cartSlice';
 import { addToWishlist, removeFromWishlist } from '../../store/slices/authSlice';
-import imageUrl from '../../../../admin/src/utils/baseUrl';
+import { getImageUrl } from '../../utils/baseUrl';
 
 const ProductCard = ({ product }) => {
   const dispatch = useDispatch();
@@ -56,7 +56,7 @@ const ProductCard = ({ product }) => {
       <div className="relative overflow-hidden aspect-square">
         <Link to={`/products/${product.slug}`}>
           <img
-            src={imageUrl + '/public' + product.mainImage || 'https://via.placeholder.com/300x300?text=Product'}
+            src={getImageUrl(product.mainImage)}
             alt={product.name}
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
           />

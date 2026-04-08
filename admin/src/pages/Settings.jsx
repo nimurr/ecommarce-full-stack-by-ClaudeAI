@@ -5,7 +5,7 @@ import { FiSave, FiMail, FiPhone, FiMapPin, FiClock, FiTruck, FiSettings, FiGlob
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
-import imageUrl from '../utils/baseUrl';
+import { getImageUrl } from '../utils/baseUrl';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -763,9 +763,9 @@ const Settings = () => {
                           </div>
 
                           {/* Image Preview */}
-                          <div 
+                          <div
                             className="w-32 h-20 rounded bg-cover bg-center"
-                            style={{ backgroundImage: `url(${imageUrl}${slider.image})` }}
+                            style={{ backgroundImage: `url(${getImageUrl(slider.image)})` }}
                           />
 
                           {/* Content */}

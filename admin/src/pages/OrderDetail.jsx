@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchOrder, updateOrderStatus } from '../store/slices/orderSlice';
 import { FiArrowLeft, FiPackage, FiCheckCircle, FiClock, FiTruck, FiDownload } from 'react-icons/fi';
 import { toast } from 'react-toastify';
-import imageUrl from '../utils/baseUrl';
+import { getImageUrl } from '../utils/baseUrl';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -115,7 +115,7 @@ const OrderDetail = () => {
             <div className="space-y-4">
               {order.orderItems.map((item, index) => (
                 <div key={index} className="flex gap-4 p-4 border rounded-lg">
-                  <img src={imageUrl + '/public' + item.image} alt={item.name} className="w-20 h-20 object-cover rounded" />
+                  <img src={getImageUrl(item.image)} alt={item.name} className="w-20 h-20 object-cover rounded" />
                   <div className="flex-1">
                     <h3 className="font-medium">{item.name}</h3>
                     <p className="text-sm text-gray-500">৳{item.price?.toLocaleString()} × {item.quantity}</p>

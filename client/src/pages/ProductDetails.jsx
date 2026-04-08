@@ -6,7 +6,7 @@ import { addToCart } from '../store/slices/cartSlice';
 import { addToWishlist, removeFromWishlist } from '../store/slices/authSlice';
 import { FiShoppingCart, FiHeart, FiTruck, FiShield, FiRefreshCw, FiStar, FiCheck } from 'react-icons/fi';
 import { toast } from 'react-toastify';
-import imageUrl from '../../../admin/src/utils/baseUrl';
+import { getImageUrl } from '../../utils/baseUrl';
 import { FaSquareWhatsapp } from "react-icons/fa6";
 import ReviewsSection from '../components/reviews/ReviewsSection';
 
@@ -133,7 +133,7 @@ const ProductDetails = () => {
         <div>
           <div className="card mb-4">
             <img
-              src={imageUrl + '/public' + currentImage}
+              src={getImageUrl(currentImage)}
               alt={product.name}
               className="w-full aspect-square object-cover"
             />
@@ -147,7 +147,7 @@ const ProductDetails = () => {
                   className={`w-20 h-20 rounded-lg overflow-hidden border-2 flex-shrink-0 ${selectedImage === index ? 'border-primary-600' : 'border-gray-200'
                     }`}
                 >
-                  <img src={imageUrl + '/public' + img} alt={product.name} className="w-full h-full object-cover" />
+                  <img src={getImageUrl(img)} alt={product.name} className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>

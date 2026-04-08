@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchOrders, updateOrderStatus, updatePaymentStatus } from '../store/slices/orderSlice';
 import { FiEye, FiSearch, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
-import imageUrl from '../utils/baseUrl';
+import { getImageUrl } from '../utils/baseUrl';
 
 const Orders = () => {
   const dispatch = useDispatch();
@@ -203,7 +203,7 @@ const Orders = () => {
                     <div className="text-sm">
                       {order.orderItems.slice(0, 2).map((item, index) => (
                         <div key={index} className="flex items-center gap-2">
-                          <img src={imageUrl + '/public/' + item.image} alt={item.name} className="w-8 h-8 object-cover rounded" />
+                          <img src={getImageUrl(item.image)} alt={item.name} className="w-8 h-8 object-cover rounded" />
                           <div>
                             <p className="font-medium truncate max-w-xs">{item.name}</p>
                             <p className="text-xs text-gray-500">

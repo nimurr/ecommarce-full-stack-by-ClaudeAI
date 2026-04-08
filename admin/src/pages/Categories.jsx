@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchCategories, createCategory, updateCategory, deleteCategory } from '../store/slices/categorySlice';
 import { FiEdit2, FiTrash2, FiPlus } from 'react-icons/fi';
 import ImageUpload from '../components/ImageUpload';
-import imageUrl from '../utils/baseUrl';
+import { getImageUrl } from '../utils/baseUrl';
 
 const Categories = () => {
   const dispatch = useDispatch();
@@ -129,7 +129,7 @@ const Categories = () => {
           <div key={category._id} className="card">
             <div className="flex justify-between items-start mb-3">
               {category.image ? (
-                <img src={imageUrl + category.image} alt={category.name} className="w-20 h-20 object-cover rounded-lg mb-3" />
+                <img src={getImageUrl(category.image)} alt={category.name} className="w-20 h-20 object-cover rounded-lg mb-3" />
               ) : (
                 <div className="w-20 h-20 bg-gray-200 rounded-lg mb-3 flex items-center justify-center">
                   <span className="text-2xl font-bold text-gray-400">{category.name.charAt(0)}</span>
@@ -165,7 +165,7 @@ const Categories = () => {
               </div>
               <div>
                 <ImageUpload
-                  images={imageUrl + '/public' + formData.image ? [{ url: formData.image }] : imageUrl + '/public' + formData.image}
+                  images={formData.image ? [{ url: formData.image }] : []}
                   onChange={handleImageChange}
                   multiple={false}
                   label="Category Image (uploaded with category)"

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchMyOrders } from '../store/slices/orderSlice';
 import { FiPackage, FiChevronRight, FiClock, FiStar, FiX } from 'react-icons/fi';
-import imageUrl from '../../../admin/src/utils/baseUrl';
+import { getImageUrl } from '../../utils/baseUrl';
 import { ReviewForm } from '../components/reviews/ReviewForm';
 import { toast } from 'react-toastify';
 
@@ -91,7 +91,7 @@ const Orders = () => {
                 <div className="flex flex-wrap gap-4 mb-4">
                   {order.orderItems.slice(0, 3).map((item, index) => (
                     <div key={index} className="flex gap-3">
-                      <img src={imageUrl + item.image} alt={item.name} className="w-16 h-16 object-cover rounded" />
+                      <img src={getImageUrl(item.image)} alt={item.name} className="w-16 h-16 object-cover rounded" />
                       <div>
                         <p className="font-medium text-sm line-clamp-1">{item.name}</p>
                         <p className="text-xs text-gray-500">Qty: {item.quantity}</p>

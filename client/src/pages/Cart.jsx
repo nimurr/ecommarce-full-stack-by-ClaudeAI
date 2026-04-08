@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { FiTrash2, FiMinus, FiPlus, FiShoppingCart, FiArrowRight } from 'react-icons/fi';
 import { removeFromCart, updateQuantity, clearCart } from '../store/slices/cartSlice';
 import { selectCartTotal } from '../store/slices/cartSlice';
-import imageUrl from '../../../admin/src/utils/baseUrl';
+import { getImageUrl } from '../../utils/baseUrl';
 
 const Cart = () => {
   const dispatch = useDispatch();
@@ -46,7 +46,7 @@ const Cart = () => {
             <div key={`${item.product}-${item.selectedColor || ''}-${item.selectedSize || ''}`} className="card p-4">
               <div className="flex gap-4">
                 <img
-                  src={imageUrl + '/public' + item.image || 'https://via.placeholder.com/100x100'}
+                  src={getImageUrl(item.image) || 'https://via.placeholder.com/100x100'}
                   alt={item.name}
                   className="w-24 h-24 object-cover rounded-lg"
                 />

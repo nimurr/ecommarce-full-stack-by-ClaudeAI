@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchOrderByNumber } from '../store/slices/orderSlice';
 import { FiPackage, FiCheckCircle, FiClock, FiXCircle, FiTruck } from 'react-icons/fi';
-import imageUrl from '../../../admin/src/utils/baseUrl';
+import { getImageUrl } from '../../utils/baseUrl';
 
 const OrderTracking = () => {
   const { orderNumber } = useParams();
@@ -115,7 +115,7 @@ const OrderTracking = () => {
             <div className="space-y-4">
               {order.orderItems.map((item, index) => (
                 <div key={index} className="flex gap-3">
-                  <img src={imageUrl + '/public' + item.image} alt={item.name} className="w-16 h-16 object-cover rounded" />
+                  <img src={getImageUrl(item.image)} alt={item.name} className="w-16 h-16 object-cover rounded" />
                   <div className="flex-1">
                     <p className="font-medium text-sm line-clamp-1">{item.name}</p>
                     <p className="text-xs text-gray-500">Qty: {item.quantity}</p>

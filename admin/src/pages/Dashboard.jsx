@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchDashboardStats } from '../store/slices/dashboardSlice';
 import { FiDollarSign, FiShoppingCart, FiUsers, FiPackage, FiTrendingUp, FiAlertTriangle, FiCheckCircle, FiClock, FiTruck, FiXCircle, FiEye } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
-import imageUrl from '../utils/baseUrl';
+import { getImageUrl } from '../utils/baseUrl';
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -206,7 +206,7 @@ const Dashboard = () => {
                   <span className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center font-bold text-sm">
                     {index + 1}
                   </span>
-                  <img src={imageUrl + '/public' + product.image || 'https://via.placeholder.com/40'} alt={product.name} className="w-12 h-12 object-cover rounded" />
+                  <img src={getImageUrl(product.image)} alt={product.name} className="w-12 h-12 object-cover rounded" />
                   <div className="flex-1">
                     <p className="font-medium text-sm truncate">{product.name}</p>
                     <p className="text-xs text-gray-500">{product.totalSold} sold</p>

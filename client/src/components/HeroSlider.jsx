@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FiChevronLeft, FiChevronRight, FiArrowRight } from 'react-icons/fi';
 import axios from 'axios';
-import imageUrl from '../utils/baseUrl';
+import { getImageUrl } from '../utils/baseUrl';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -101,7 +101,7 @@ const HeroSlider = () => {
       {/* Slide Image Background */}
       <div
         className="absolute inset-0 bg-cover bg-center transition-all duration-700"
-        style={{ backgroundImage: `url( ${imageUrl}${currentSlider.image})` }}
+        style={{ backgroundImage: `url(${getImageUrl(currentSlider.image)})` }}
       >
         {/* Overlay */}
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent" />

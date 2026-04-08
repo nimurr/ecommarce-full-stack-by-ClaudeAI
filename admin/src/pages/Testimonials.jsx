@@ -3,7 +3,7 @@ import { adminAPI } from '../utils/api';
 import { uploadImage } from '../utils/upload';
 import { FiEdit2, FiTrash2, FiPlus, FiStar, FiToggleLeft, FiToggleRight } from 'react-icons/fi';
 import { toast } from 'react-toastify';
-import imageUrl from '../utils/baseUrl';
+import { getImageUrl } from '../utils/baseUrl';
 
 const Testimonials = () => {
   const [testimonials, setTestimonials] = useState([]);
@@ -116,7 +116,7 @@ const Testimonials = () => {
       featured: testimonial.featured,
       order: String(testimonial.order || 0),
     });
-    setImagePreview(testimonial.image ? imageUrl + testimonial.image : '');
+    setImagePreview(testimonial.image ? getImageUrl(testimonial.image) : '');
     setShowModal(true);
   };
 
@@ -190,7 +190,7 @@ const Testimonials = () => {
                 <div className="flex items-center gap-3">
                   {t.image ? (
                     <img
-                      src={imageUrl + t.image}
+                      src={getImageUrl(t.image)}
                       alt={t.customerName}
                       className="w-12 h-12 rounded-full object-cover"
                     />
