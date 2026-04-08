@@ -12,6 +12,7 @@ import ReviewsSection from '../components/reviews/ReviewsSection';
 
 
 const ProductDetails = () => {
+
   const { slug } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -293,7 +294,7 @@ const ProductDetails = () => {
               </button>
             </div>
           </div>
-          <a href="https://wa.me/01852219894" target="_blank" rel="noopener noreferrer" className="btn-primary mb-2 flex items-center justify-center gap-2">
+          <a href="https://wa.me/01740189038" target="_blank" rel="noopener noreferrer" className="btn-primary mb-2 flex items-center justify-center gap-2">
             <FaSquareWhatsapp className='text-3xl' /> Contact on WhatsApp
           </a>
 
