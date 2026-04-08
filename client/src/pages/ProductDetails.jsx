@@ -6,7 +6,7 @@ import { addToCart } from '../store/slices/cartSlice';
 import { addToWishlist, removeFromWishlist } from '../store/slices/authSlice';
 import { FiShoppingCart, FiHeart, FiTruck, FiShield, FiRefreshCw, FiStar, FiCheck } from 'react-icons/fi';
 import { toast } from 'react-toastify';
-import { getImageUrl } from '../../utils/baseUrl';
+import { getImageUrl } from '../utils/baseUrl';
 import { FaSquareWhatsapp } from "react-icons/fa6";
 import ReviewsSection from '../components/reviews/ReviewsSection';
 

@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchOrderByNumber } from '../store/slices/orderSlice';
 import { FiPackage, FiCheckCircle, FiClock, FiXCircle, FiTruck } from 'react-icons/fi';
-import { getImageUrl } from '../../utils/baseUrl';
+import { getImageUrl } from '../utils/baseUrl';
 
 const OrderTracking = () => {
   const { orderNumber } = useParams();

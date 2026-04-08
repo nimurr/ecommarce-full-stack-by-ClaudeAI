@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchMyOrders } from '../store/slices/orderSlice';
 import { FiPackage, FiChevronRight, FiClock, FiStar, FiX } from 'react-icons/fi';
-import { getImageUrl } from '../../utils/baseUrl';
+import { getImageUrl } from '../utils/baseUrl';
 import { ReviewForm } from '../components/reviews/ReviewForm';
 import { toast } from 'react-toastify';
 

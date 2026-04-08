@@ -6,7 +6,7 @@ import { createOrder } from '../store/slices/orderSlice';
 import { useSettings } from '../context/SettingsContext';
 import { validateCoupon } from '../api/couponAPI';
 import { toast } from 'react-toastify';
-import { getImageUrl } from '../../utils/baseUrl';
+import { getImageUrl } from '../utils/baseUrl';
 
 const Checkout = () => {
   const dispatch = useDispatch();

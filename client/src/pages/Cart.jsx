@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { FiTrash2, FiMinus, FiPlus, FiShoppingCart, FiArrowRight } from 'react-icons/fi';
 import { removeFromCart, updateQuantity, clearCart } from '../store/slices/cartSlice';
 import { selectCartTotal } from '../store/slices/cartSlice';
-import { getImageUrl } from '../../utils/baseUrl';
+import { getImageUrl } from '../utils/baseUrl';
 
 const Cart = () => {
   const dispatch = useDispatch();
