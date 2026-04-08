@@ -1,3 +1,3 @@
-const imageUrl = 'http://localhost:5000'
+const imageUrl = 'https://gadgetslagbe.com'
 
 export default imageUrl
