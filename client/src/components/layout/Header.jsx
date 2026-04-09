@@ -7,6 +7,7 @@ import { logout } from '../../store/slices/authSlice';
 import { clearSearchResults, searchSuggestions } from '../../store/slices/productSlice';
 import { fetchCategories } from '../../store/slices/categorySlice';
 import { useSettings } from '../../context/SettingsContext';
+import { getImageUrl } from '../../utils/baseUrl';
 
 const Header = () => {
   const dispatch = useDispatch();
@@ -116,7 +117,7 @@ const Header = () => {
                       className="flex items-center gap-3 p-3 hover:bg-gray-50 border-b last:border-b-0"
                       onClick={() => setShowSearch(false)}
                     >
-                      <img src={product.mainImage} alt={product.name} className="w-12 h-12 object-cover rounded" />
+                      <img src={getImageUrl(product.mainImage)} alt={product.name} className="w-12 h-12 object-cover rounded" />
                       <div className="flex-1">
                         <p className="font-medium text-sm line-clamp-1">{product.name}</p>
                         <p className="text-primary-600 font-semibold text-sm">৳{product.price}</p>

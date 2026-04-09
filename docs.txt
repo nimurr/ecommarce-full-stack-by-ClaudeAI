@@ -95,19 +95,30 @@ ssh -i "C:\Users\nimur\Downloads\my-full-ecom-website.pem" ubuntu@3.25.100.200
 
 
 ========================================================
+bash ~/update.sh
+  
 
-       #!/bin/bash
-       echo "Updating project..."
-       cd ~/Project/ecommarce-full-stack-by-ClaudeAI
-       git pull
-       cd server && npm install --production && cd ..
-       cd client && npm install && npm run build && cd ..
-       cd admin && npm install && npm run build && cd ..
-       sudo rm -rf /var/www/gadgetslagbe/client/dist
-       sudo rm -rf /var/www/gadgetslagbe/admin/dist
-      sudo cp -r client/dist /var/www/gadgetslagbe/client/
-      sudo cp -r admin/dist /var/www/gadgetslagbe/admin/
-      sudo chown -R www-data:www-data /var/www/gadgetslagbe/
-      pm2 restart all
-     pm2 save
-      echo "Done!"
+========================================================
+
+    1 cd ~/Project/ecommarce-full-stack-by-ClaudeAI
+      2
+      3 # Rebuild client
+      4 cd client && npm install && npm run build && cd ..
+      5
+      6 # Rebuild admin
+      7 cd admin && npm install && npm run build && cd ..
+      8
+      9 # Copy builds to Nginx web directory
+     10 sudo rm -rf /var/www/gadgetslagbe/client/dist
+     11 sudo rm -rf /var/www/gadgetslagbe/admin/dist
+     12 sudo cp -r client/dist /var/www/gadgetslagbe/client/
+     13 sudo cp -r admin/dist /var/www/gadgetslagbe/admin/
+     14
+     15 # Fix permissions
+     16 sudo chown -R www-data:www-data /var/www/gadgetslagbe/
+     17 sudo chmod -R 755 /var/www/gadgetslagbe/
+     18
+     19 # Reload Nginx
+     20 sudo nginx -t && sudo systemctl reload nginx
+
+    That's it! Client and admin will now work through Nginx. 🚀
