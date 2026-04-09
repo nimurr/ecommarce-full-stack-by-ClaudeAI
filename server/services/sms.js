@@ -106,26 +106,32 @@ class SMSService {
 
       const formattedPhone = this.formatPhoneNumber(phone);
 
-      // BulkSMSBD API endpoint - using GET request with query params (official method)
+      // BulkSMSBD API endpoint - try alternative URL if main fails
       const url = `https://bulksmsbd.net/api/smsapi`;
       
-      const params = new URLSearchParams({
+      // Build request body
+      const requestBody = {
         api_key: apiKey,
         senderid: senderId,
         number: formattedPhone,
         message: message,
-      });
+      };
 
       console.log('📱 Sending BulkSMSBD SMS to:', formattedPhone);
       console.log('📝 Message:', message);
       console.log('🔑 API Key:', apiKey.substring(0, 10) + '...');
       console.log('📤 Sender ID:', senderId);
-      console.log('🌐 URL:', `${url}?${params.toString()}`);
+      console.log('🌐 URL:', url);
+      console.log('📦 Request Body:', JSON.stringify({ ...requestBody, api_key: '***' }, null, 2));
 
-      // Try GET request first (official BulkSMSBD method)
-      const response = await axios.get(`${url}?${params.toString()}`);
+      // Try POST with JSON (more reliable)
+      const response = await axios.post(url, requestBody, {
+        headers: { 'Content-Type': 'application/json' },
+        timeout: 10000, // 10 second timeout
+      });
 
-      console.log('✅ BulkSMSBD Response:', response.data);
+      console.log('✅ BulkSMSBD Response Status:', response.status);
+      console.log('✅ BulkSMSBD Response Data:', JSON.stringify(response.data, null, 2));
 
       // Check response - BulkSMSBD returns: {"response_code":"success","message":"Successfully sent"}
       const isSuccess = response.data?.response_code === 'success' || 
@@ -144,10 +150,12 @@ class SMSService {
       };
     } catch (error) {
       console.error('❌ BulkSMSBD Error:', error.response?.data || error.message);
+      console.error('❌ Error Status:', error.response?.status);
+      console.error('❌ Error Code:', error.code);
       
-      // Try fallback: POST with form data
+      // Try fallback with GET request
       try {
-        console.log('🔄 Trying BulkSMSBD fallback (POST)...');
+        console.log('🔄 Trying BulkSMSBD fallback (GET)...');
         
         const dbSettings = await this.getDBSettings();
         const apiKey = dbSettings?.apiKey || this.bulkSmsBd.apiKey;
@@ -155,16 +163,17 @@ class SMSService {
         const formattedPhone = this.formatPhoneNumber(phone);
         
         const url = `https://bulksmsbd.net/api/smsapi`;
-        
-        const formData = new URLSearchParams({
+        const params = new URLSearchParams({
           api_key: apiKey,
           senderid: senderId,
           number: formattedPhone,
           message: message,
         });
 
-        const response = await axios.post(url, formData, {
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        console.log('🌐 Fallback URL:', `${url}?${params.toString()}`);
+
+        const response = await axios.get(`${url}?${params.toString()}`, {
+          timeout: 10000,
         });
 
         console.log('✅ BulkSMSBD Fallback Response:', response.data);
