@@ -175,7 +175,7 @@ const Orders = () => {
           <p className="text-lg">No orders found</p>
         </div>
       ) : (
-        <div className="card overflow-hidden">
+        <div className="card overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
