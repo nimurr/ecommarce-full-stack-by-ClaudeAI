@@ -208,8 +208,7 @@ class SMSService {
   // Order confirmation SMS template (max 159 chars)
   getOrderConfirmationSMS(order) {
     const trackLink = `${config.clientUrl}/order-tracking`;
-    const msg = `Gadgets Lagbe Order Confirmed! \nAddress: ${order.shippingAddress.address}
-    \nTrack: ${trackLink + '/' + order.orderNumber}`;
+    const msg = `Gadgets Lagbe Order Confirmed!\nOrder: ${order.orderNumber}\nAmount: ৳${order.totalPrice}\nTrack: ${trackLink}/${order.orderNumber}`;
 
     // Truncate to 159 characters if needed
     return msg.length > 159 ? msg.substring(0, 156) + '...' : msg;
