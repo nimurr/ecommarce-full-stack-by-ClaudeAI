@@ -106,44 +106,85 @@ class SMSService {
 
       const formattedPhone = this.formatPhoneNumber(phone);
 
-      // BulkSMSBD API endpoint
+      // BulkSMSBD API endpoint - using GET request with query params (official method)
       const url = `https://bulksmsbd.net/api/smsapi`;
-
-      const data = {
+      
+      const params = new URLSearchParams({
         api_key: apiKey,
         senderid: senderId,
         number: formattedPhone,
         message: message,
-      };
-
-      console.log('Sending BulkSMSBD SMS to:', formattedPhone);
-      console.log('BulkSMSBD Data:', { ...data, api_key: '***' });
-
-      const response = await axios.post(url, data, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
       });
 
-      console.log('BulkSMSBD Response:', response.data);
+      console.log('📱 Sending BulkSMSBD SMS to:', formattedPhone);
+      console.log('📝 Message:', message);
+      console.log('🔑 API Key:', apiKey.substring(0, 10) + '...');
+      console.log('📤 Sender ID:', senderId);
+      console.log('🌐 URL:', `${url}?${params.toString()}`);
 
-      // Check response format: {"response_code":"success","message":"Successfully sent"}
-      const isSuccess = response.data?.response_code === 'success' ||
-        response.data?.status === 'success' ||
-        response.data?.message?.toLowerCase().includes('success');
+      // Try GET request first (official BulkSMSBD method)
+      const response = await axios.get(`${url}?${params.toString()}`);
+
+      console.log('✅ BulkSMSBD Response:', response.data);
+
+      // Check response - BulkSMSBD returns: {"response_code":"success","message":"Successfully sent"}
+      const isSuccess = response.data?.response_code === 'success' || 
+                        response.data?.status === 'success' ||
+                        String(response.data?.message || '').toLowerCase().includes('success');
+
+      if (!isSuccess) {
+        console.error('❌ BulkSMSBD failed:', response.data);
+      }
 
       return {
         success: isSuccess,
-        messageId: response.data?.message_id || response.data?.sms_id,
+        messageId: response.data?.message_id || response.data?.sms_id || Date.now().toString(),
         status: response.data?.response_code || response.data?.status,
         message: response.data?.message,
       };
     } catch (error) {
-      console.error('BulkSMSBD Error:', error.response?.data || error.message);
-      return {
-        success: false,
-        message: error.response?.data || error.message,
-      };
+      console.error('❌ BulkSMSBD Error:', error.response?.data || error.message);
+      
+      // Try fallback: POST with form data
+      try {
+        console.log('🔄 Trying BulkSMSBD fallback (POST)...');
+        
+        const dbSettings = await this.getDBSettings();
+        const apiKey = dbSettings?.apiKey || this.bulkSmsBd.apiKey;
+        const senderId = dbSettings?.senderId || this.bulkSmsBd.senderId || 'INFO';
+        const formattedPhone = this.formatPhoneNumber(phone);
+        
+        const url = `https://bulksmsbd.net/api/smsapi`;
+        
+        const formData = new URLSearchParams({
+          api_key: apiKey,
+          senderid: senderId,
+          number: formattedPhone,
+          message: message,
+        });
+
+        const response = await axios.post(url, formData, {
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        });
+
+        console.log('✅ BulkSMSBD Fallback Response:', response.data);
+
+        const isSuccess = response.data?.response_code === 'success' || 
+                          response.data?.status === 'success';
+
+        return {
+          success: isSuccess,
+          messageId: response.data?.message_id || Date.now().toString(),
+          status: response.data?.response_code || response.data?.status,
+          message: response.data?.message,
+        };
+      } catch (fallbackError) {
+        console.error('❌ BulkSMSBD Fallback Error:', fallbackError.response?.data || fallbackError.message);
+        return {
+          success: false,
+          message: fallbackError.response?.data?.message || fallbackError.message,
+        };
+      }
     }
   }
 

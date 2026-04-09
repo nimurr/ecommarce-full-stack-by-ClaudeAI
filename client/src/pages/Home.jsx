@@ -58,7 +58,7 @@ const Home = () => {
   }, [dispatch]);
 
   const features = [
-    { icon: FiTruck, title: 'Free Shipping', desc: 'On orders over ৳1000' },
+    { icon: FiTruck, title: 'Free Shipping', desc: 'On orders over ৳3000' },
     { icon: FiShield, title: 'Secure Payment', desc: '100% secure transactions' },
     { icon: FiRefreshCw, title: 'Easy Returns', desc: '7 days return policy' },
     { icon: FiHeadphones, title: '24/7 Support', desc: 'Dedicated customer support' },

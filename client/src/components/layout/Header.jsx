@@ -59,7 +59,7 @@ const Header = () => {
       <div className="bg-primary-700 text-white py-2 text-sm">
         <div className="container-custom flex justify-between items-center">
           <div className="flex items-center gap-4">
-            <span>🎉 Free Shipping on Orders Over ৳2000</span>
+            <span>🎉 Free Shipping on Orders Over ৳3000</span>
           </div>
           <div className="hidden md:flex items-center gap-4">
             <a href='/order-tracking' className='underline'>Order Tracking</a>
