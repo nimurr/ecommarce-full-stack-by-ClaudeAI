@@ -41,9 +41,15 @@ export const getPageById = asyncHandler(async (req, res) => {
 // @route   GET /api/pages/slug/:slug
 // @access  Public
 export const getPageBySlug = asyncHandler(async (req, res) => {
-  const page = await Page.findOne({ 
-    slug: req.params.slug,
-    isActive: true 
+  // Remove leading slash if present in the parameter
+  const cleanSlug = req.params.slug.startsWith('/') 
+    ? req.params.slug.substring(1) 
+    : req.params.slug;
+
+  // Try both with and without leading slash
+  const page = await Page.findOne({
+    slug: { $in: [cleanSlug, `/${cleanSlug}`] },
+    isActive: true
   });
 
   if (!page) {
