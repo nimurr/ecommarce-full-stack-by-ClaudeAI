@@ -1,26 +1,27 @@
 Office PC :- qwen --resume d9c6b722-a367-4b86-bc48-0df242ea9ed7
 Home PC :- qwen --resume 9b8ab23e-5585-48d2-8997-2d610d2e2889
 
+
+================================ git Version =============================
+
 Perfect Git Version git (d54bc6ec095cf949600bb18afe6ca5f05de868e7) :- Update environment configuration for production deployment; add serve…
 last Update :- 6d78f7d8e6009d68e0d3c6acb4a550ad7141af6c
 
 
-=================================
+================================= Bugs ===========================
 
 ok *After Register or login Furze page in client site . after login and Register complete make a reload and the go to profile 
 ok *Manu Category not working properly 
 ok *SEO setup in google search console
 Ok *Other pages not working after add on admin
+*SMS service are not working when user perches or orders
 
 
 
-================ Server Run =======================
-
-ssh -i "C:\Users\nimur\Downloads\my-full-ecom-website.pem" ubuntu@3.25.100.200
  
 ========================== New Features and Error's ======================= 
 
-=================================
+                                  N/A
 
 ======================= AWS server Git pull and build =============
 ✦ Here are the exact commands to update your project from Git and rebuild everything.
