@@ -52,6 +52,10 @@ const Header = () => {
     window.location.reload();
   };
 
+  const handleSearchByCategory = (categoryId) => {
+    window.location.href = `/products?category=${categoryId}`;
+  }
+
   const siteName = settings?.siteName || 'ElectroMart';
   const contactPhone = settings?.contactPhone || '+880-123-456-7890';
 
@@ -236,12 +240,12 @@ const Header = () => {
             {/* Dynamic Categories from API */}
             {categories.slice(0, 4).map((category) => (
               <li key={category._id}>
-                <Link
-                  to={`/products?category=${category._id}`}
+                <div
+                  onClick={() => handleSearchByCategory(category._id)}
                   className="font-medium hover:text-primary-600 transition-colors"
                 >
                   {category.name}
-                </Link>
+                </div>
               </li>
             ))}
           </ul>

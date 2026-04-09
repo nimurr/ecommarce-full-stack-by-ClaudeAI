@@ -94,7 +94,7 @@ ssh -i "C:\Users\nimur\Downloads\my-full-ecom-website.pem" ubuntu@3.25.100.200
 
 
 
-========================================================
+======================== server run ================================
 bash ~/update.sh
   
 
