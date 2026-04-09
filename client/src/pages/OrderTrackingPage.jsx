@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { FiSearch, FiPackage, FiCheckCircle, FiClock, FiTruck, FiXCircle, FiMail, FiPhone } from 'react-icons/fi';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchOrderByNumber } from '../store/slices/orderSlice';
+import { getImageUrl } from '../utils/baseUrl';
 
 const OrderTrackingPage = () => {
   const dispatch = useDispatch();

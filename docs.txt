@@ -3,13 +3,13 @@ Home PC :- qwen --resume 9b8ab23e-5585-48d2-8997-2d610d2e2889
 
 Perfect Git Version git (d54bc6ec095cf949600bb18afe6ca5f05de868e7) :- Update environment configuration for production deployment; add serve…
 last Update :- 6d78f7d8e6009d68e0d3c6acb4a550ad7141af6c
+
+
+================ Server Run =======================
+
+ssh -i "C:\Users\nimur\Downloads\my-full-ecom-website.pem" ubuntu@3.25.100.200
  
 ========================== New Features and Error's ======================= 
-
-*After Register Furze page 
-*Manu Category not working properly 
-*SEO setup in google search console
-*Other pages not working after add on admin
 
 =================================
 
