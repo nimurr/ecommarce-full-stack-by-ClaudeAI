@@ -272,13 +272,20 @@ export const createOrder = asyncHandler(async (req, res) => {
 
   // Send order confirmation SMS
   try {
-    await smsService.sendSMS(
+    console.log('📱 Sending SMS to:', shippingAddress.phone);
+    const smsResponse = await smsService.sendSMS(
       shippingAddress.phone,
       smsService.getOrderConfirmationSMS(order),
       'bulk' // Use BulkSMSBD
     );
+    console.log('📱 SMS Response:', JSON.stringify(smsResponse));
+    if (smsResponse.success) {
+      console.log('✅ SMS sent successfully to:', shippingAddress.phone);
+    } else {
+      console.error('❌ SMS failed:', smsResponse.message);
+    }
   } catch (error) {
-    console.error('Failed to send order SMS:', error);
+    console.error('❌ Failed to send order SMS:', error.message);
   }
 
   // Send to Steadfast courier if COD

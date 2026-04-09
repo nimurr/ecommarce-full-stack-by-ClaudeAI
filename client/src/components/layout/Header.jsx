@@ -31,10 +31,8 @@ const Header = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/products?search=${encodeURIComponent(searchQuery)}`);
-      setShowSearch(false);
       window.location.href = `/products?search=${encodeURIComponent(searchQuery)}`; // Force full page reload to reset product state
-
+      setShowSearch(false);
     }
   };
 
