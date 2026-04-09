@@ -98,7 +98,7 @@ ssh -i "C:\Users\nimur\Downloads\my-full-ecom-website.pem" ubuntu@3.25.100.200
 bash ~/update.sh
   
 
-========================================================
+============================ client and admin ============================
 
     1 cd ~/Project/ecommarce-full-stack-by-ClaudeAI
       2

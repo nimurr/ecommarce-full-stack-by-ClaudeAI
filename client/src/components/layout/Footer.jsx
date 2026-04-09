@@ -173,7 +173,7 @@ const Footer = () => {
               © {currentYear} {siteName}. All rights reserved.
             </p>
             <div className="flex items-center gap-4">
-              <img src="https://hostxio.com/wp-content/uploads/2022/08/pay.png" alt="Payment Methods" className="h-6" />
+              Devlop By Nerob
             </div>
           </div>
         </div>

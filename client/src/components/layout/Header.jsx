@@ -242,7 +242,7 @@ const Header = () => {
               <li key={category._id}>
                 <div
                   onClick={() => handleSearchByCategory(category._id)}
-                  className="font-medium hover:text-primary-600 transition-colors"
+                  className="font-medium cursor-pointer hover:text-primary-600 transition-colors"
                 >
                   {category.name}
                 </div>
