@@ -3,13 +3,13 @@
   "version": "1.0.0",
   "description": "Modern fullstack eCommerce platform for electronics",
   "scripts": {
-    "dev": "concurrently \"npm run server\" \"npm run client\" \"npm run admin\"",
+    "dev": "node init && concurrently \"npm run server\" \"npm run client\" \"npm run admin\"",
     "server": "cd server && npm run dev",
     "client": "cd client && npm run dev",
     "admin": "cd admin && npm run dev",
-    "build": "npm run build:client && npm run build:admin",
-    "build:client": "cd client && npm run build",
-    "build:admin": "cd admin && npm run build",
+    "build": "node init && npm run build:client && npm run build:admin",
+    "build:client": "node init && cd client && npm run build",
+    "build:admin": "node init && cd admin && npm run build",
     "install:all": "npm install && cd server && npm install && cd ../client && npm install && cd ../admin && npm install"
   },
   "keywords": [
