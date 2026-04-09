@@ -5,7 +5,6 @@ yarn.lock
 pnpm-lock.yaml
 
 # Environment variables
-.env.local
 .env.development.local
 .env.test.local
 .env.production.local
@@ -39,3 +38,4 @@ temp/
 # Uploads (if using local storage)
 uploads/
 public/uploads/
+config.bat
