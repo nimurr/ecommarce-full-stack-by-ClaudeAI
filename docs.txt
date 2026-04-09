@@ -7,10 +7,10 @@ last Update :- 6d78f7d8e6009d68e0d3c6acb4a550ad7141af6c
 
 =================================
 
-*After Register or login Furze page in client site . after login and Register complete make a reload and the go to profile 
-*Manu Category not working properly 
-*SEO setup in google search console
-*Other pages not working after add on admin
+ok *After Register or login Furze page in client site . after login and Register complete make a reload and the go to profile 
+ok *Manu Category not working properly 
+ok *SEO setup in google search console
+Ok *Other pages not working after add on admin
 
 
 
@@ -88,3 +88,26 @@ ssh -i "C:\Users\nimur\Downloads\my-full-ecom-website.pem" ubuntu@3.25.100.200
 
 
     That's it! Just 2 commands (push + update) to update your site! 🚀
+
+
+
+
+
+
+========================================================
+
+       #!/bin/bash
+       echo "Updating project..."
+       cd ~/Project/ecommarce-full-stack-by-ClaudeAI
+       git pull
+       cd server && npm install --production && cd ..
+       cd client && npm install && npm run build && cd ..
+       cd admin && npm install && npm run build && cd ..
+       sudo rm -rf /var/www/gadgetslagbe/client/dist
+       sudo rm -rf /var/www/gadgetslagbe/admin/dist
+      sudo cp -r client/dist /var/www/gadgetslagbe/client/
+      sudo cp -r admin/dist /var/www/gadgetslagbe/admin/
+      sudo chown -R www-data:www-data /var/www/gadgetslagbe/
+      pm2 restart all
+     pm2 save
+      echo "Done!"

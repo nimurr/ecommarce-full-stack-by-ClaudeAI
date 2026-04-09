@@ -33,6 +33,8 @@ const Header = () => {
     if (searchQuery.trim()) {
       navigate(`/products?search=${encodeURIComponent(searchQuery)}`);
       setShowSearch(false);
+      window.location.href = `/products?search=${encodeURIComponent(searchQuery)}`; // Force full page reload to reset product state
+
     }
   };
 
@@ -48,6 +50,7 @@ const Header = () => {
   const handleLogout = () => {
     dispatch(logout());
     navigate('/');
+    window.location.reload();
   };
 
   const siteName = settings?.siteName || 'ElectroMart';
@@ -241,7 +244,7 @@ const Header = () => {
                   {category.name}
                 </Link>
               </li>
-            ))} 
+            ))}
           </ul>
         </div>
       </nav>
