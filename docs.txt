@@ -6,6 +6,10 @@ last Update :- 6d78f7d8e6009d68e0d3c6acb4a550ad7141af6c
  
 ========================== New Features and Error's ======================= 
 
+*After Register Furze page 
+*Manu Category not working properly 
+*SEO setup in google search console
+
 =================================
 
 ======================= AWS server Git pull and build =============
