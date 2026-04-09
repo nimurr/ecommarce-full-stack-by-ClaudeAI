@@ -24,8 +24,8 @@ const Login = () => {
     e.preventDefault();
     const result = await dispatch(login(formData));
     if (login.fulfilled.match(result)) {
-      const from = location.state?.from?.pathname || '/';
-      navigate(from);
+      // Reload the page to refresh auth state, then go to profile
+      window.location.href = '/profile';
     }
   };
 

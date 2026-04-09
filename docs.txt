@@ -5,6 +5,15 @@ Perfect Git Version git (d54bc6ec095cf949600bb18afe6ca5f05de868e7) :- Update env
 last Update :- 6d78f7d8e6009d68e0d3c6acb4a550ad7141af6c
 
 
+=================================
+
+*After Register or login Furze page in client site . after login and Register complete make a reload and the go to profile 
+*Manu Category not working properly 
+*SEO setup in google search console
+*Other pages not working after add on admin
+
+
+
 ================ Server Run =======================
 
 ssh -i "C:\Users\nimur\Downloads\my-full-ecom-website.pem" ubuntu@3.25.100.200
@@ -39,3 +48,43 @@ ssh -i "C:\Users\nimur\Downloads\my-full-ecom-website.pem" ubuntu@3.25.100.200
      4 pm2 save
 
     That's it! Your site is now updated. 🚀 
+
+=======================
+   PART 2: ON YOUR VPS (After pushing to GitHub)
+
+    Run ONLY ONE command:
+
+     1 bash ~/Project/ecommarce-full-stack-by-ClaudeAI/update.sh
+
+    That's it! The update script will:
+     - ✅ Pull latest code
+     - ✅ Reinstall dependencies
+     - ✅ Rebuild client & admin
+     - ✅ Copy files to Nginx
+     - ✅ Restart all services
+
+    ---
+
+    PART 3: VERIFY
+
+     1 # Test API
+     2 curl http://localhost:5000/api/health
+     3 
+     4 # Check all services
+     5 pm2 status
+
+    ---
+
+    📋 FULL SUMMARY (Every time you update)
+
+
+    ┌──────────────────┬─────────┬───────────────────────────────────────┐
+    │ Step             │ Where   │ Command                               │
+    ├──────────────────┼─────────┼───────────────────────────────────────┤
+    │ 1. Push changes  │ Windows │ git push                              │
+    │ 2. Pull & update │ VPS     │ bash ~/Project/.../update.sh          │
+    │ 3. Test          │ VPS     │ curl http://localhost:5000/api/health │
+    └──────────────────┴─────────┴───────────────────────────────────────┘
+
+
+    That's it! Just 2 commands (push + update) to update your site! 🚀

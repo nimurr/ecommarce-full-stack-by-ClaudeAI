@@ -35,7 +35,8 @@ const Register = () => {
       password: formData.password,
     }));
     if (register.fulfilled.match(result)) {
-      navigate('/');
+      // Reload the page to refresh auth state, then go to profile
+      window.location.href = '/profile';
     }
   };
 
