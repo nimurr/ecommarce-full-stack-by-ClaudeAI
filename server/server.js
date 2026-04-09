@@ -60,8 +60,8 @@ optimizeConnection();
 const app = express();
 
 // Serve static files for uploaded images
-app.use('/public', express.static(path.join(__dirname, 'public')));
-console.log('✅ Static files served from:', path.join(__dirname, 'public'));
+app.use('/public', express.static(path.join(__dirname, '..', 'public')));
+console.log('✅ Static files served from:', path.join(__dirname, '..', 'public'));
 
 // Security middleware
 app.use(helmet());
@@ -147,7 +147,7 @@ app.get('/api', (req, res) => {
   res.status(200).json({
     success: true,
     message: 'Electronics eCommerce API',
-    version: '1.0.0',
+    version: '1.0.1',
     endpoints: {
       auth: '/api/auth',
       products: '/api/products',

@@ -9,7 +9,7 @@ class SMSService {
     this.dbSettings = null;
   }
 
-  // Fetch SMS settings from database
+  // Fetch SMS settings from database (Admin controlled)
   async getDBSettings() {
     if (!this.dbSettings) {
       try {
@@ -18,7 +18,7 @@ class SMSService {
           this.dbSettings = settings.bulkSMSBD;
         }
       } catch (error) {
-        console.error('Failed to fetch SMS settings from DB:', error);
+        console.error('❌ Failed to fetch SMS settings from DB:', error);
       }
     }
     return this.dbSettings;
@@ -45,7 +45,7 @@ class SMSService {
   async sendSSLWireless(phone, message) {
     try {
       if (!this.sslWireless.apiKey || !this.sslWireless.apiSecret) {
-        console.warn('SSL Wireless API credentials not configured');
+        console.warn('⚠️ SSL Wireless API credentials not configured');
         return { success: false, message: 'SMS credentials not configured' };
       }
 
@@ -76,7 +76,7 @@ class SMSService {
         status: response.data?.status,
       };
     } catch (error) {
-      console.error('SSL Wireless SMS Error:', error.response?.data || error.message);
+      console.error('❌ SSL Wireless SMS Error:', error.response?.data || error.message);
       return {
         success: false,
         message: error.response?.data || error.message,
@@ -84,85 +84,77 @@ class SMSService {
     }
   }
 
-  // Send SMS using BulkSMSBD
+  // Send SMS using BulkSMSBD (Dynamically reads from DB)
   async sendBulkSMSBD(phone, message) {
     try {
-      // Get settings from database first, fallback to .env
+      // Always read from database first (Admin controlled settings)
+      this.clearSettingsCache();
       const dbSettings = await this.getDBSettings();
 
+      // If DB has no settings, fallback to .env
       const apiKey = dbSettings?.apiKey || this.bulkSmsBd.apiKey;
       const senderId = dbSettings?.senderId || this.bulkSmsBd.senderId || 'INFO';
       const isEnabled = dbSettings?.isEnabled !== undefined ? dbSettings.isEnabled : true;
 
+      console.log('📱 SMS Debug - DB Settings:', JSON.stringify(dbSettings));
+      console.log('📱 SMS Debug - ENV API Key:', this.bulkSmsBd.apiKey ? 'SET' : 'EMPTY');
+      console.log('📱 SMS Debug - Using API Key:', apiKey ? apiKey.substring(0, 10) + '...' : 'NONE');
+      console.log('📱 SMS Debug - Sender ID:', senderId);
+      console.log('📱 SMS Debug - Enabled:', isEnabled);
+
       if (!apiKey) {
-        console.warn('BulkSMSBD API credentials not configured');
-        return { success: false, message: 'SMS credentials not configured' };
+        console.error('❌ BulkSMSBD: No API key found in DB or .env');
+        console.log('ℹ️ Please configure SMS in Admin Dashboard → Settings → Bulk SMS');
+        return { success: false, message: 'SMS API key not configured' };
       }
 
       if (!isEnabled) {
-        console.log('BulkSMSBD is disabled in settings');
+        console.log('⚠️ BulkSMSBD: Service is disabled in settings');
         return { success: false, message: 'SMS service is disabled' };
       }
 
       const formattedPhone = this.formatPhoneNumber(phone);
+      console.log('📱 Sending SMS to:', formattedPhone);
+      console.log('📱 Message:', message);
 
-      // BulkSMSBD API endpoint - try alternative URL if main fails
-      const url = `https://bulksmsbd.net/api/smsapi`;
-      
-      // Build request body
-      const requestBody = {
-        api_key: apiKey,
-        senderid: senderId,
-        number: formattedPhone,
-        message: message,
-      };
+      const url = 'https://bulksmsbd.net/api/smsapi';
 
-      console.log('📱 Sending BulkSMSBD SMS to:', formattedPhone);
-      console.log('📝 Message:', message);
-      console.log('🔑 API Key:', apiKey.substring(0, 10) + '...');
-      console.log('📤 Sender ID:', senderId);
-      console.log('🌐 URL:', url);
-      console.log('📦 Request Body:', JSON.stringify({ ...requestBody, api_key: '***' }, null, 2));
+      // Attempt 1: POST with JSON
+      try {
+        console.log('📤 Attempt 1: POST with JSON');
+        const requestBody = {
+          api_key: apiKey,
+          senderid: senderId,
+          number: formattedPhone,
+          message: message,
+        };
 
-      // Try POST with JSON (more reliable)
-      const response = await axios.post(url, requestBody, {
-        headers: { 'Content-Type': 'application/json' },
-        timeout: 10000, // 10 second timeout
-      });
+        const response = await axios.post(url, requestBody, {
+          headers: { 'Content-Type': 'application/json' },
+          timeout: 15000,
+        });
 
-      console.log('✅ BulkSMSBD Response Status:', response.status);
-      console.log('✅ BulkSMSBD Response Data:', JSON.stringify(response.data, null, 2));
+        console.log('📥 Response:', JSON.stringify(response.data));
 
-      // Check response - BulkSMSBD returns: {"response_code":"success","message":"Successfully sent"}
-      const isSuccess = response.data?.response_code === 'success' || 
-                        response.data?.status === 'success' ||
-                        String(response.data?.message || '').toLowerCase().includes('success');
+        const isSuccess = response.data?.response_code === 'success' ||
+                          response.data?.status === 'success' ||
+                          String(response.data?.message || '').toLowerCase().includes('success');
 
-      if (!isSuccess) {
-        console.error('❌ BulkSMSBD failed:', response.data);
+        if (isSuccess) {
+          console.log('✅ SMS sent successfully via POST');
+          return {
+            success: true,
+            messageId: response.data?.message_id || response.data?.sms_id || Date.now().toString(),
+            status: response.data?.response_code || response.data?.status,
+          };
+        }
+      } catch (postError) {
+        console.log('⚠️ POST failed, trying GET:', postError.message);
       }
 
-      return {
-        success: isSuccess,
-        messageId: response.data?.message_id || response.data?.sms_id || Date.now().toString(),
-        status: response.data?.response_code || response.data?.status,
-        message: response.data?.message,
-      };
-    } catch (error) {
-      console.error('❌ BulkSMSBD Error:', error.response?.data || error.message);
-      console.error('❌ Error Status:', error.response?.status);
-      console.error('❌ Error Code:', error.code);
-      
-      // Try fallback with GET request
+      // Attempt 2: GET with query params
       try {
-        console.log('🔄 Trying BulkSMSBD fallback (GET)...');
-        
-        const dbSettings = await this.getDBSettings();
-        const apiKey = dbSettings?.apiKey || this.bulkSmsBd.apiKey;
-        const senderId = dbSettings?.senderId || this.bulkSmsBd.senderId || 'INFO';
-        const formattedPhone = this.formatPhoneNumber(phone);
-        
-        const url = `https://bulksmsbd.net/api/smsapi`;
+        console.log('📤 Attempt 2: GET with params');
         const params = new URLSearchParams({
           api_key: apiKey,
           senderid: senderId,
@@ -170,35 +162,37 @@ class SMSService {
           message: message,
         });
 
-        console.log('🌐 Fallback URL:', `${url}?${params.toString()}`);
-
-        const response = await axios.get(`${url}?${params.toString()}`, {
-          timeout: 10000,
+        const getResponse = await axios.get(`${url}?${params.toString()}`, {
+          timeout: 15000,
         });
 
-        console.log('✅ BulkSMSBD Fallback Response:', response.data);
+        console.log('📥 GET Response:', JSON.stringify(getResponse.data));
 
-        const isSuccess = response.data?.response_code === 'success' || 
-                          response.data?.status === 'success';
+        const isSuccess = getResponse.data?.response_code === 'success' ||
+                          getResponse.data?.status === 'success';
 
-        return {
-          success: isSuccess,
-          messageId: response.data?.message_id || Date.now().toString(),
-          status: response.data?.response_code || response.data?.status,
-          message: response.data?.message,
-        };
-      } catch (fallbackError) {
-        console.error('❌ BulkSMSBD Fallback Error:', fallbackError.response?.data || fallbackError.message);
-        return {
-          success: false,
-          message: fallbackError.response?.data?.message || fallbackError.message,
-        };
+        if (isSuccess) {
+          console.log('✅ SMS sent successfully via GET');
+          return {
+            success: true,
+            messageId: getResponse.data?.message_id || Date.now().toString(),
+            status: getResponse.data?.response_code || getResponse.data?.status,
+          };
+        }
+      } catch (getError) {
+        console.error('❌ GET failed:', getError.message);
       }
+
+      console.error('❌ All SMS sending attempts failed');
+      return { success: false, message: 'Failed to send SMS' };
+    } catch (error) {
+      console.error('❌ BulkSMSBD Error:', error.message);
+      return { success: false, message: error.message };
     }
   }
 
-  // Send SMS with fallback
-  async sendSMS(phone, message, provider = 'ssl') {
+  // Send SMS with provider selection
+  async sendSMS(phone, message, provider = 'bulk') {
     if (provider === 'bulk') {
       return await this.sendBulkSMSBD(phone, message);
     }
@@ -209,8 +203,6 @@ class SMSService {
   getOrderConfirmationSMS(order) {
     const trackLink = `${config.clientUrl}/order-tracking`;
     const msg = `Gadgets Lagbe Order Confirmed!\nOrder: ${order.orderNumber}\nAmount: ৳${order.totalPrice}\nTrack: ${trackLink}/${order.orderNumber}`;
-
-    // Truncate to 159 characters if needed
     return msg.length > 159 ? msg.substring(0, 156) + '...' : msg;
   }
 
@@ -228,8 +220,6 @@ class SMSService {
     };
 
     const msg = statusMessages[status] || `Order #${order.orderNumber}: ${status}\nTrack: ${trackLink}`;
-
-    // Truncate to 159 characters if needed
     return msg.length > 159 ? msg.substring(0, 156) + '...' : msg;
   }
 
